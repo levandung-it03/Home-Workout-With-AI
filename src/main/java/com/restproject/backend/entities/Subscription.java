@@ -1,11 +1,11 @@
 package com.restproject.backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import net.minidev.json.annotate.JsonIgnore;
 
 import java.time.LocalDateTime;
 
@@ -28,12 +28,12 @@ public class Subscription {
     @Column(name = "subscription_id")
     Long subscriptionId;
 
-    @ManyToOne(targetEntity = UserInfo.class, cascade = CascadeType.ALL)
+    @ManyToOne(targetEntity = UserInfo.class)
     @JoinColumn(name = "user_info_id", referencedColumnName = "user_info_id")
     @JsonIgnore
     UserInfo userInfo;
 
-    @ManyToOne(targetEntity = Schedule.class, cascade = CascadeType.ALL)
+    @ManyToOne(targetEntity = Schedule.class)
     @JoinColumn(name = "schedule_id", referencedColumnName = "schedule_id")
     @JsonIgnore
     Schedule schedule;
@@ -54,6 +54,7 @@ public class Subscription {
     @Max(100)
     Byte aim;
 
-    @Column(name = "base_tdee", nullable = false, columnDefinition = "UNSIGNED SMALLINT")
+    @Column(name = "base_tdee", nullable = false, columnDefinition = "SMALLINT")
+    @Min(0)
     Integer baseMaintainCalories;   //--TDEE
 }

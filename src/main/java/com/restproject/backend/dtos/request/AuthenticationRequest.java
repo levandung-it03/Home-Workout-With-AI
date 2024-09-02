@@ -1,15 +1,14 @@
 package com.restproject.backend.dtos.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuthenticationRequest {
-    private String username;
-    private String password;
+    String username;
+    String password;
 }

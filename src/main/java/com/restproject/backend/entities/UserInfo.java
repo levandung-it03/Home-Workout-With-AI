@@ -1,10 +1,10 @@
 package com.restproject.backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.restproject.backend.entities.Auth.User;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import net.minidev.json.annotate.JsonIgnore;
 
 import java.time.LocalDate;
 
@@ -22,7 +22,7 @@ public class UserInfo {
     @Column(name = "user_info_id")
     Long userInfoId;
 
-    @OneToOne(targetEntity = User.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(targetEntity = User.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     @JsonIgnore
     User user;

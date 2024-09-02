@@ -2,6 +2,7 @@ package com.restproject.backend.dtos.reponse;
 
 import com.restproject.backend.annotations.dev.Overload;
 import com.restproject.backend.enums.ErrorCodes;
+import com.restproject.backend.enums.SucceedCodes;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,9 +34,9 @@ public class ApiResponseObject <T> {
         return result;
     }
 
-    public ApiResponseObject<T> buildSuccessResponse(String message, T data) {
-        this.setApplicationCode(0);
-        this.setMessage(message);
+    public ApiResponseObject<T> buildSuccessResponse(SucceedCodes succeedCodes, T data) {
+        this.setApplicationCode(succeedCodes.getCode());
+        this.setMessage(succeedCodes.getMessage());
         this.setHttpStatusCode(HttpStatus.OK.value());
         this.setData(data);
         this.setResponseTime(LocalDateTime.now(ZoneId.from(ZonedDateTime.now())));
@@ -43,7 +44,7 @@ public class ApiResponseObject <T> {
     }
 
     @Overload
-    public ApiResponseObject<T> buildSuccessResponse(String message) {
-        return this.buildSuccessResponse(message, null);
+    public ApiResponseObject<T> buildSuccessResponse(SucceedCodes succeedCodes) {
+        return this.buildSuccessResponse(succeedCodes, null);
     }
 }

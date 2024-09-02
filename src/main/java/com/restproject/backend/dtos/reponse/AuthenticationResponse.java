@@ -1,15 +1,14 @@
 package com.restproject.backend.dtos.reponse;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuthenticationResponse {
-    private String refreshToken;
-    private String accessToken;
+    String refreshToken;
+    String accessToken;
 }
