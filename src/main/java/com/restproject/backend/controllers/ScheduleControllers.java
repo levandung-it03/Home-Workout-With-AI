@@ -2,6 +2,7 @@ package com.restproject.backend.controllers;
 
 import com.restproject.backend.dtos.reponse.ApiResponseObject;
 import com.restproject.backend.dtos.request.NewScheduleRequest;
+import com.restproject.backend.enums.SucceedCodes;
 import com.restproject.backend.services.Admin.ScheduleService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,6 @@ public class ScheduleControllers {
     @PostMapping("/admin/v1/create-schedule")
     public ApiResponseObject<Void> createSchedule(@RequestBody NewScheduleRequest request) {
         scheduleServiceOfAdmin.createSchedule(request);
-        return new ApiResponseObject<Void>().buildSuccessResponse("Create new Schedule successfully");
+        return new ApiResponseObject<Void>().buildSuccessResponse(SucceedCodes.CREATE_SCHEDULE);
     }
 }
