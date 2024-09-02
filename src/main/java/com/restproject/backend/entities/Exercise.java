@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import net.minidev.json.annotate.JsonIgnore;
 
 @Data
 @NoArgsConstructor
@@ -33,7 +32,7 @@ public class Exercise {
     @Column(name = "level_enum", nullable = false)
     Level level;
 
-    @Column(name = "basic_reps", nullable = false, columnDefinition = "UNSIGNED SMALLINT")
+    @Column(name = "basic_reps", nullable = false, columnDefinition = "SMALLINT")
     @Min(0)
     Byte basicReps;
 }

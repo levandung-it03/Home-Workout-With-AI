@@ -1,10 +1,10 @@
 package com.restproject.backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.restproject.backend.enums.Muscle;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import net.minidev.json.annotate.JsonIgnore;
 
 @Data
 @NoArgsConstructor
@@ -25,10 +25,8 @@ public class MusclesOfExercises {
     @Column(name = "muscle_enum", nullable = false)
     Muscle muscle;
 
-    @ManyToOne(targetEntity = Exercise.class, cascade = CascadeType.ALL)
-    @MapsId("exercise_id")
-    @JoinColumn(columnDefinition = "exercise_id", referencedColumnName = "exercise_id", insertable = false,
-        updatable = false)
+    @ManyToOne(targetEntity = Exercise.class)
+    @JoinColumn(name = "exercise_id", referencedColumnName = "exercise_id", updatable = false)
     @JsonIgnore
     Exercise exercise;
 }

@@ -1,9 +1,12 @@
 package com.restproject.backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.restproject.backend.enums.Level;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.Collection;
 
 @Data
 @NoArgsConstructor
@@ -28,4 +31,13 @@ public class Schedule {
     @Enumerated(EnumType.STRING)
     @Column(name = "level_enum", nullable = false)
     Level level;
+
+    @ManyToMany(targetEntity = Session.class, fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JoinTable(
+        name = "sessions_of_schedules",
+        joinColumns = @JoinColumn(name = "schedule_id"),
+        inverseJoinColumns = @JoinColumn(name = "session_id")
+    )
+    @JsonIgnore
+    Collection<Session> sessionsOfSchedule;
 }

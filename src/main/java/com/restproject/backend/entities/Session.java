@@ -1,9 +1,12 @@
 package com.restproject.backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.restproject.backend.enums.Level;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.Collection;
 
 @Data
 @NoArgsConstructor
@@ -22,13 +25,22 @@ public class Session {
     @Column(name = "name", nullable = false)
     String name;
 
-    @Column(name = "muscleList", nullable = false)
+    @Column(name = "muscle_list", nullable = false)
     String muscleList;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "level_enum", nullable = false)
     Level level;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "description", nullable = false)
     String description;
+
+    @ManyToMany(targetEntity = Exercise.class, fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JoinTable(
+        name = "exercises_of_sessions",
+        joinColumns = @JoinColumn(name = "session_id"),
+        inverseJoinColumns = @JoinColumn(name = "exercise_id")
+    )
+    @JsonIgnore
+    Collection<Exercise> exercisesOfSession;
 }

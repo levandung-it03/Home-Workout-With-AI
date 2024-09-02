@@ -1,9 +1,9 @@
 package com.restproject.backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import net.minidev.json.annotate.JsonIgnore;
 
 import java.time.LocalDateTime;
 
@@ -21,12 +21,12 @@ public class CompletedLog {
     @Column(name = "completed_log_id")
     Long completedLogId;
 
-    @ManyToOne(targetEntity = Subscription.class, cascade = CascadeType.MERGE)
+    @ManyToOne(targetEntity = Subscription.class)
     @JoinColumn(name = "subscription_id", referencedColumnName = "subscription_id")
     @JsonIgnore
     Subscription subscription;
 
-    @ManyToOne(targetEntity = Session.class, cascade = CascadeType.MERGE)
+    @ManyToOne(targetEntity = Session.class)
     @JoinColumn(name = "session_id", referencedColumnName = "session_id")
     @JsonIgnore
     Session session;

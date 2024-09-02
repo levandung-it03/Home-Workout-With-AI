@@ -1,10 +1,9 @@
 package com.restproject.backend.entities.Auth;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import net.minidev.json.annotate.JsonIgnore;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
@@ -34,7 +33,7 @@ public class User implements UserDetails {
     @Column(name = "created_time", nullable = false)
     LocalDateTime createdTime;
 
-    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER, targetEntity = Authority.class)
+    @ManyToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER, targetEntity = Authority.class)
     @JoinTable(
         name = "user_authorities",
         joinColumns = @JoinColumn(name = "user_id"),
