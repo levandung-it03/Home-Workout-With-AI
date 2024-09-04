@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SessionsByLevelRequest {
-    @NotNull(message = "ErrorCodes.INVALID_LEVEL")
-    @LevelEnumConstraint(message = "ErrorCodes.INVALID_LEVEL")
+    @NotNull
+    @LevelEnumConstraint
     int level;
 }

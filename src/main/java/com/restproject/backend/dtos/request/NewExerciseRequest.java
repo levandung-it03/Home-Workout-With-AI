@@ -1,12 +1,12 @@
 package com.restproject.backend.dtos.request;
 
 import com.restproject.backend.annotations.constraint.LevelEnumConstraint;
+import com.restproject.backend.annotations.constraint.MuscleIdsEnumConstraint;
 import com.restproject.backend.enums.Muscle;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.Collection;
 
@@ -16,17 +16,22 @@ import java.util.Collection;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NewExerciseRequest {
-    @NotBlank(message = "ErrorCodes.BLANK_NAME")
+
+    @NotBlank
+    @Length(max = 20)
     String name;
 
-    @NotNull(message = "ErrorCodes.INVALID_LEVEL")
-    @LevelEnumConstraint(message = "ErrorCodes.INVALID_LEVEL")
+    @NotNull
+    @LevelEnumConstraint
     Integer level;
 
-    @NotNull(message = "ErrorCodes.INVALID_BASIC_REPS")
-    @Min(value = 0, message = "ErrorCodes.INVALID_BASIC_REPS")
-    Byte basicReps;
+    @NotNull
+    @Min(0)
+    @Max(9999)
+    Integer basicReps;
 
-    @NotBlank(message = "ErrorCodes.INVALID_IDS_COLLECTION")
+    @NotEmpty
+    @NotNull
+    @MuscleIdsEnumConstraint
     Collection<Integer> muscleIds;
 }

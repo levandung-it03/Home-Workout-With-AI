@@ -7,6 +7,7 @@ import com.restproject.backend.enums.SucceedCodes;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -22,15 +23,13 @@ public class EnumsControllers {
 
     @ResponseBody
     @GetMapping({"/admin/v1/get-all-levels", "/user/v1/get-all-levels"})
-    public ApiResponseObject<List<Level>> getAllLevels() {
-        return new ApiResponseObject<List<Level>>().buildSuccessResponse(SucceedCodes.GET_ALL_LEVEL_ENUMS,
-            Level.getAllLevels());
+    public ResponseEntity<ApiResponseObject<List<Level>>> getAllLevels() {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_ALL_LEVEL_ENUMS, Level.getAllLevels());
     }
 
     @ResponseBody
     @GetMapping({"/admin/v1/get-all-muscles", "/user/v1/get-all-muscles"})
-    public ApiResponseObject<List<Muscle>> getAllMuscles() {
-        return new ApiResponseObject<List<Muscle>>().buildSuccessResponse(SucceedCodes.GET_ALL_MUSCLE_ENUMS,
-            Muscle.getAllMuscles());
+    public ResponseEntity<ApiResponseObject<List<Muscle>>> getAllMuscles() {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_ALL_MUSCLE_ENUMS, Muscle.getAllMuscles());
     }
 }

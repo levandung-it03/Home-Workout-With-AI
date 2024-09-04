@@ -4,6 +4,9 @@ import com.restproject.backend.dtos.reponse.ApiResponseObject;
 import com.restproject.backend.enums.ErrorCodes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,44 +19,67 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ApplicationExceptionHandler {
 
     @ExceptionHandler(value = AccessDeniedException.class)
-    public ApiResponseObject<Void> handleAuthenticationException(AccessDeniedException exception) {
+    public ResponseEntity<ApiResponseObject<Void>> handleAuthenticationException(AccessDeniedException exception) {
         var response = ApiResponseObject.buildByErrorCodes(ErrorCodes.FORBIDDEN_USER);
         log.info("[HANDLER]_AccessDeniedException: " + exception.getMessage());
         return response;
     }
 
     @ExceptionHandler(value = AuthenticationException.class)
-    public ApiResponseObject<Void> handleAuthenticationException(AuthenticationException exception) {
+    public ResponseEntity<ApiResponseObject<Void>> handleAuthenticationException(AuthenticationException exception) {
         var response = ApiResponseObject.buildByErrorCodes(ErrorCodes.INVALID_CREDENTIALS);
         log.info("[HANDLER]_AuthenticationException: " + exception.getMessage());
         return response;
     }
 
+    @ExceptionHandler(value = HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponseObject<Void>> handleUnawareException(HttpMessageNotReadableException exception) {
+        var extractedErr = exception.getCause().toString().split(": ");
+        var err = new StringBuilder(extractedErr[extractedErr.length - 1]);
+        var fieldName = err.substring(err.indexOf("[\"") + 2, err.indexOf("\"]"));  //--Remove quotes.
+        var response = ApiResponseObject.buildByErrorCodes(
+            ErrorCodes.PARSE_JSON_ERR,
+            ErrorCodes.PARSE_JSON_ERR.getMessage().replace("${field}", fieldName)
+        );
+
+        log.info("[HANDLER]_HttpMessageNotReadableException: " + exception.getMessage());
+        return response;
+    }
+
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    public ApiResponseObject<Void> handleHibernateValidationException(MethodArgumentNotValidException exception) {
-        ApiResponseObject<Void> response;
-        if (exception.getMessage().contains("ErrorCodes.")) {
-            var errorCode = ErrorCodes.valueOf(exception.getMessage().split("ErrorCodes.")[1]);
-            response = ApiResponseObject.buildByErrorCodes(errorCode);
-            log.info("[HANDLER]_ValidatorException: " + exception.getMessage());
-        } else {
-            response = ApiResponseObject.buildByErrorCodes(ErrorCodes.VALIDATOR_ERR_RESPONSE);
-            log.info("[HANDLER]_ValidatorException: " + exception.getMessage());
-        }
+    public ResponseEntity<ApiResponseObject<Void>> handleHibernateValidatorException(
+        MethodArgumentNotValidException exception) {
+        var plainErr = exception.getMessage().split(";")[0];
+        var startInd = plainErr.indexOf("field '") + 7;
+        var endInd = plainErr.indexOf("'", startInd);
+        var response = ApiResponseObject.buildByErrorCodes(
+            ErrorCodes.VALIDATOR_ERR_RESPONSE,
+            ErrorCodes.VALIDATOR_ERR_RESPONSE.getMessage().replace("${field}",
+                plainErr.substring(startInd, endInd))
+        );
+
+        log.info("[HANDLER]_ValidatorException: " + plainErr);
         return response;
     }
 
     @ExceptionHandler(value = ApplicationException.class)
-    public ApiResponseObject<Void> handleCustomApplicationException(ApplicationException exception) {
+    public ResponseEntity<ApiResponseObject<Void>> handleCustomApplicationException(ApplicationException exception) {
         var response = ApiResponseObject.buildByErrorCodes(exception.getErrorCodes());
         log.info("[HANDLER]_ApplicationException: " + exception.getMessage());
         return response;
     }
 
-    @ExceptionHandler(value = Exception.class)
-    public ApiResponseObject<Void> handleUnawareException(Exception exception) {
-        var response = ApiResponseObject.buildByErrorCodes(ErrorCodes.UNAWARE_ERR);
+    @ExceptionHandler(value = DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponseObject<Void>> handleConstraintViolationException(
+        DataIntegrityViolationException exception) {
+        var response = ApiResponseObject.buildByErrorCodes(ErrorCodes.CONSTRAINT_VIOLATION);
+        log.info("[HANDLER]_ConstraintViolationException: " + exception.getMessage());
+        return response;
+    }
 
+    @ExceptionHandler(value = Exception.class)
+    public ResponseEntity<ApiResponseObject<Void>> handleUnawareException(Exception exception) {
+        var response = ApiResponseObject.buildByErrorCodes(ErrorCodes.UNAWARE_ERR);
         log.info("[HANDLER]_Exception: " + exception.getMessage());
         return response;
     }

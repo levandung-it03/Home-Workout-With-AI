@@ -29,8 +29,12 @@ public class SessionService {
     ExerciseRepository exerciseRepository;
     ExercisesOfSessionsRepository exercisesOfSessionsRepository;
 
+    public List<Session> getSessionsByLevel(SessionsByLevelRequest request) throws ApplicationException {
+        return sessionRepository.findAllByLevel(Level.getByLevel(request.getLevel()));
+    }
+
     @Transactional(rollbackOn = {Exception.class})
-    public void createSession(NewSessionRequest request) throws ApplicationException {
+    public Session createSession(NewSessionRequest request) throws ApplicationException {
         var savedSession = sessionRepository.save(Session.builder()
             .name(request.getName())
             .muscleList(request.getMuscleList())
@@ -40,11 +44,8 @@ public class SessionService {
 
         exercisesOfSessionsRepository.saveAll(request.getExerciseIds().stream().map(id ->
             ExercisesOfSessions.builder().session(savedSession).exercise(exerciseRepository.findById(id)
-                .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_IDS_COLLECTION))).build()
-        ).toList());
-    }
+                .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_IDS_COLLECTION))).build()).toList());
 
-    public List<Session> getSessionsByLevel(SessionsByLevelRequest request) throws ApplicationException {
-        return sessionRepository.findAllByLevel(Level.getByLevel(request.getLevel()));
+        return savedSession;
     }
 }

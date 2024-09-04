@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.Collection;
 
@@ -15,19 +16,21 @@ import java.util.Collection;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NewSessionRequest {
-    @NotBlank(message = "ErrorCodes.BLANK_NAME")
+
+    @NotBlank
+    @Length(max = 20)
     String name;
 
-    @NotBlank(message = "ErrorCodes.BLANK_DESCRIPTION")
+    @NotBlank
     String description;
 
-    @NotBlank(message = "ErrorCodes.BLANK_MUSCLE_LIST")
+    @NotBlank
     String muscleList;
 
-    @NotNull(message = "ErrorCodes.INVALID_LEVEL")
-    @LevelEnumConstraint(message = "ErrorCodes.INVALID_LEVEL")
+    @NotNull
+    @LevelEnumConstraint
     Integer level;
 
-    @NotEmpty(message = "ErrorCodes.INVALID_IDS_COLLECTION")
+    @NotEmpty
     Collection<Long> exerciseIds;
 }

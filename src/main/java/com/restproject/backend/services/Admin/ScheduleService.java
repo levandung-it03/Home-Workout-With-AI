@@ -24,7 +24,7 @@ public class ScheduleService {
     SessionsOfSchedulesRepository sessionsOfSchedulesRepository;
 
     @Transactional(rollbackOn = {Exception.class})
-    public void createSchedule(NewScheduleRequest request) throws ApplicationException {
+    public Schedule createSchedule(NewScheduleRequest request) throws ApplicationException {
         var savedSchedule = scheduleRepository.save(Schedule.builder()
             .name(request.getName())
             .description(request.getDescription())
@@ -33,7 +33,8 @@ public class ScheduleService {
 
         sessionsOfSchedulesRepository.saveAll(request.getSessionIds().stream().map(id ->
             SessionsOfSchedules.builder().schedule(savedSchedule).session(sessionRepository.findById(id)
-                .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_IDS_COLLECTION))).build()
-        ).toList());
+                .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_IDS_COLLECTION))).build()).toList());
+
+        return savedSchedule;
     }
 }

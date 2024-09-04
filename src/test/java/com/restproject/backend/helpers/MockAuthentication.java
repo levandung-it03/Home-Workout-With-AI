@@ -1,4 +1,4 @@
-package com.restproject.backend.initialization;
+package com.restproject.backend.helpers;
 
 import com.restproject.backend.entities.Auth.Authority;
 import com.restproject.backend.entities.Auth.User;

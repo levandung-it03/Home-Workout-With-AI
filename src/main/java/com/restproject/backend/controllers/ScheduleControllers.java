@@ -2,11 +2,13 @@ package com.restproject.backend.controllers;
 
 import com.restproject.backend.dtos.reponse.ApiResponseObject;
 import com.restproject.backend.dtos.request.NewScheduleRequest;
+import com.restproject.backend.entities.Schedule;
 import com.restproject.backend.enums.SucceedCodes;
 import com.restproject.backend.services.Admin.ScheduleService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,8 +20,8 @@ public class ScheduleControllers {
 
     @ResponseBody
     @PostMapping("/admin/v1/create-schedule")
-    public ApiResponseObject<Void> createSchedule(@RequestBody NewScheduleRequest request) {
-        scheduleServiceOfAdmin.createSchedule(request);
-        return new ApiResponseObject<Void>().buildSuccessResponse(SucceedCodes.CREATE_SCHEDULE);
+    public ResponseEntity<ApiResponseObject<Schedule>> createSchedule(@RequestBody NewScheduleRequest request) {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.CREATE_SCHEDULE,
+            scheduleServiceOfAdmin.createSchedule(request));
     }
 }

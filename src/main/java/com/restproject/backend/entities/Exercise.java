@@ -2,9 +2,11 @@ package com.restproject.backend.entities;
 
 import com.restproject.backend.enums.Level;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.validator.constraints.Length;
 
 @Data
 @NoArgsConstructor
@@ -26,13 +28,15 @@ public class Exercise {
     Long exerciseId;
 
     @Column(name = "name", nullable = false)
+    @Length(max = 20)
     String name;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "level_enum", nullable = false)
     Level level;
 
-    @Column(name = "basic_reps", nullable = false, columnDefinition = "SMALLINT")
+    @Column(name = "basic_reps", nullable = false)
     @Min(0)
-    Byte basicReps;
+    @Max(9999)
+    Integer basicReps;
 }

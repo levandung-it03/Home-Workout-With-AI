@@ -19,6 +19,8 @@ public enum SucceedCodes {
     //--Exercise(23)
     GET_EXS_BY_LV_AND_MUSCLE(23001, "Get Exercises successfully"),
     CREATE_EXERCISE(23002, "Create new Exercise successfully"),
+    UPDATE_EXERCISE(23003, "Update Exercise successfully"),
+    DELETE_EXERCISE(23004, "Delete Exercise successfully"),
     //--Schedule(24)
     CREATE_SCHEDULE(24001, "Create new Schedule successfully"),
     //--Session(25)

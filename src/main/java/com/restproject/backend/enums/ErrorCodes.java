@@ -13,10 +13,12 @@ import static org.springframework.http.HttpStatus.*;
 public enum ErrorCodes {
     //--Generals(10)
     UNAWARE_ERR(10000, "Unaware exception's thrown from resource server", BAD_REQUEST),
-    VALIDATOR_ERR_RESPONSE(10001, "Invalid form fields", BAD_REQUEST),
-    BLANK_NAME(10002, "Name can't be blank", BAD_REQUEST),
-    BLANK_DESCRIPTION(10003, "Description can't be blank", BAD_REQUEST),
+    VALIDATOR_ERR_RESPONSE(10001, "Invalid variable type or format of field \"${field}\"", BAD_REQUEST),
+    PARSE_JSON_ERR(10002, "Invalid variable type or format of field \"${field}\"", BAD_REQUEST),
+    CONSTRAINT_VIOLATION(10004, "Constraint was triggered because of invalid data", BAD_REQUEST),
     INVALID_IDS_COLLECTION(10004, "Collection of Ids is invalid", BAD_REQUEST),
+    INVALID_PRIMARY(10005, "Can not get object because id or primary fields are invalid", BAD_REQUEST),
+    FORBIDDEN_UPDATING(10006, "Can not update or delete a depended object", BAD_REQUEST),
     //--Auth(11)
     INVALID_CREDENTIALS(11001, "Username or Password is invalid", UNAUTHORIZED),
     INVALID_TOKEN(11002, "Token or its claims are invalid", FORBIDDEN),
@@ -26,10 +28,6 @@ public enum ErrorCodes {
     //--Enums(12)
     INVALID_LEVEL(12001, "Level is invalid", BAD_REQUEST),
     INVALID_MUSCLE_ID(12002, "Muscle Id is invalid", BAD_REQUEST),
-    //--Exercise(13)
-    INVALID_BASIC_REPS(13001, "Basic Reps is invalid", BAD_REQUEST),
-    //--Session(15)
-    BLANK_MUSCLE_LIST(15001, "List of Muscles can't be blank", BAD_REQUEST),
     ;
 
     int code;

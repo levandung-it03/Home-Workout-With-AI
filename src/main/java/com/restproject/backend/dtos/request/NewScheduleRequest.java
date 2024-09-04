@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.Collection;
 
@@ -16,16 +17,17 @@ import java.util.Collection;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NewScheduleRequest {
 
-    @NotBlank(message = "ErrorCodes.BLANK_NAME")
+    @NotBlank
+    @Length(max = 20)
     String name;
 
-    @NotBlank(message = "ErrorCodes.BLANK_DESCRIPTION")
+    @NotBlank
     String description;
 
-    @NotNull(message = "ErrorCodes.INVALID_LEVEL")
-    @LevelEnumConstraint(message = "ErrorCodes.INVALID_LEVEL")
+    @NotNull
+    @LevelEnumConstraint
     Integer level;
 
-    @NotEmpty(message = "ErrorCodes.INVALID_IDS_COLLECTION")
+    @NotEmpty
     Collection<Long> sessionIds;
 }

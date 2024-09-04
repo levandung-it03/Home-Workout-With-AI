@@ -5,6 +5,7 @@ import com.restproject.backend.enums.Level;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.Collection;
 
@@ -23,6 +24,7 @@ public class Schedule {
     Long scheduleId;
 
     @Column(name = "name", nullable = false)
+    @Length(max = 20)
     String name;
 
     @Column(name = "description", nullable = false)
