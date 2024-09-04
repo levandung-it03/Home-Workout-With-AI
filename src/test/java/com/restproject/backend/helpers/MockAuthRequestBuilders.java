@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.restproject.backend.annotations.dev.Constructors;
 import com.restproject.backend.annotations.dev.CoreEngines;
+import com.restproject.backend.annotations.dev.Overload;
 import com.restproject.backend.dtos.reponse.ApiResponseObject;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -41,6 +42,11 @@ public class MockAuthRequestBuilders {
 
     public <T> void setContent(T object) throws JsonProcessingException {
         this.content = objectMapper.writeValueAsString(object);
+    }
+
+    @Overload
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public <T> void replaceFieldOfContent(String name, T newValue) throws JsonProcessingException {

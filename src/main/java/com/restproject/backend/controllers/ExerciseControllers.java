@@ -9,6 +9,7 @@ import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.enums.SucceedCodes;
 import com.restproject.backend.services.Admin.ExerciseService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

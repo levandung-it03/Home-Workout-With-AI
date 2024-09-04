@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ExercisesOfSessionsRepository extends JpaRepository<ExercisesOfSessions, Long> {
-    boolean existsByExercise(Exercise exercise);
+    boolean existsByExerciseExerciseId(Long id);
 }

@@ -28,5 +28,5 @@ public interface MusclesOfExercisesRepository extends JpaRepository<MusclesOfExe
 
     List<MusclesOfExercises> findAllByExercise(Exercise exercise);
 
-    void deleteAllByExercise(Exercise exercise) throws Exception;
+    void deleteAllByExerciseExerciseId(Long id);
 }

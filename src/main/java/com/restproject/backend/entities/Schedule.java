@@ -34,7 +34,7 @@ public class Schedule {
     @Column(name = "level_enum", nullable = false)
     Level level;
 
-    @ManyToMany(targetEntity = Session.class, fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToMany(targetEntity = Session.class, fetch = FetchType.LAZY)
     @JoinTable(
         name = "sessions_of_schedules",
         joinColumns = @JoinColumn(name = "schedule_id"),

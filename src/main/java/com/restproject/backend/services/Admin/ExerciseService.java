@@ -53,16 +53,17 @@ public class ExerciseService {
         var formerEx = exerciseRepository.findById(request.getExerciseId())
             .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY));
         //--Check if this Exercise can be updated or not.
-        if (exercisesOfSessionsRepository.existsByExercise(formerEx))
+        if (exercisesOfSessionsRepository.existsByExerciseExerciseId(formerEx.getExerciseId()))
             throw new ApplicationException(ErrorCodes.FORBIDDEN_UPDATING);
         //--Query all related and updated data is existing in DB.
         var formerRls = musclesOfExercisesRepository.findAllByExercise(formerEx);
-        if (formerRls.isEmpty() || (formerRls.size() != request.getMuscleIds().size()))
+        if (formerRls.isEmpty())    //--If data in DB is wrong.
             throw new ApplicationException(ErrorCodes.INVALID_IDS_COLLECTION);
 
         //--Mapping new values into "formerEx".
         exerciseMappers.updateTarget(formerEx, request);
         //--Start to save updated data.
+        exerciseRepository.deleteById(formerEx.getExerciseId());
         var savedExercise = exerciseRepository.save(formerEx);
         //--Check if muscles-exercise relationship has any changes to update or not.
         if (formerRls.stream().map(r -> r.getMuscle().getId()).sorted().toList()
@@ -70,7 +71,7 @@ public class ExerciseService {
             return savedExercise;   //--Doesn't update relationships because of un-changing muscles.
 
         //--Delete the former muscles-exercise relationship.
-        musclesOfExercisesRepository.deleteAllByExercise(formerEx);
+        musclesOfExercisesRepository.deleteAllByExerciseExerciseId(formerEx.getExerciseId());
         var newMusclesOfEx = request.getMuscleIds().stream().map(id ->
             MusclesOfExercises.builder().exercise(savedExercise).muscle(Muscle.getById(id)).build()
         ).toList();
@@ -81,6 +82,13 @@ public class ExerciseService {
 
     @Transactional(rollbackOn = {Exception.class})
     public void deleteExercise(DeleteExerciseRequest request) {
+        if (!exerciseRepository.existsById(request.getExerciseId()))
+            throw new ApplicationException(ErrorCodes.INVALID_PRIMARY);
 
+        if (exercisesOfSessionsRepository.existsByExerciseExerciseId(request.getExerciseId()))
+            throw new ApplicationException(ErrorCodes.FORBIDDEN_UPDATING);
+
+        exerciseRepository.deleteById(request.getExerciseId());
+        musclesOfExercisesRepository.deleteAllByExerciseExerciseId(request.getExerciseId());
     }
 }

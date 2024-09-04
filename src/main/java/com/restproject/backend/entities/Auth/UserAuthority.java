@@ -19,12 +19,12 @@ public class UserAuthority {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @ManyToOne(targetEntity = User.class, cascade = CascadeType.REMOVE)
+    @ManyToOne(targetEntity = User.class)
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     @JsonIgnore
     User user;
 
-    @ManyToOne(targetEntity = Authority.class, cascade = CascadeType.REMOVE)
+    @ManyToOne(targetEntity = Authority.class)
     @JoinColumn(name = "authority_id", referencedColumnName = "authority_id")
     @JsonIgnore
     Authority authority;

@@ -1,5 +1,7 @@
 package com.restproject.backend.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.restproject.backend.dtos.request.DeleteExerciseRequest;
 import com.restproject.backend.dtos.request.ExercisesByLevelAndMusclesRequest;
 import com.restproject.backend.dtos.request.NewExerciseRequest;
 import com.restproject.backend.dtos.request.UpdateExerciseRequest;
@@ -27,6 +29,7 @@ import static org.springframework.http.HttpMethod.*;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import java.util.HashMap;
 import java.util.List;
 
 @SpringBootTest
@@ -681,4 +684,34 @@ public class ExerciseControllersTest {
             });
     }
 
+    @Test
+    public void deleteExercise_admin_valid() throws Exception {
+        var req = DeleteExerciseRequest.builder().exerciseId(2L).build();
+
+        Mockito.doNothing().when(exerciseService).deleteExercise(req);
+
+        mockAuthRequest.setContent(req);
+        mockMvc
+            .perform(mockAuthRequest.buildAdminRequestWithContent(DELETE, "/v1/delete-exercise"))
+            .andExpect(jsonPath("applicationCode").value(SucceedCodes.DELETE_EXERCISE.getCode()));
+    }
+
+    @Test
+    public void deleteExercise_admin_invalidTypeExerciseId() throws Exception {
+        var req = DeleteExerciseRequest.builder().exerciseId(2L).build();
+        mockAuthRequest.setContent(req);
+        mockAuthRequest.replaceFieldOfContent("exerciseId", "abc");
+        mockMvc
+            .perform(mockAuthRequest.buildAdminRequestWithContent(DELETE, "/v1/delete-exercise"))
+            .andExpect(jsonPath("applicationCode").value(ErrorCodes.PARSE_JSON_ERR.getCode()));
+    }
+
+    @Test
+    public void deleteExercise_admin_nullExerciseId() throws Exception {
+        var req = DeleteExerciseRequest.builder().exerciseId(null).build();
+        mockAuthRequest.setContent(req);
+        mockMvc
+            .perform(mockAuthRequest.buildAdminRequestWithContent(DELETE, "/v1/delete-exercise"))
+            .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
+    }
 }

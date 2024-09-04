@@ -37,7 +37,7 @@ public class Session {
     @Column(name = "description", nullable = false)
     String description;
 
-    @ManyToMany(targetEntity = Exercise.class, fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToMany(targetEntity = Exercise.class, fetch = FetchType.LAZY)
     @JoinTable(
         name = "exercises_of_sessions",
         joinColumns = @JoinColumn(name = "session_id"),
