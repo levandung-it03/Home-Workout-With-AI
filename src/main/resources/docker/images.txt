@@ -1,0 +1,4 @@
+docker pull mysql:8.0-debian
+docker run --name home_workout_with_ai -p 3306:3306 -e MYSQL_ROOT_PASSWORD=sa -d mysql:8.0-debian
+docker pull redis:lastest
+docker run --name home_workout_with_ai_redis -p 6379:6379 -d redis redis-server --save 60 1 --loglevel warning
