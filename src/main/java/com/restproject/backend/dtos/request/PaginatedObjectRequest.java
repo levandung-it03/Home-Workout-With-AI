@@ -1,5 +1,6 @@
 package com.restproject.backend.dtos.request;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -9,7 +10,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class DeleteExerciseRequest {
+public class PaginatedObjectRequest {
     @NotNull
-    Long exerciseId;
+    @Min(1)
+    Integer page;
 }

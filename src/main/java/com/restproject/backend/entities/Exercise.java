@@ -1,12 +1,15 @@
 package com.restproject.backend.entities;
 
 import com.restproject.backend.enums.Level;
+import com.restproject.backend.enums.Muscle;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Length;
+
+import java.util.Collection;
 
 @Data
 @NoArgsConstructor
@@ -28,7 +31,7 @@ public class Exercise {
     Long exerciseId;
 
     @Column(name = "name", nullable = false)
-    @Length(max = 20)
+    @Length(max = 30)
     String name;
 
     @Enumerated(EnumType.STRING)

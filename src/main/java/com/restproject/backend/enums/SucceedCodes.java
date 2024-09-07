@@ -21,11 +21,16 @@ public enum SucceedCodes {
     CREATE_EXERCISE(23002, "Create new Exercise successfully"),
     UPDATE_EXERCISE(23003, "Update Exercise successfully"),
     DELETE_EXERCISE(23004, "Delete Exercise successfully"),
+    GET_PAGINATED_EXERCISES(23005, "Get paginated list of Exercise successfully"),
     //--Schedule(24)
     CREATE_SCHEDULE(24001, "Create new Schedule successfully"),
+    GET_PAGINATED_SCHEDULES(24002, "Get paginated list of Schedule successfully"),
     //--Session(25)
     GET_SESSIONS_BY_LV(25001, "Get Sessions by level successfully"),
     CREATE_SESSION(25002, "Create new Session successfully"),
+    GET_PAGINATED_SESSIONS(23003, "Get paginated list of Session successfully"),
+    GET_PAGINATED_EXERCISES_OF_SESSION(23004, "Get paginated list of Exercises in Session successfully"),
+    GET_PAGINATED_FILTERING_SESSIONS(23005, "Get paginated filtering list of Session successfully"),
     ;
 
     int code;

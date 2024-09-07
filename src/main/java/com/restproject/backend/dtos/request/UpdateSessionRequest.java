@@ -1,8 +1,8 @@
 package com.restproject.backend.dtos.request;
 
 import com.restproject.backend.annotations.constraint.LevelEnumConstraint;
-import com.restproject.backend.annotations.constraint.MuscleIdsEnumConstraint;
 import com.restproject.backend.annotations.constraint.ListTypeConstraint;
+import com.restproject.backend.annotations.constraint.MuscleIdsEnumConstraint;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -17,7 +17,10 @@ import java.util.Collection;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class NewSessionRequest {
+public class UpdateSessionRequest {
+
+    @NotNull
+    Long sessionId;
 
     @NotBlank
     @Length(max = 50)
@@ -36,9 +39,4 @@ public class NewSessionRequest {
     @NotNull
     @LevelEnumConstraint
     Integer level;
-
-    @NotEmpty
-    @NotNull
-    @ListTypeConstraint(type = Long.class)
-    Collection<Long> exerciseIds;
 }

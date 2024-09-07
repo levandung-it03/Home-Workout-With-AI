@@ -1,8 +1,17 @@
 spring:
+  profiles:
+    active: test
   datasource:
-    url: jdbc:h2:mem:testdb;MODE=MYSQL
-    driverClassName: org.h2.Driver
+    url: "jdbc:h2:mem:my_test_application;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MYSQL"
+    driverClassName: "org.h2.Driver"
     username: sa
     password: sa
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: "org.hibernate.dialect.H2Dialect"
+    ddl-auto: update
+    show-sql: true
+    defer-datasource-initialization: true
+  initialization-mode: embedded
+  sql:
+    init:
+      mode: always

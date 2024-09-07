@@ -14,7 +14,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum Level {
     BEGINNER(1, "Beginner"),
-    IMMEDIATE(2, "Immediate"),
+    INTERMEDIATE(2, "Immediate"),
     ADVANCE(3, "Advance"),
     ;
 

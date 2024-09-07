@@ -7,7 +7,9 @@ import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
@@ -25,15 +27,33 @@ public enum Muscle {
 
     int id;
     String name;
+    private static final String joiningChars = ", ";
 
     public static Muscle getById(int id) throws ApplicationException {
         for (Muscle muscleEnum: Muscle.values())
-            if (muscleEnum.getId() == id)
-                return muscleEnum;
+            if (muscleEnum.getId() == id) return muscleEnum;
+        throw new ApplicationException(ErrorCodes.INVALID_MUSCLE_ID);
+    }
+
+    public static Muscle getByName(String name) throws ApplicationException {
+        for (Muscle muscleEnum: Muscle.values())
+            if (muscleEnum.getName().equals(name)) return muscleEnum;
         throw new ApplicationException(ErrorCodes.INVALID_MUSCLE_ID);
     }
 
     public static List<Muscle> getAllMuscles() {
         return Arrays.asList(Muscle.values());
+    }
+
+    public static String idsToString(Collection<Integer> ids) {
+        return ids.stream().map(id -> Muscle.getById(id).getName()).collect(Collectors.joining(Muscle.joiningChars));
+    }
+
+    public static String listToString(Collection<Muscle> muscles) {
+        return muscles.stream().map(Muscle::getName).collect(Collectors.joining(Muscle.joiningChars));
+    }
+
+    public static Collection<Muscle> formattedStringToList(String musclesAsString) {
+        return Arrays.stream(musclesAsString.split(Muscle.joiningChars)).map(Muscle::getByName).toList();
     }
 }

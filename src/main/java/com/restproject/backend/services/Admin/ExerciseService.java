@@ -1,9 +1,6 @@
 package com.restproject.backend.services.Admin;
 
-import com.restproject.backend.dtos.request.DeleteExerciseRequest;
-import com.restproject.backend.dtos.request.ExercisesByLevelAndMusclesRequest;
-import com.restproject.backend.dtos.request.NewExerciseRequest;
-import com.restproject.backend.dtos.request.UpdateExerciseRequest;
+import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.entities.MusclesOfExercises;
 import com.restproject.backend.enums.ErrorCodes;
@@ -11,6 +8,7 @@ import com.restproject.backend.enums.Level;
 import com.restproject.backend.enums.Muscle;
 import com.restproject.backend.exceptions.ApplicationException;
 import com.restproject.backend.mappers.ExerciseMappers;
+import com.restproject.backend.mappers.PageMappers;
 import com.restproject.backend.repositories.ExerciseRepository;
 import com.restproject.backend.repositories.ExercisesOfSessionsRepository;
 import com.restproject.backend.repositories.MusclesOfExercisesRepository;
@@ -18,6 +16,8 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +27,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ExerciseService {
     ExerciseMappers exerciseMappers;
+    PageMappers pageMappers;
     ExerciseRepository exerciseRepository;
     MusclesOfExercisesRepository musclesOfExercisesRepository;
     ExercisesOfSessionsRepository exercisesOfSessionsRepository;
@@ -81,14 +82,20 @@ public class ExerciseService {
     }
 
     @Transactional(rollbackOn = {Exception.class})
-    public void deleteExercise(DeleteExerciseRequest request) {
-        if (!exerciseRepository.existsById(request.getExerciseId()))
+    public void deleteExercise(DeleteObjectRequest request) {
+        if (!exerciseRepository.existsById(request.getId()))
             throw new ApplicationException(ErrorCodes.INVALID_PRIMARY);
 
-        if (exercisesOfSessionsRepository.existsByExerciseExerciseId(request.getExerciseId()))
+        if (exercisesOfSessionsRepository.existsByExerciseExerciseId(request.getId()))
             throw new ApplicationException(ErrorCodes.FORBIDDEN_UPDATING);
 
-        exerciseRepository.deleteById(request.getExerciseId());
-        musclesOfExercisesRepository.deleteAllByExerciseExerciseId(request.getExerciseId());
+        exerciseRepository.deleteById(request.getId());
+        musclesOfExercisesRepository.deleteAllByExerciseExerciseId(request.getId());
+    }
+
+    public List<Exercise> getPaginatedListOfExercises(PaginatedObjectRequest request) {
+        Pageable pageableConfig = pageMappers.pageRequestToPageable(request).toPageable();
+        Page<Exercise> repoResponse =  exerciseRepository.findAll(pageableConfig);
+        return repoResponse.stream().toList();
     }
 }

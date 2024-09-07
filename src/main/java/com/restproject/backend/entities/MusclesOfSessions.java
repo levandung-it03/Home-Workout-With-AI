@@ -10,23 +10,20 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(
-    name = "muscles_of_exercises",
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"muscle_enum, exercise_id"})}
-)
+@Table(name = "muscles_of_sessions")
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class MusclesOfExercises {
+public class MusclesOfSessions {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+    @ManyToOne(targetEntity = Session.class)
+    @JoinColumn(name = "session_id", referencedColumnName = "session_id", updatable = false)
+    @JsonIgnore
+    Session session;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "muscle_enum", nullable = false, updatable = false)
     Muscle muscle;
-
-    @ManyToOne(targetEntity = Exercise.class)
-    @JoinColumn(name = "exercise_id", referencedColumnName = "exercise_id", updatable = false)
-    @JsonIgnore
-    Exercise exercise;
 }

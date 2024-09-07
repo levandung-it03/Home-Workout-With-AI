@@ -1,15 +1,11 @@
 package com.restproject.backend.controllers;
 
 import com.restproject.backend.dtos.reponse.ApiResponseObject;
-import com.restproject.backend.dtos.request.DeleteExerciseRequest;
-import com.restproject.backend.dtos.request.ExercisesByLevelAndMusclesRequest;
-import com.restproject.backend.dtos.request.NewExerciseRequest;
-import com.restproject.backend.dtos.request.UpdateExerciseRequest;
+import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.enums.SucceedCodes;
 import com.restproject.backend.services.Admin.ExerciseService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,21 +19,29 @@ import java.util.List;
 @RequestMapping("/api/private")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ExerciseControllers {
-    ExerciseService exerciseService;
+    ExerciseService exerciseServiceOfAdmin;
 
     @ResponseBody
     @GetMapping("/admin/v1/get-exercises-by-level-and-muscles")
     public ResponseEntity<ApiResponseObject<List<Exercise>>> getExercisesByLevelAndMuscles(
         @Valid @RequestBody ExercisesByLevelAndMusclesRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_EXS_BY_LV_AND_MUSCLE,
-            exerciseService.getExercisesByLevelAndMuscles(request));
+            exerciseServiceOfAdmin.getExercisesByLevelAndMuscles(request));
+    }
+
+    @ResponseBody
+    @GetMapping("/admin/v1/get-exercises-by-page")
+    public ResponseEntity<ApiResponseObject<List<Exercise>>> getPaginatedListOfExercises(
+        @Valid @RequestBody PaginatedObjectRequest request) {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_PAGINATED_EXERCISES,
+            exerciseServiceOfAdmin.getPaginatedListOfExercises(request));
     }
 
     @ResponseBody
     @PostMapping("/admin/v1/create-exercise")
     public ResponseEntity<ApiResponseObject<Exercise>> createExercise(@Valid @RequestBody NewExerciseRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.CREATE_EXERCISE,
-            exerciseService.createExercise(request));
+            exerciseServiceOfAdmin.createExercise(request));
     }
 
     @ResponseBody
@@ -45,13 +49,13 @@ public class ExerciseControllers {
     public ResponseEntity<ApiResponseObject<Exercise>> updateExercise(
         @Valid @RequestBody UpdateExerciseRequest request) throws Exception {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.UPDATE_EXERCISE,
-            exerciseService.updateExercise(request));
+            exerciseServiceOfAdmin.updateExercise(request));
     }
 
     @ResponseBody
     @DeleteMapping("/admin/v1/delete-exercise")
-    public ResponseEntity<ApiResponseObject<Void>> deleteExercise(@Valid @RequestBody DeleteExerciseRequest request) {
-        exerciseService.deleteExercise(request);
+    public ResponseEntity<ApiResponseObject<Void>> deleteExercise(@Valid @RequestBody DeleteObjectRequest request) {
+        exerciseServiceOfAdmin.deleteExercise(request);
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.DELETE_EXERCISE);
     }
 }

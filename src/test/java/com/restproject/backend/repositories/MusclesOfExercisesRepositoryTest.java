@@ -13,16 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 @DataJpaTest
 @Import(RedisConfig.class)
-@TestPropertySource("/test.yaml")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("test")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class MusclesOfExercisesRepositoryTest {
     @Autowired
@@ -32,8 +30,8 @@ public class MusclesOfExercisesRepositoryTest {
 
     @Test
     public void findAllExercisesByLevelAndMuscles_admin_valid() {
-        List<Muscle> reqMuscles = List.of(Muscle.CHEST, Muscle.TRICEPS);
-        Level reqLevel = Level.IMMEDIATE;
+        List<Muscle> reqMuscles =    List.of(Muscle.CHEST, Muscle.TRICEPS);
+        Level reqLevel = Level.INTERMEDIATE;
 
         var saveExercises = exerciseRepository.saveAll(List.of(
             Exercise.builder().name("Push-ups").level(reqLevel).basicReps(14).build(),

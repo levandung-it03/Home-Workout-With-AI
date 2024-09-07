@@ -14,11 +14,13 @@ public enum ErrorCodes {
     //--Generals(10)
     UNAWARE_ERR(10000, "Unaware exception's thrown from resource server", BAD_REQUEST),
     VALIDATOR_ERR_RESPONSE(10001, "Invalid variable type or format of field \"${field}\"", BAD_REQUEST),
-    PARSE_JSON_ERR(10002, "Invalid variable type or format of field \"${field}\"", BAD_REQUEST),
+    PARSE_JSON_ERR(10002, "Invalid variable type or format of field '${field}'", BAD_REQUEST),
     CONSTRAINT_VIOLATION(10004, "Constraint was triggered because of invalid data", BAD_REQUEST),
     INVALID_IDS_COLLECTION(10004, "Collection of Ids is invalid", BAD_REQUEST),
     INVALID_PRIMARY(10005, "Can not get object because id or primary fields are invalid", BAD_REQUEST),
     FORBIDDEN_UPDATING(10006, "Can not update or delete a depended object", BAD_REQUEST),
+    NOT_SYNC_LEVEL(10007, "Level between relationships don't synchronize to each other", BAD_REQUEST),
+    INVALID_FILTERING_FIELD_OR_VALUE(10008, "Invalid filtering field or value", BAD_REQUEST),
     //--Auth(11)
     INVALID_CREDENTIALS(11001, "Username or Password is invalid", UNAUTHORIZED),
     INVALID_TOKEN(11002, "Token or its claims are invalid", FORBIDDEN),

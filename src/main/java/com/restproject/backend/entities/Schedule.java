@@ -24,10 +24,11 @@ public class Schedule {
     Long scheduleId;
 
     @Column(name = "name", nullable = false)
-    @Length(max = 20)
+    @Length(max = 50)
     String name;
 
     @Column(name = "description", nullable = false)
+    @Length(max = 100)
     String description;
 
     @Enumerated(EnumType.STRING)

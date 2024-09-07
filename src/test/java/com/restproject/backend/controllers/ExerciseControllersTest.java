@@ -1,10 +1,6 @@
 package com.restproject.backend.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.restproject.backend.dtos.request.DeleteExerciseRequest;
-import com.restproject.backend.dtos.request.ExercisesByLevelAndMusclesRequest;
-import com.restproject.backend.dtos.request.NewExerciseRequest;
-import com.restproject.backend.dtos.request.UpdateExerciseRequest;
+import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.enums.Level;
@@ -29,7 +25,9 @@ import static org.springframework.http.HttpMethod.*;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 @SpringBootTest
@@ -46,7 +44,7 @@ public class ExerciseControllersTest {
     JsonService jsonService;
 
     @MockBean
-    ExerciseService exerciseService;
+    ExerciseService exerciseServiceOfAdmin;
 
     @BeforeEach
     public void init() {
@@ -63,7 +61,7 @@ public class ExerciseControllersTest {
         var request = this.newValidExercise();
         mockAuthRequest.setContent(request);
 
-        Mockito.when(exerciseService.createExercise(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.createExercise(request)).thenReturn(null);
 
         mockMvc.perform(mockAuthRequest.buildAdminRequestWithContent(POST, "/v1/create-exercise"))
             .andExpect(jsonPath("applicationCode").value(SucceedCodes.CREATE_EXERCISE.getCode()));
@@ -75,7 +73,7 @@ public class ExerciseControllersTest {
         request.setName("");
         mockAuthRequest.setContent(request);
 
-        Mockito.when(exerciseService.createExercise(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.createExercise(request)).thenReturn(null);
 
         mockMvc.perform(mockAuthRequest.buildAdminRequestWithContent(POST,"/v1/create-exercise"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
@@ -87,7 +85,7 @@ public class ExerciseControllersTest {
         request.setName(null);
         mockAuthRequest.setContent(request);
 
-        Mockito.when(exerciseService.createExercise(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.createExercise(request)).thenReturn(null);
 
         mockMvc.perform(mockAuthRequest.buildAdminRequestWithContent(POST,"/v1/create-exercise"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
@@ -96,10 +94,10 @@ public class ExerciseControllersTest {
     @Test
     public void createExercise_admin_tooLongName() throws Exception {
         var request = this.newValidExercise();
-        request.setName("123456789123456789123456789");
+        request.setName("12345678912345678912345678912345678952345235");
         mockAuthRequest.setContent(request);
 
-        Mockito.when(exerciseService.createExercise(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.createExercise(request)).thenReturn(null);
 
         mockMvc.perform(mockAuthRequest.buildAdminRequestWithContent(POST,"/v1/create-exercise"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
@@ -111,7 +109,7 @@ public class ExerciseControllersTest {
         mockAuthRequest.setContent(request);
         mockAuthRequest.replaceFieldOfContent("level", "");
 
-        Mockito.when(exerciseService.createExercise(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.createExercise(request)).thenReturn(null);
 
         mockMvc.perform(mockAuthRequest.buildAdminRequestWithContent(POST, "/v1/create-exercise"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
@@ -123,7 +121,7 @@ public class ExerciseControllersTest {
         mockAuthRequest.setContent(request);
         mockAuthRequest.replaceFieldOfContent("level", "abcdef");
 
-        Mockito.when(exerciseService.createExercise(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.createExercise(request)).thenReturn(null);
 
         mockMvc.perform(mockAuthRequest.buildAdminRequestWithContent(POST, "/v1/create-exercise"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.PARSE_JSON_ERR.getCode()));
@@ -135,7 +133,7 @@ public class ExerciseControllersTest {
         mockAuthRequest.setContent(request);
         mockAuthRequest.replaceFieldOfContent("level", 5);
 
-        Mockito.when(exerciseService.createExercise(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.createExercise(request)).thenReturn(null);
 
         mockMvc.perform(mockAuthRequest.buildAdminRequestWithContent(POST, "/v1/create-exercise"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
@@ -147,7 +145,7 @@ public class ExerciseControllersTest {
         mockAuthRequest.setContent(request);
         mockAuthRequest.replaceFieldOfContent("level", -2);
 
-        Mockito.when(exerciseService.createExercise(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.createExercise(request)).thenReturn(null);
 
         mockMvc.perform(mockAuthRequest.buildAdminRequestWithContent(POST, "/v1/create-exercise"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
@@ -156,10 +154,10 @@ public class ExerciseControllersTest {
     @Test
     public void createExercise_admin_nullBasicReps() throws Exception {
         var request = this.newValidExercise();
+        request.setBasicReps(null);
         mockAuthRequest.setContent(request);
-        mockAuthRequest.replaceFieldOfContent("basicReps", "");
 
-        Mockito.when(exerciseService.createExercise(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.createExercise(request)).thenReturn(null);
 
         mockMvc.perform(mockAuthRequest.buildAdminRequestWithContent(POST, "/v1/create-exercise"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
@@ -171,7 +169,7 @@ public class ExerciseControllersTest {
         mockAuthRequest.setContent(request);
         mockAuthRequest.replaceFieldOfContent("basicReps", "abcd");
 
-        Mockito.when(exerciseService.createExercise(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.createExercise(request)).thenReturn(null);
 
         mockMvc.perform(mockAuthRequest.buildAdminRequestWithContent(POST, "/v1/create-exercise"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.PARSE_JSON_ERR.getCode()));
@@ -183,7 +181,7 @@ public class ExerciseControllersTest {
         request.setBasicReps(-1);
         mockAuthRequest.setContent(request);
 
-        Mockito.when(exerciseService.createExercise(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.createExercise(request)).thenReturn(null);
 
         mockMvc.perform(mockAuthRequest.buildAdminRequestWithContent(POST, "/v1/create-exercise"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
@@ -195,7 +193,7 @@ public class ExerciseControllersTest {
         request.setBasicReps(10_000);
         mockAuthRequest.setContent(request);
 
-        Mockito.when(exerciseService.createExercise(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.createExercise(request)).thenReturn(null);
 
         mockMvc.perform(mockAuthRequest.buildAdminRequestWithContent(POST, "/v1/create-exercise"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
@@ -207,7 +205,7 @@ public class ExerciseControllersTest {
         mockAuthRequest.setContent(request);
         mockAuthRequest.replaceFieldOfContent("muscleIds", List.of());
 
-        Mockito.when(exerciseService.createExercise(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.createExercise(request)).thenReturn(null);
 
         mockMvc.perform(mockAuthRequest.buildAdminRequestWithContent(POST, "/v1/create-exercise"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
@@ -219,7 +217,20 @@ public class ExerciseControllersTest {
         request.setMuscleIds(null);
         mockAuthRequest.setContent(request);
 
-        Mockito.when(exerciseService.createExercise(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.createExercise(request)).thenReturn(null);
+
+        mockMvc.perform(mockAuthRequest.buildAdminRequestWithContent(POST, "/v1/create-exercise"))
+            .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
+    }
+
+    @Test
+    public void createExercise_admin_nullListAsMuscleIds() throws Exception {
+        var request = this.newValidExercise();
+        List<Integer> muscleIds = Arrays.stream(new Integer[] {null, null}).toList();
+        request.setMuscleIds(muscleIds);
+        mockAuthRequest.setContent(request);
+
+        Mockito.when(exerciseServiceOfAdmin.createExercise(request)).thenReturn(null);
 
         mockMvc.perform(mockAuthRequest.buildAdminRequestWithContent(POST, "/v1/create-exercise"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
@@ -231,7 +242,7 @@ public class ExerciseControllersTest {
         request.setMuscleIds(List.of(1, 99));
         mockAuthRequest.setContent(request);
 
-        Mockito.when(exerciseService.createExercise(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.createExercise(request)).thenReturn(null);
 
         mockMvc.perform(mockAuthRequest.buildAdminRequestWithContent(POST, "/v1/create-exercise"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
@@ -243,7 +254,7 @@ public class ExerciseControllersTest {
         mockAuthRequest.setContent(request);
         mockAuthRequest.replaceFieldOfContent("muscleIds", List.of("a", "b", "c"));
 
-        Mockito.when(exerciseService.createExercise(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.createExercise(request)).thenReturn(null);
 
         mockMvc.perform(mockAuthRequest.buildAdminRequestWithContent(POST, "/v1/create-exercise"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.PARSE_JSON_ERR.getCode()));
@@ -254,9 +265,9 @@ public class ExerciseControllersTest {
     }
     List<Exercise> exercisesByLevelAndMusclesResponse() {
         return List.of(
-            Exercise.builder().exerciseId(0L).level(Level.IMMEDIATE).build(),
-            Exercise.builder().exerciseId(2L).level(Level.IMMEDIATE).build(),
-            Exercise.builder().exerciseId(8L).level(Level.IMMEDIATE).build()
+            Exercise.builder().exerciseId(0L).level(Level.INTERMEDIATE).build(),
+            Exercise.builder().exerciseId(2L).level(Level.INTERMEDIATE).build(),
+            Exercise.builder().exerciseId(8L).level(Level.INTERMEDIATE).build()
         );
     }
 
@@ -264,7 +275,7 @@ public class ExerciseControllersTest {
     public void getExercisesByLevelAndMuscles_admin_valid() throws Exception {
         var request = this.exercisesByLevelAndMusclesRequest();
         var validRes = this.exercisesByLevelAndMusclesResponse();
-        Mockito.when(exerciseService.getExercisesByLevelAndMuscles(request)).thenReturn(validRes);
+        Mockito.when(exerciseServiceOfAdmin.getExercisesByLevelAndMuscles(request)).thenReturn(validRes);
 
         mockAuthRequest.setContent(request);
         mockMvc
@@ -280,7 +291,7 @@ public class ExerciseControllersTest {
     public void getExercisesByLevelAndMuscles_admin_nullLevel() throws Exception {
         var request = this.exercisesByLevelAndMusclesRequest();
         request.setLevel(null);
-        Mockito.when(exerciseService.getExercisesByLevelAndMuscles(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.getExercisesByLevelAndMuscles(request)).thenReturn(null);
 
         mockAuthRequest.setContent(request);
         mockMvc
@@ -291,7 +302,7 @@ public class ExerciseControllersTest {
     @Test
     public void getExercisesByLevelAndMuscles_admin_invalidTypeLevel() throws Exception {
         var request = this.exercisesByLevelAndMusclesRequest();
-        Mockito.when(exerciseService.getExercisesByLevelAndMuscles(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.getExercisesByLevelAndMuscles(request)).thenReturn(null);
 
         mockAuthRequest.setContent(request);
         mockAuthRequest.replaceFieldOfContent("level", "abc");
@@ -304,7 +315,7 @@ public class ExerciseControllersTest {
     public void getExercisesByLevelAndMuscles_admin_outOfLevelRightRange() throws Exception {
         var request = this.exercisesByLevelAndMusclesRequest();
         request.setLevel(5);
-        Mockito.when(exerciseService.getExercisesByLevelAndMuscles(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.getExercisesByLevelAndMuscles(request)).thenReturn(null);
 
         mockAuthRequest.setContent(request);
         mockMvc
@@ -316,7 +327,7 @@ public class ExerciseControllersTest {
     public void getExercisesByLevelAndMuscles_admin_outOfLevelLeftRange() throws Exception {
         var request = this.exercisesByLevelAndMusclesRequest();
         request.setLevel(-1);
-        Mockito.when(exerciseService.getExercisesByLevelAndMuscles(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.getExercisesByLevelAndMuscles(request)).thenReturn(null);
 
         mockAuthRequest.setContent(request);
         mockMvc
@@ -328,7 +339,7 @@ public class ExerciseControllersTest {
     public void getExercisesByLevelAndMuscles_admin_nullMuscleIds() throws Exception {
         var request = this.exercisesByLevelAndMusclesRequest();
         request.setMuscleIds(null);
-        Mockito.when(exerciseService.getExercisesByLevelAndMuscles(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.getExercisesByLevelAndMuscles(request)).thenReturn(null);
 
         mockAuthRequest.setContent(request);
         mockMvc
@@ -340,7 +351,7 @@ public class ExerciseControllersTest {
     public void getExercisesByLevelAndMuscles_admin_emptyMuscleIds() throws Exception {
         var request = this.exercisesByLevelAndMusclesRequest();
         request.setMuscleIds(List.of());
-        Mockito.when(exerciseService.getExercisesByLevelAndMuscles(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.getExercisesByLevelAndMuscles(request)).thenReturn(null);
 
         mockAuthRequest.setContent(request);
         mockMvc
@@ -351,7 +362,7 @@ public class ExerciseControllersTest {
     @Test
     public void getExercisesByLevelAndMuscles_admin_invalidTypeMuscleIds() throws Exception {
         var request = this.exercisesByLevelAndMusclesRequest();
-        Mockito.when(exerciseService.getExercisesByLevelAndMuscles(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.getExercisesByLevelAndMuscles(request)).thenReturn(null);
 
         mockAuthRequest.setContent(request);
         mockAuthRequest.replaceFieldOfContent("muscleIds", List.of("a", "b", "c"));
@@ -361,10 +372,23 @@ public class ExerciseControllersTest {
     }
 
     @Test
+    public void getExercisesByLevelAndMuscles_admin_nullListAsMuscleIds() throws Exception {
+        var request = this.exercisesByLevelAndMusclesRequest();
+        List<Integer> muscleIds = Arrays.stream(new Integer[] {null, null}).toList();
+        request.setMuscleIds(muscleIds);
+        Mockito.when(exerciseServiceOfAdmin.getExercisesByLevelAndMuscles(request)).thenReturn(null);
+
+        mockAuthRequest.setContent(request);
+        mockMvc
+            .perform(mockAuthRequest.buildAdminRequestWithContent(GET, "/v1/get-exercises-by-level-and-muscles"))
+            .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
+    }
+
+    @Test
     public void getExercisesByLevelAndMuscles_admin_outOfMuscleIdsRange() throws Exception {
         var request = this.exercisesByLevelAndMusclesRequest();
         request.setMuscleIds(List.of(1, 99));
-        Mockito.when(exerciseService.getExercisesByLevelAndMuscles(request)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.getExercisesByLevelAndMuscles(request)).thenReturn(null);
 
         mockAuthRequest.setContent(request);
         mockMvc
@@ -383,7 +407,7 @@ public class ExerciseControllersTest {
         var res = Exercise.builder().exerciseId(req.getExerciseId()).level(Level.getByLevel(req.getLevel()))
             .basicReps(req.getBasicReps()).name(req.getName()).build();
 
-        Mockito.when(exerciseService.updateExercise(req)).thenReturn(res);
+        Mockito.when(exerciseServiceOfAdmin.updateExercise(req)).thenReturn(res);
 
         mockAuthRequest.setContent(req);
         mockMvc
@@ -400,7 +424,7 @@ public class ExerciseControllersTest {
         var req = updateExerciseRequest();
         req.setExerciseId(null);
 
-        Mockito.when(exerciseService.updateExercise(req)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.updateExercise(req)).thenReturn(null);
 
         mockAuthRequest.setContent(req);
         mockMvc
@@ -416,7 +440,7 @@ public class ExerciseControllersTest {
     public void updateExercise_admin_invalidTypeExerciseId() throws Exception {
         var req = updateExerciseRequest();
 
-        Mockito.when(exerciseService.updateExercise(req)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.updateExercise(req)).thenReturn(null);
 
         mockAuthRequest.setContent(req);
         mockAuthRequest.replaceFieldOfContent("exerciseId", "abc");
@@ -434,7 +458,7 @@ public class ExerciseControllersTest {
         var req = updateExerciseRequest();
         req.setName("");
 
-        Mockito.when(exerciseService.updateExercise(req)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.updateExercise(req)).thenReturn(null);
 
         mockAuthRequest.setContent(req);
         mockMvc
@@ -451,7 +475,7 @@ public class ExerciseControllersTest {
         var req = updateExerciseRequest();
         req.setName(null);
 
-        Mockito.when(exerciseService.updateExercise(req)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.updateExercise(req)).thenReturn(null);
 
         mockAuthRequest.setContent(req);
         mockMvc
@@ -466,9 +490,9 @@ public class ExerciseControllersTest {
     @Test
     public void updateExercise_admin_tooLongName() throws Exception {
         var req = updateExerciseRequest();
-        req.setName("123456789123456789123456789");
+        req.setName("1234567891234567891234567891232352346345746867");
 
-        Mockito.when(exerciseService.updateExercise(req)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.updateExercise(req)).thenReturn(null);
 
         mockAuthRequest.setContent(req);
         mockMvc
@@ -485,7 +509,7 @@ public class ExerciseControllersTest {
         var req = updateExerciseRequest();
         req.setBasicReps(null);
 
-        Mockito.when(exerciseService.updateExercise(req)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.updateExercise(req)).thenReturn(null);
 
         mockAuthRequest.setContent(req);
         mockMvc
@@ -501,7 +525,7 @@ public class ExerciseControllersTest {
     public void updateExercise_admin_invalidTypeBasicReps() throws Exception {
         var req = updateExerciseRequest();
 
-        Mockito.when(exerciseService.updateExercise(req)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.updateExercise(req)).thenReturn(null);
 
         mockAuthRequest.setContent(req);
         mockAuthRequest.replaceFieldOfContent("basicReps", "abc");
@@ -519,7 +543,7 @@ public class ExerciseControllersTest {
         var req = updateExerciseRequest();
         req.setBasicReps(-1);
 
-        Mockito.when(exerciseService.updateExercise(req)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.updateExercise(req)).thenReturn(null);
 
         mockAuthRequest.setContent(req);
         mockMvc
@@ -536,7 +560,7 @@ public class ExerciseControllersTest {
         var req = updateExerciseRequest();
         req.setBasicReps(10_000);
 
-        Mockito.when(exerciseService.updateExercise(req)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.updateExercise(req)).thenReturn(null);
 
         mockAuthRequest.setContent(req);
         mockMvc
@@ -553,7 +577,7 @@ public class ExerciseControllersTest {
         var req = updateExerciseRequest();
         req.setLevel(null);
 
-        Mockito.when(exerciseService.updateExercise(req)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.updateExercise(req)).thenReturn(null);
 
         mockAuthRequest.setContent(req);
         mockMvc
@@ -569,7 +593,7 @@ public class ExerciseControllersTest {
     public void updateExercise_admin_invalidTypeLevel() throws Exception {
         var req = updateExerciseRequest();
 
-        Mockito.when(exerciseService.updateExercise(req)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.updateExercise(req)).thenReturn(null);
 
         mockAuthRequest.setContent(req);
         mockAuthRequest.replaceFieldOfContent("level", "abc");
@@ -587,7 +611,7 @@ public class ExerciseControllersTest {
         var req = updateExerciseRequest();
         req.setLevel(99);
 
-        Mockito.when(exerciseService.updateExercise(req)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.updateExercise(req)).thenReturn(null);
 
         mockAuthRequest.setContent(req);
         mockMvc
@@ -604,7 +628,7 @@ public class ExerciseControllersTest {
         var req = updateExerciseRequest();
         req.setLevel(0);
 
-        Mockito.when(exerciseService.updateExercise(req)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.updateExercise(req)).thenReturn(null);
 
         mockAuthRequest.setContent(req);
         mockMvc
@@ -621,7 +645,7 @@ public class ExerciseControllersTest {
         var req = updateExerciseRequest();
         req.setMuscleIds(List.of());
 
-        Mockito.when(exerciseService.updateExercise(req)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.updateExercise(req)).thenReturn(null);
 
         mockAuthRequest.setContent(req);
         mockMvc
@@ -638,7 +662,25 @@ public class ExerciseControllersTest {
         var req = updateExerciseRequest();
         req.setMuscleIds(null);
 
-        Mockito.when(exerciseService.updateExercise(req)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.updateExercise(req)).thenReturn(null);
+
+        mockAuthRequest.setContent(req);
+        mockMvc
+            .perform(mockAuthRequest.buildAdminRequestWithContent(PUT, "/v1/update-exercise"))
+            .andExpect(result -> {
+                var apiRes = jsonService.parseResponseJson(result.getResponse().getContentAsString(), Exercise.class);
+                assertEquals(apiRes.getApplicationCode(), ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode());
+                assertNull(apiRes.getData());
+            });
+    }
+
+    @Test
+    public void updateExercise_admin_nullListAsMuscleIds() throws Exception {
+        var req = updateExerciseRequest();
+        List<Integer> muscleIds = Arrays.stream(new Integer[] {null, null}).toList();
+        req.setMuscleIds(muscleIds);
+
+        Mockito.when(exerciseServiceOfAdmin.updateExercise(req)).thenReturn(null);
 
         mockAuthRequest.setContent(req);
         mockMvc
@@ -655,7 +697,7 @@ public class ExerciseControllersTest {
         var req = updateExerciseRequest();
         req.setMuscleIds(List.of(1, 99));
 
-        Mockito.when(exerciseService.updateExercise(req)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.updateExercise(req)).thenReturn(null);
 
         mockAuthRequest.setContent(req);
         mockMvc
@@ -671,7 +713,7 @@ public class ExerciseControllersTest {
     public void updateExercise_admin_invalidTypeMuscleIds() throws Exception {
         var req = updateExerciseRequest();
 
-        Mockito.when(exerciseService.updateExercise(req)).thenReturn(null);
+        Mockito.when(exerciseServiceOfAdmin.updateExercise(req)).thenReturn(null);
 
         mockAuthRequest.setContent(req);
         mockAuthRequest.replaceFieldOfContent("muscleIds", List.of("a", "b", "c"));
@@ -686,9 +728,9 @@ public class ExerciseControllersTest {
 
     @Test
     public void deleteExercise_admin_valid() throws Exception {
-        var req = DeleteExerciseRequest.builder().exerciseId(2L).build();
+        var req = DeleteObjectRequest.builder().id(2L).build();
 
-        Mockito.doNothing().when(exerciseService).deleteExercise(req);
+        Mockito.doNothing().when(exerciseServiceOfAdmin).deleteExercise(req);
 
         mockAuthRequest.setContent(req);
         mockMvc
@@ -698,7 +740,7 @@ public class ExerciseControllersTest {
 
     @Test
     public void deleteExercise_admin_invalidTypeExerciseId() throws Exception {
-        var req = DeleteExerciseRequest.builder().exerciseId(2L).build();
+        var req = DeleteObjectRequest.builder().id(2L).build();
         mockAuthRequest.setContent(req);
         mockAuthRequest.replaceFieldOfContent("exerciseId", "abc");
         mockMvc
@@ -708,10 +750,55 @@ public class ExerciseControllersTest {
 
     @Test
     public void deleteExercise_admin_nullExerciseId() throws Exception {
-        var req = DeleteExerciseRequest.builder().exerciseId(null).build();
+        var req = DeleteObjectRequest.builder().id(null).build();
         mockAuthRequest.setContent(req);
         mockMvc
             .perform(mockAuthRequest.buildAdminRequestWithContent(DELETE, "/v1/delete-exercise"))
+            .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
+    }
+
+    @Test
+    public void getPaginatedListOfExercises_admin_valid() throws Exception {
+        var request = PaginatedObjectRequest.builder().page(3).build();
+
+        Mockito.when(exerciseServiceOfAdmin.getPaginatedListOfExercises(request)).thenReturn(Mockito.anyList());
+
+        mockAuthRequest.setContent(request);
+        mockMvc.perform(mockAuthRequest.buildAdminRequestWithContent(GET, "/v1/get-exercises-by-page"))
+            .andExpect(jsonPath("applicationCode").value(SucceedCodes.GET_PAGINATED_EXERCISES.getCode()));
+    }
+
+    @Test
+    public void getPaginatedListOfExercises_admin_nullPage() throws Exception {
+        var request = PaginatedObjectRequest.builder().page(null).build();
+
+        Mockito.when(exerciseServiceOfAdmin.getPaginatedListOfExercises(request)).thenReturn(null);
+
+        mockAuthRequest.setContent(request);
+        mockMvc.perform(mockAuthRequest.buildAdminRequestWithContent(GET, "/v1/get-exercises-by-page"))
+            .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
+    }
+
+    @Test
+    public void getPaginatedListOfExercises_admin_invalidTypePage() throws Exception {
+        var request = PaginatedObjectRequest.builder().page(3).build();
+
+        Mockito.when(exerciseServiceOfAdmin.getPaginatedListOfExercises(request)).thenReturn(null);
+
+        mockAuthRequest.setContent(request);
+        mockAuthRequest.replaceFieldOfContent("page", "abc");
+        mockMvc.perform(mockAuthRequest.buildAdminRequestWithContent(GET, "/v1/get-exercises-by-page"))
+            .andExpect(jsonPath("applicationCode").value(ErrorCodes.PARSE_JSON_ERR.getCode()));
+    }
+
+    @Test
+    public void getPaginatedListOfExercises_admin_tooSmallPage() throws Exception {
+        var request = PaginatedObjectRequest.builder().page(0).build();
+
+        Mockito.when(exerciseServiceOfAdmin.getPaginatedListOfExercises(request)).thenReturn(null);
+
+        mockAuthRequest.setContent(request);
+        mockMvc.perform(mockAuthRequest.buildAdminRequestWithContent(GET, "/v1/get-exercises-by-page"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
     }
 }

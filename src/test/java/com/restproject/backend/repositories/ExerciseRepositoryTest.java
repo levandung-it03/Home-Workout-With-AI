@@ -31,7 +31,7 @@ public class ExerciseRepositoryTest {
 
     @CoreEngines
     public Exercise getStereo() {
-        return Exercise.builder().name("Push-ups").basicReps(14).level(Level.IMMEDIATE).build();
+        return Exercise.builder().name("Push-ups").basicReps(14).level(Level.INTERMEDIATE).build();
     }
 
     @Test

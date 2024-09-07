@@ -1,29 +1,29 @@
-package com.restproject.backend.services;
+package com.restproject.backend.services.Admin;
 
-import com.restproject.backend.dtos.request.DeleteExerciseRequest;
-import com.restproject.backend.dtos.request.ExercisesByLevelAndMusclesRequest;
-import com.restproject.backend.dtos.request.NewExerciseRequest;
-import com.restproject.backend.dtos.request.UpdateExerciseRequest;
+import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.entities.MusclesOfExercises;
+import com.restproject.backend.entities.PageObject;
 import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.enums.Level;
 import com.restproject.backend.enums.Muscle;
+import com.restproject.backend.enums.PageEnum;
 import com.restproject.backend.exceptions.ApplicationException;
 import com.restproject.backend.mappers.ExerciseMappers;
+import com.restproject.backend.mappers.PageMappers;
 import com.restproject.backend.repositories.ExerciseRepository;
 import com.restproject.backend.repositories.ExercisesOfSessionsRepository;
 import com.restproject.backend.repositories.MusclesOfExercisesRepository;
-import com.restproject.backend.services.Admin.ExerciseService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.BeforeEach;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +32,7 @@ import java.util.Optional;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ExerciseServiceTest {
     @Autowired
-    ExerciseService exerciseService;
+    ExerciseService exerciseServiceOfAdmin;
 
     @MockBean
     ExerciseRepository exerciseRepository;
@@ -42,18 +42,16 @@ public class ExerciseServiceTest {
     MusclesOfExercisesRepository musclesOfExercisesRepository;
     @MockBean
     ExerciseMappers exerciseMappers;
-
-    @BeforeEach
-    public void init() {
-    }
-
+    @MockBean
+    PageMappers pageMappers;
+    
     @Test
     public void createExercise_admin_valid() {
         var muscleList = List.of(Muscle.CHEST, Muscle.TRICEPS);
         NewExerciseRequest newExerciseRequest = NewExerciseRequest.builder()
             .name("Push-ups")
             .muscleIds(muscleList.stream().map(Muscle::getId).toList())
-            .level(Level.IMMEDIATE.getLevel())
+            .level(Level.INTERMEDIATE.getLevel())
             .basicReps(14)
             .build();
         Exercise savedExercise = Exercise.builder()
@@ -71,7 +69,7 @@ public class ExerciseServiceTest {
             .thenReturn(responseExAndMuscleRelationship);
 
         //--Perform
-        Exercise savedMockExercise = exerciseService.createExercise(newExerciseRequest);
+        Exercise savedMockExercise = exerciseServiceOfAdmin.createExercise(newExerciseRequest);
 
         //--Verify
         assertEquals(savedMockExercise.getName(), savedExercise.getName());
@@ -86,7 +84,7 @@ public class ExerciseServiceTest {
     @Test
     public void getExercisesByLevelAndMuscles_admin_valid() {
         List<Muscle> reqMuscles = List.of(Muscle.CHEST, Muscle.TRICEPS);
-        Level reqLevel = Level.IMMEDIATE;
+        Level reqLevel = Level.INTERMEDIATE;
         var request = ExercisesByLevelAndMusclesRequest.builder().level(reqLevel.getLevel())
             .muscleIds(reqMuscles.stream().map(Muscle::getId).toList()).build();
         var response = List.of(
@@ -97,7 +95,7 @@ public class ExerciseServiceTest {
         Mockito.when(musclesOfExercisesRepository.findAllExercisesByLevelAndMuscles(reqLevel, reqMuscles))
             .thenReturn(response);
 
-        List<Exercise> queriedExList = exerciseService.getExercisesByLevelAndMuscles(request);
+        List<Exercise> queriedExList = exerciseServiceOfAdmin.getExercisesByLevelAndMuscles(request);
 
         assertArrayEquals(queriedExList.toArray(), response.toArray());
     }
@@ -124,7 +122,7 @@ public class ExerciseServiceTest {
         Mockito.doNothing().when(exerciseRepository).deleteById(exeRes.getExerciseId());
         Mockito.when(exerciseRepository.save(exeRes)).thenReturn(exeRes);
 
-        Exercise savedEx = exerciseService.updateExercise(exeReq);
+        Exercise savedEx = exerciseServiceOfAdmin.updateExercise(exeReq);
 
         Mockito.verify(exerciseRepository).findById(exeReq.getExerciseId());
         Mockito.verify(exercisesOfSessionsRepository).existsByExerciseExerciseId(exeRes.getExerciseId());
@@ -159,7 +157,7 @@ public class ExerciseServiceTest {
         Mockito.doNothing().when(musclesOfExercisesRepository).deleteAllByExerciseExerciseId(exeRes.getExerciseId());
         Mockito.when(musclesOfExercisesRepository.saveAll(newMsByEx)).thenReturn(Mockito.anyList());
 
-        Exercise savedEx = exerciseService.updateExercise(exeReq);
+        Exercise savedEx = exerciseServiceOfAdmin.updateExercise(exeReq);
 
         Mockito.verify(exerciseRepository).findById(exeReq.getExerciseId());
         Mockito.verify(exercisesOfSessionsRepository).existsByExerciseExerciseId(exeRes.getExerciseId());
@@ -179,7 +177,7 @@ public class ExerciseServiceTest {
 
         Mockito.when(exerciseRepository.findById(exeReq.getExerciseId())).thenReturn(Optional.empty());
 
-        var exception = assertThrows(ApplicationException.class, () -> exerciseService.updateExercise(exeReq));
+        var exception = assertThrows(ApplicationException.class, () -> exerciseServiceOfAdmin.updateExercise(exeReq));
         assertEquals(exception.getMessage(), ErrorCodes.INVALID_PRIMARY.getMessage());
     }
 
@@ -193,7 +191,7 @@ public class ExerciseServiceTest {
         Mockito.when(exercisesOfSessionsRepository.existsByExerciseExerciseId(exeReq.getExerciseId()))
             .thenReturn(true);
 
-        var exception = assertThrows(ApplicationException.class, () -> exerciseService.updateExercise(exeReq));
+        var exception = assertThrows(ApplicationException.class, () -> exerciseServiceOfAdmin.updateExercise(exeReq));
         assertEquals(exception.getMessage(), ErrorCodes.FORBIDDEN_UPDATING.getMessage());
     }
 
@@ -208,49 +206,68 @@ public class ExerciseServiceTest {
                 .thenReturn(false);
         Mockito.when(musclesOfExercisesRepository.findAllByExercise(exeRes)).thenReturn(List.of());
 
-        var exception = assertThrows(ApplicationException.class, () -> exerciseService.updateExercise(exeReq));
+        var exception = assertThrows(ApplicationException.class, () -> exerciseServiceOfAdmin.updateExercise(exeReq));
         assertEquals(exception.getMessage(), ErrorCodes.INVALID_IDS_COLLECTION.getMessage());
     }
 
     @Test
     public void deleteExercise_admin_valid() {
-        var req = DeleteExerciseRequest.builder().exerciseId(2L).build();
-        Mockito.when(exerciseRepository.existsById(req.getExerciseId())).thenReturn(true);
-        Mockito.when(exercisesOfSessionsRepository.existsByExerciseExerciseId(req.getExerciseId())).thenReturn(false);
-        Mockito.doNothing().when(exerciseRepository).deleteById(req.getExerciseId());
-        Mockito.doNothing().when(musclesOfExercisesRepository).deleteAllByExerciseExerciseId(req.getExerciseId());
+        var req = DeleteObjectRequest.builder().id(2L).build();
+        Mockito.when(exerciseRepository.existsById(req.getId())).thenReturn(true);
+        Mockito.when(exercisesOfSessionsRepository.existsByExerciseExerciseId(req.getId())).thenReturn(false);
+        Mockito.doNothing().when(exerciseRepository).deleteById(req.getId());
+        Mockito.doNothing().when(musclesOfExercisesRepository).deleteAllByExerciseExerciseId(req.getId());
 
-        exerciseService.deleteExercise(req);
+        exerciseServiceOfAdmin.deleteExercise(req);
 
-        Mockito.verify(exerciseRepository, Mockito.times(1)).existsById(req.getExerciseId());
+        Mockito.verify(exerciseRepository, Mockito.times(1)).existsById(req.getId());
         Mockito.verify(exercisesOfSessionsRepository, Mockito.times(1))
-            .existsByExerciseExerciseId(req.getExerciseId());
-        Mockito.verify(exerciseRepository, Mockito.times(1)).deleteById(req.getExerciseId());
+            .existsByExerciseExerciseId(req.getId());
+        Mockito.verify(exerciseRepository, Mockito.times(1)).deleteById(req.getId());
         Mockito.verify(musclesOfExercisesRepository, Mockito.times(1))
-            .deleteAllByExerciseExerciseId(req.getExerciseId());
+            .deleteAllByExerciseExerciseId(req.getId());
     }
 
     @Test
     public void deleteExercise_admin_exerciseIdNotFound() {
-        var req = DeleteExerciseRequest.builder().exerciseId(2L).build();
-        Mockito.when(exerciseRepository.existsById(req.getExerciseId())).thenReturn(false);
+        var req = DeleteObjectRequest.builder().id(2L).build();
+        Mockito.when(exerciseRepository.existsById(req.getId())).thenReturn(false);
 
-        var exc = assertThrows(ApplicationException.class, () -> exerciseService.deleteExercise(req));
-        Mockito.verify(exerciseRepository, Mockito.times(1)).existsById(req.getExerciseId());
+        var exc = assertThrows(ApplicationException.class, () -> exerciseServiceOfAdmin.deleteExercise(req));
+        Mockito.verify(exerciseRepository, Mockito.times(1)).existsById(req.getId());
         assertEquals(exc.getMessage(), ErrorCodes.INVALID_PRIMARY.getMessage());
     }
 
     @Test
     public void deleteExercise_admin_exerciseIdRelatedToSession() {
-        var req = DeleteExerciseRequest.builder().exerciseId(2L).build();
-        Mockito.when(exerciseRepository.existsById(req.getExerciseId())).thenReturn(true);
-        Mockito.when(exercisesOfSessionsRepository.existsByExerciseExerciseId(req.getExerciseId()))
+        var req = DeleteObjectRequest.builder().id(2L).build();
+        Mockito.when(exerciseRepository.existsById(req.getId())).thenReturn(true);
+        Mockito.when(exercisesOfSessionsRepository.existsByExerciseExerciseId(req.getId()))
             .thenReturn(true);
 
-        var exc = assertThrows(ApplicationException.class, () -> exerciseService.deleteExercise(req));
-        Mockito.verify(exerciseRepository, Mockito.times(1)).existsById(req.getExerciseId());
+        var exc = assertThrows(ApplicationException.class, () -> exerciseServiceOfAdmin.deleteExercise(req));
+        Mockito.verify(exerciseRepository, Mockito.times(1)).existsById(req.getId());
         Mockito.verify(exercisesOfSessionsRepository, Mockito.times(1))
-            .existsByExerciseExerciseId(req.getExerciseId());
+            .existsByExerciseExerciseId(req.getId());
         assertEquals(exc.getMessage(), ErrorCodes.FORBIDDEN_UPDATING.getMessage());
+    }
+
+    @Test
+    public void getPaginatedListOfExercises_admin_valid() {
+        var req = PaginatedObjectRequest.builder().page(1).build();
+        var pgo = PageObject.builder().pageNumber(req.getPage()).pageSize(PageEnum.SIZE.getSize()).build();
+        var pgb = pgo.toPageable();
+        var res = new PageImpl<>(List.of(new Exercise(), new Exercise()));
+
+        Mockito.when(pageMappers.pageRequestToPageable(req)).thenReturn(pgo);
+        Mockito.when(exerciseRepository.findAll(pgb)).thenReturn(res);
+
+        List<Exercise> actual = exerciseServiceOfAdmin.getPaginatedListOfExercises(req);
+
+        assertNotNull(actual);
+        assertEquals(actual.size(), res.stream().toList().size());
+
+        Mockito.verify(pageMappers, Mockito.times(1)).pageRequestToPageable(req);
+        Mockito.verify(exerciseRepository, Mockito.times(1)).findAll(pgb);
     }
 }

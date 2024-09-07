@@ -2,6 +2,7 @@ package com.restproject.backend.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.restproject.backend.enums.Level;
+import com.restproject.backend.enums.Muscle;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -24,17 +25,15 @@ public class Session {
     Long sessionId;
 
     @Column(name = "name", nullable = false)
-    @Length(max = 20)
+    @Length(max = 50)
     String name;
-
-    @Column(name = "muscle_list", nullable = false)
-    String muscleList;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "level_enum", nullable = false)
     Level level;
 
     @Column(name = "description", nullable = false)
+    @Length(max = 100)
     String description;
 
     @ManyToMany(targetEntity = Exercise.class, fetch = FetchType.LAZY)
