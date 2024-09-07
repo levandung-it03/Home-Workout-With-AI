@@ -104,6 +104,7 @@ public class SessionServiceTest {
         Mockito.verify(sessionMappers, Mockito.times(1)).insertionToPlain(req);
         Mockito.verify(sessionRepository, Mockito.times(1)).save(savedSession);
         Mockito.verify(exerciseRepository, Mockito.times(2)).findById(Mockito.any(Long.class));
+        Mockito.verify(musclesOfSessionsRepository, Mockito.times(1)).saveAll(musclesOfSessions);
         Mockito.verify(exercisesOfSessionsRepository, Mockito.times(1)).saveAll(exercisesSessions);
     }
 

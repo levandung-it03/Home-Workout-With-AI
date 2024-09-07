@@ -5,12 +5,14 @@ import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.entities.*;
 import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.enums.Level;
+import com.restproject.backend.enums.Muscle;
 import com.restproject.backend.exceptions.ApplicationException;
 import com.restproject.backend.mappers.FilteringPageMappers;
 import com.restproject.backend.mappers.PageMappers;
 import com.restproject.backend.mappers.SessionMappers;
 import com.restproject.backend.repositories.ExerciseRepository;
 import com.restproject.backend.repositories.ExercisesOfSessionsRepository;
+import com.restproject.backend.repositories.MusclesOfSessionsRepository;
 import com.restproject.backend.repositories.SessionRepository;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -33,6 +35,7 @@ public class SessionService {
     FilteringPageMappers filteringPageMappers;
     SessionRepository sessionRepository;
     ExerciseRepository exerciseRepository;
+    MusclesOfSessionsRepository musclesOfSessionsRepository;
     ExercisesOfSessionsRepository exercisesOfSessionsRepository;
 
     public List<Session> getSessionsByLevel(SessionsByLevelRequest request) throws ApplicationException {
@@ -57,6 +60,8 @@ public class SessionService {
     @Transactional(rollbackOn = {Exception.class})
     public Session createSession(NewSessionRequest request) throws ApplicationException {
         var savedSession = sessionRepository.save(sessionMappers.insertionToPlain(request));
+        musclesOfSessionsRepository.saveAll(request.getMuscleIds().stream().map(id ->
+            MusclesOfSessions.builder().muscle(Muscle.getById(id)).session(savedSession).build()).toList());
         exercisesOfSessionsRepository.saveAll(request.getExerciseIds().stream().map(id -> {
             var foundExercise = exerciseRepository.findById(id)
                 .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY));
