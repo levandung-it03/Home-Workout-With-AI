@@ -1,0 +1,1 @@
+CREATE DATABASE home_workout_with_ai;
