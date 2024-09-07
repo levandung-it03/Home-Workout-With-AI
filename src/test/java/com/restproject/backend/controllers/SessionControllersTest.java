@@ -151,7 +151,6 @@ public class SessionControllersTest {
     @CoreEngines
     private Session session() {
         return Session.builder().name("Shoulders exercises for beginner").level(Level.INTERMEDIATE)
-            .muscleList(Muscle.listToString(List.of(Muscle.ABS, Muscle.TRICEPS)))
             .description("Just shoulders in about 1 hour")
             .build();
     }

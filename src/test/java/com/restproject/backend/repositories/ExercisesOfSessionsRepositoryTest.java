@@ -39,11 +39,11 @@ public class ExercisesOfSessionsRepositoryTest {
     public void findAllBySessionSessionId_admin_valid() {
         Pageable pgb = PageRequest.of(0, PageEnum.SIZE.getSize());
         Session savedSession = sessionRepository.save(Session.builder().level(Level.INTERMEDIATE).name("Push-ups")
-            .muscleList("Chest, Triceps").description("None of description").build());
+            .description("None of description").build());
         Exercise savedExercise1 = exerciseRepository.save(Exercise.builder().name("Push-ups").level(Level.INTERMEDIATE)
             .basicReps(14).build());
-        Exercise savedExercise2 = exerciseRepository.save(Exercise.builder().name("Diamond push-ups").level(Level.INTERMEDIATE)
-            .basicReps(14).build());
+        Exercise savedExercise2 = exerciseRepository.save(Exercise.builder().name("Diamond push-ups")
+            .level(Level.INTERMEDIATE).basicReps(14).build());
         var exercises = List.of(
             ExercisesOfSessions.builder().session(savedSession).exercise(savedExercise1).build(),
             ExercisesOfSessions.builder().session(savedSession).exercise(savedExercise2).build()

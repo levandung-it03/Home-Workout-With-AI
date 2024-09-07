@@ -15,16 +15,10 @@ import java.util.Collection;
 public interface SessionMappers {
 
     @Mapping(target = "level", source = "level", qualifiedByName = "mapLevelField")
-    @Mapping(target = "muscleList", source = "muscleIds", qualifiedByName = "mapMuscleIdsToString")
     Session insertionToPlain(NewSessionRequest newSessionRequest);
 
     @Named("mapLevelField")
     default Level mapLevelField(Integer level) {
         return Level.getByLevel(level);
-    }
-
-    @Named("mapMuscleIdsToString")
-    default String mapMuscleIdsToString(Collection<Integer> muscleIds) {
-        return Muscle.idsToString(muscleIds);
     }
 }

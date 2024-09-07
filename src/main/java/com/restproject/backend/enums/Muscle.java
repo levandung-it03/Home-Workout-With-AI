@@ -27,7 +27,6 @@ public enum Muscle {
 
     int id;
     String name;
-    private static final String joiningChars = ", ";
 
     public static Muscle getById(int id) throws ApplicationException {
         for (Muscle muscleEnum: Muscle.values())
@@ -43,17 +42,5 @@ public enum Muscle {
 
     public static List<Muscle> getAllMuscles() {
         return Arrays.asList(Muscle.values());
-    }
-
-    public static String idsToString(Collection<Integer> ids) {
-        return ids.stream().map(id -> Muscle.getById(id).getName()).collect(Collectors.joining(Muscle.joiningChars));
-    }
-
-    public static String listToString(Collection<Muscle> muscles) {
-        return muscles.stream().map(Muscle::getName).collect(Collectors.joining(Muscle.joiningChars));
-    }
-
-    public static Collection<Muscle> formattedStringToList(String musclesAsString) {
-        return Arrays.stream(musclesAsString.split(Muscle.joiningChars)).map(Muscle::getByName).toList();
     }
 }

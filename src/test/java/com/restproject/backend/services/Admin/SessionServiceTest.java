@@ -3,10 +3,7 @@ package com.restproject.backend.services.Admin;
 import com.restproject.backend.dtos.request.NewSessionRequest;
 import com.restproject.backend.dtos.request.PaginatedExercisesOfSessionRequest;
 import com.restproject.backend.dtos.request.PaginatedObjectRequest;
-import com.restproject.backend.entities.Exercise;
-import com.restproject.backend.entities.ExercisesOfSessions;
-import com.restproject.backend.entities.Session;
-import com.restproject.backend.entities.PageObject;
+import com.restproject.backend.entities.*;
 import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.enums.Level;
 import com.restproject.backend.enums.Muscle;
@@ -16,6 +13,7 @@ import com.restproject.backend.mappers.PageMappers;
 import com.restproject.backend.mappers.SessionMappers;
 import com.restproject.backend.repositories.ExerciseRepository;
 import com.restproject.backend.repositories.ExercisesOfSessionsRepository;
+import com.restproject.backend.repositories.MusclesOfSessionsRepository;
 import com.restproject.backend.repositories.SessionRepository;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -45,6 +43,8 @@ public class SessionServiceTest {
     SessionRepository sessionRepository;
     @MockBean
     ExercisesOfSessionsRepository exercisesOfSessionsRepository;
+    @MockBean
+    MusclesOfSessionsRepository musclesOfSessionsRepository;
     @MockBean
     ExerciseRepository exerciseRepository;
     @MockBean
@@ -83,16 +83,18 @@ public class SessionServiceTest {
             .exerciseIds(foundExercises.stream().map(Exercise::getExerciseId).toList())
             .level(Level.INTERMEDIATE.getLevel()).build();
         var savedSession = Session.builder().name(req.getName()).description(req.getDescription())
-            .muscleList(Muscle.idsToString(req.getMuscleIds())).level(Level.getByLevel(req.getLevel()))
-            .exercisesOfSession(foundExercises).build();
+            .level(Level.getByLevel(req.getLevel())).exercisesOfSession(foundExercises).build();
         var exercisesSessions = foundExercises.stream().map(e ->
             ExercisesOfSessions.builder().exercise(e).session(savedSession).build()).toList();
+        var musclesOfSessions = req.getMuscleIds().stream().map(id ->
+            MusclesOfSessions.builder().muscle(Muscle.getById(id)).session(savedSession).build()).toList();
 
         Mockito.when(sessionMappers.insertionToPlain(req)).thenReturn(savedSession);
         Mockito.when(sessionRepository.save(savedSession)).thenReturn(savedSession);
         foundExercises.forEach(e -> {
             Mockito.when(exerciseRepository.findById(e.getExerciseId())).thenReturn(Optional.of(e));
         });
+        Mockito.when(musclesOfSessionsRepository.saveAll(musclesOfSessions)).thenReturn(Mockito.anyList());
         Mockito.when(exercisesOfSessionsRepository.saveAll(exercisesSessions)).thenReturn(exercisesSessions);
 
         Session actual = sessionServiceOfAdmin.createSession(req);
@@ -112,8 +114,7 @@ public class SessionServiceTest {
             .muscleIds(List.of(Muscle.SHOULDERS.getId()))
             .exerciseIds(List.of(1L, 9_999L))
             .level(Level.INTERMEDIATE.getLevel()).build();
-        var savedSession = Session.builder().name(req.getName()).description(req.getDescription())
-            .muscleList(Muscle.idsToString(req.getMuscleIds())).level(Level.getByLevel(req.getLevel())).build();
+        var savedSession = Session.builder().name(req.getName()).description(req.getDescription()).build();
 
         Mockito.when(sessionMappers.insertionToPlain(req)).thenReturn(savedSession);
         Mockito.when(sessionRepository.save(savedSession)).thenReturn(savedSession);
@@ -141,8 +142,7 @@ public class SessionServiceTest {
             .muscleIds(List.of(Muscle.SHOULDERS.getId()))
             .exerciseIds(foundExercises.stream().map(Exercise::getExerciseId).toList())
             .level(Level.INTERMEDIATE.getLevel()).build();
-        var savedSession = Session.builder().name(req.getName()).description(req.getDescription())
-            .muscleList(Muscle.idsToString(req.getMuscleIds())).level(Level.getByLevel(req.getLevel())).build();
+        var savedSession = Session.builder().name(req.getName()).description(req.getDescription()).build();
 
         Mockito.when(sessionMappers.insertionToPlain(req)).thenReturn(savedSession);
         Mockito.when(sessionRepository.save(savedSession)).thenReturn(savedSession);
