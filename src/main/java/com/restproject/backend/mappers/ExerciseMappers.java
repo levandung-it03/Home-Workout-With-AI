@@ -8,7 +8,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
-import org.springframework.stereotype.Service;
 
 @Mapper(componentModel = "spring")
 public interface ExerciseMappers {
@@ -16,7 +15,7 @@ public interface ExerciseMappers {
     Exercise insertionToPlain(NewExerciseRequest exerciseRequest);
 
     @Mapping(target = "level", source = "level", qualifiedByName = "mapLevelField")
-    void updateTarget(@MappingTarget Exercise queriedObject, UpdateExerciseRequest updateInfoObject);
+    void updateTarget(@MappingTarget Exercise updatedExercise, UpdateExerciseRequest updateInfoObject);
 
     @Named("mapLevelField")
     default Level mapLevelField(Integer level) {

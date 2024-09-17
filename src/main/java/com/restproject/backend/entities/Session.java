@@ -14,7 +14,10 @@ import java.util.Collection;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "session")
+@Table(
+    name = "session",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"name","level_enum"})
+)
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Session {

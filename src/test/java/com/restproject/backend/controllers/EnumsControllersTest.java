@@ -15,6 +15,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -26,17 +28,41 @@ public class EnumsControllersTest {
     @Autowired
     MockAuthentication mockAuthentication;
     @Autowired
-    MockAuthRequestBuilders mockAuthRequest;
+    MockAuthRequestBuilders mockAuthRequestBuilders;
 
 
     @BeforeEach
     public void init() {
-        mockAuthRequest.setJwtTokens(mockAuthentication.generateJwtTokens());
+        mockAuthRequestBuilders.setJwtTokens(mockAuthentication.generateJwtTokens());
+    }
+
+    @Test
+    public void getAllMuscles_admin_unauthorized() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/private/admin/v1/get-all-muscles"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void getAllMuscles_user_unauthorized() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/private/user/v1/get-all-muscles"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void getAllLevels_admin_unauthorized() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/private/admin/v1/get-all-levels"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void getAllLevels_user_unauthorized() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/private/user/v1/get-all-levels"))
+            .andExpect(status().isUnauthorized());
     }
 
     @Test
     public void getAllMuscles_admin_valid() throws Exception {
-        var mockRequest = mockAuthRequest.buildAdminRequestNonContent(HttpMethod.GET, "/v1/get-all-muscles");
+        var mockRequest = mockAuthRequestBuilders.buildAdminRequestNonContent(HttpMethod.GET, "/v1/get-all-muscles");
         var expectedValue = Muscle.getAllMuscles().stream().map(Muscle::toString).toArray();    //--enums list
 
         mockMvc.perform(mockRequest)
@@ -46,7 +72,7 @@ public class EnumsControllersTest {
 
     @Test
     public void getAllMuscles_user_valid() throws Exception {
-        var mockRequest = mockAuthRequest.buildUserRequestNonContent(HttpMethod.GET, "/v1/get-all-muscles");
+        var mockRequest = mockAuthRequestBuilders.buildUserRequestNonContent(HttpMethod.GET, "/v1/get-all-muscles");
         var expectedValue = Muscle.getAllMuscles().stream().map(Muscle::toString).toArray();
 
         mockMvc.perform(mockRequest)
@@ -56,7 +82,7 @@ public class EnumsControllersTest {
 
     @Test
     public void getAllLevels_admin_valid() throws Exception {
-        var mockRequest = mockAuthRequest.buildAdminRequestNonContent(HttpMethod.GET, "/v1/get-all-levels");
+        var mockRequest = mockAuthRequestBuilders.buildAdminRequestNonContent(HttpMethod.GET, "/v1/get-all-levels");
         var expectedValue = Level.getAllLevels().stream().map(Level::toString).toArray();
 
         mockMvc.perform(mockRequest)
@@ -66,7 +92,7 @@ public class EnumsControllersTest {
 
     @Test
     public void getAllLevels_user_valid() throws Exception {
-        var mockRequest = mockAuthRequest.buildUserRequestNonContent(HttpMethod.GET, "/v1/get-all-levels");
+        var mockRequest = mockAuthRequestBuilders.buildUserRequestNonContent(HttpMethod.GET, "/v1/get-all-levels");
         var expectedValue = Level.getAllLevels().stream().map(Level::toString).toArray();
 
         mockMvc.perform(mockRequest)

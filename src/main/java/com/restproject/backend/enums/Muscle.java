@@ -1,5 +1,6 @@
 package com.restproject.backend.enums;
 
+import com.restproject.backend.annotations.dev.Overload;
 import com.restproject.backend.exceptions.ApplicationException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -31,6 +32,13 @@ public enum Muscle {
     public static Muscle getById(int id) throws ApplicationException {
         for (Muscle muscleEnum: Muscle.values())
             if (muscleEnum.getId() == id) return muscleEnum;
+        throw new ApplicationException(ErrorCodes.INVALID_MUSCLE_ID);
+    }
+
+    @Overload
+    public static Muscle getById(String id) throws ApplicationException {
+        for (Muscle muscleEnum: Muscle.values())
+            if (muscleEnum.getId() == Integer.parseInt(id.trim())) return muscleEnum;
         throw new ApplicationException(ErrorCodes.INVALID_MUSCLE_ID);
     }
 

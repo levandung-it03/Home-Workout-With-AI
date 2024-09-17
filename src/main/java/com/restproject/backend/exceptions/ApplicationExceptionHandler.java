@@ -1,6 +1,6 @@
 package com.restproject.backend.exceptions;
 
-import com.restproject.backend.dtos.reponse.ApiResponseObject;
+import com.restproject.backend.dtos.response.ApiResponseObject;
 import com.restproject.backend.enums.ErrorCodes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

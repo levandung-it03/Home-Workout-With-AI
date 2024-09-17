@@ -6,4 +6,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SessionsOfSchedulesRepository extends JpaRepository<SessionsOfSchedules, Long> {
+
+    boolean existsBySessionSessionId(Long sessionId);
+
+    void deleteAllByScheduleScheduleId(Long id);
 }

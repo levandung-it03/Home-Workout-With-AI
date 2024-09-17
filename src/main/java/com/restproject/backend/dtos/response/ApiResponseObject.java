@@ -1,4 +1,4 @@
-package com.restproject.backend.dtos.reponse;
+package com.restproject.backend.dtos.response;
 
 import com.restproject.backend.annotations.dev.Overload;
 import com.restproject.backend.enums.ErrorCodes;

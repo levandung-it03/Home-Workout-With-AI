@@ -1,7 +1,7 @@
 package com.restproject.backend.services.Admin;
 
 import com.restproject.backend.dtos.request.NewScheduleRequest;
-import com.restproject.backend.dtos.request.PaginatedObjectRequest;
+import com.restproject.backend.dtos.request.PaginatedTableRequest;
 import com.restproject.backend.entities.Schedule;
 import com.restproject.backend.entities.SessionsOfSchedules;
 import com.restproject.backend.enums.ErrorCodes;
@@ -26,7 +26,7 @@ public class ScheduleService {
     SessionRepository sessionRepository;
     SessionsOfSchedulesRepository sessionsOfSchedulesRepository;
 
-    @Transactional(rollbackOn = {Exception.class})
+    @Transactional(rollbackOn = {RuntimeException.class})
     public Schedule createSchedule(NewScheduleRequest request) throws ApplicationException {
         var savedSchedule = scheduleRepository.save(Schedule.builder().name(request.getName())
             .description(request.getDescription()).level(Level.getByLevel(request.getLevel())).build());
@@ -38,7 +38,7 @@ public class ScheduleService {
         return savedSchedule;
     }
 
-    public List<Schedule> getPaginatedListOfSchedules(PaginatedObjectRequest request) {
+    public List<Schedule> getSchedulesPages(PaginatedTableRequest request) {
         return null;
     }
 }

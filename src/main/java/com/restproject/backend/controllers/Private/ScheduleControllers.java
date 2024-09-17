@@ -1,9 +1,8 @@
-package com.restproject.backend.controllers;
+package com.restproject.backend.controllers.Private;
 
-import com.restproject.backend.dtos.reponse.ApiResponseObject;
+import com.restproject.backend.dtos.request.PaginatedTableRequest;
+import com.restproject.backend.dtos.response.ApiResponseObject;
 import com.restproject.backend.dtos.request.NewScheduleRequest;
-import com.restproject.backend.dtos.request.PaginatedObjectRequest;
-import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.entities.Schedule;
 import com.restproject.backend.enums.SucceedCodes;
 import com.restproject.backend.services.Admin.ScheduleService;
@@ -24,11 +23,11 @@ public class ScheduleControllers {
     ScheduleService scheduleServiceOfAdmin;
 
     @ResponseBody
-    @GetMapping("/admin/v1/get-schedules-by-page")
-    public ResponseEntity<ApiResponseObject<List<Schedule>>> getPaginatedListOfSchedules(
-        @Valid @RequestBody PaginatedObjectRequest request) {
-        return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_PAGINATED_SCHEDULES,
-            scheduleServiceOfAdmin.getPaginatedListOfSchedules(request));
+    @GetMapping("/admin/v1/get-schedules-pages")
+    public ResponseEntity<ApiResponseObject<List<Schedule>>> getSchedulesPages(
+        @Valid @RequestBody PaginatedTableRequest request) {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_SCHEDULES_PAGES,
+            scheduleServiceOfAdmin.getSchedulesPages(request));
     }
 
     @ResponseBody

@@ -12,7 +12,11 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @Table(
     name = "muscles_of_exercises",
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"muscle_enum, exercise_id"})}
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"muscle_enum, exercise_id"})},
+    indexes = {
+        @Index(name = "exercise_index", columnList = "exercise_id"),
+        @Index(name = "muscle_index", columnList = "muscle_enum")
+    }
 )
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)

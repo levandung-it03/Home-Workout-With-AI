@@ -39,9 +39,9 @@ public class ExerciseRepositoryTest {
         Exercise stereo = this.getStereo();
         Exercise saveExercise = exerciseRepository.save(stereo);
 
-        assertEquals(saveExercise.getName(), stereo.getName());
-        assertEquals(saveExercise.getLevel(), stereo.getLevel());
-        assertEquals(saveExercise.getBasicReps(), stereo.getBasicReps());
+        assertEquals(stereo.getName(), saveExercise.getName());
+        assertEquals(stereo.getLevel(), saveExercise.getLevel());
+        assertEquals(stereo.getBasicReps(), saveExercise.getBasicReps());
 
         Exercise duplicated = this.getStereo();
         assertThrows(DataIntegrityViolationException.class, () -> exerciseRepository.save(duplicated));

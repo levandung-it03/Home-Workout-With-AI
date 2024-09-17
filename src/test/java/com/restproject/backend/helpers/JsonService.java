@@ -2,7 +2,7 @@ package com.restproject.backend.helpers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.restproject.backend.dtos.reponse.ApiResponseObject;
+import com.restproject.backend.dtos.response.ApiResponseObject;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

@@ -1,23 +1,26 @@
 package com.restproject.backend.repositories;
 
 import com.restproject.backend.config.RedisConfig;
+import com.restproject.backend.dtos.response.ExerciseHasMusclesResponse;
+import com.restproject.backend.dtos.response.ExercisesOfSessionResponse;
 import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.entities.ExercisesOfSessions;
+import com.restproject.backend.entities.MusclesOfExercises;
 import com.restproject.backend.entities.Session;
 import com.restproject.backend.enums.Level;
+import com.restproject.backend.enums.Muscle;
 import com.restproject.backend.enums.PageEnum;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+
 import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.*;
@@ -31,38 +34,81 @@ public class ExercisesOfSessionsRepositoryTest {
     @Autowired
     ExercisesOfSessionsRepository exercisesOfSessionsRepository;
     @Autowired
+    MusclesOfExercisesRepository musclesOfExercisesRepository;
+    @Autowired
     SessionRepository sessionRepository;
     @Autowired
     ExerciseRepository exerciseRepository;
 
+    /**
+     * RULES:
+     * 1. All Exercises, which are at Beginner Level, belong to Session of request (by req.sessionId) for fast testing.
+     */
     @Test
-    public void findAllBySessionSessionId_admin_valid() {
-        Pageable pgb = PageRequest.of(0, PageEnum.SIZE.getSize());
-        Session savedSession = sessionRepository.save(Session.builder().level(Level.INTERMEDIATE).name("Push-ups")
-            .description("None of description").build());
-        Exercise savedExercise1 = exerciseRepository.save(Exercise.builder().name("Push-ups").level(Level.INTERMEDIATE)
-            .basicReps(14).build());
-        Exercise savedExercise2 = exerciseRepository.save(Exercise.builder().name("Diamond push-ups")
-            .level(Level.INTERMEDIATE).basicReps(14).build());
-        var exercises = List.of(
-            ExercisesOfSessions.builder().session(savedSession).exercise(savedExercise1).build(),
-            ExercisesOfSessions.builder().session(savedSession).exercise(savedExercise2).build()
-        );
-        //--make sure the id created with the declared order.
-        exercises.forEach(e -> exercisesOfSessionsRepository.save(e));
-        Page<ExercisesOfSessions> repoRes = exercisesOfSessionsRepository
-            .findAllBySessionSessionId(savedSession.getSessionId(), pgb);
-        ArrayList<ExercisesOfSessions> actual = new ArrayList<>(repoRes.stream().toList());
-        actual.sort(Comparator.comparing(ExercisesOfSessions::getId));
+    public void findAllExercisesHasMusclesBySessionId_admin_valid() {
+        var sessionRequest = sessionRepository.save(Session.builder().level(Level.BEGINNER).name("Session 2: Chest,...")
+            .description("This is Session").build());
+        var exercises = new ArrayList<>(exerciseRepository.saveAll(List.of(
+            Exercise.builder().name("Push Up").level(Level.BEGINNER).basicReps(15).build(),
+            Exercise.builder().name("Bicep Curl").level(Level.INTERMEDIATE).basicReps(12).build(),
+            Exercise.builder().name("Triceps Dip").level(Level.INTERMEDIATE).basicReps(10).build(),
+            Exercise.builder().name("Squat").level(Level.ADVANCE).basicReps(20).build(),
+            Exercise.builder().name("Plank").level(Level.BEGINNER).basicReps(30).build(),
+            Exercise.builder().name("Jump Squat").level(Level.ADVANCE).basicReps(20).build(),
+            Exercise.builder().name("One Leg Squat").level(Level.ADVANCE).basicReps(20).build()
+        )));
+        //--All of Beginner Level exercises belong to session (with just testing data)
+        var exercisesSessionRelationship = exercises.stream().filter(e -> e.getLevel().equals(Level.BEGINNER)).toList();
+        exercisesOfSessionsRepository.saveAll(exercisesSessionRelationship.stream().map(exe ->
+            ExercisesOfSessions.builder().exercise(exe).session(sessionRequest).build()).toList());
+        var exerciseHasMusclesFromDB = new ArrayList<>(musclesOfExercisesRepository.saveAll(
+            List.of(
+                MusclesOfExercises.builder().exercise(exercises.get(0)).muscle(Muscle.CHEST).build(),
+                MusclesOfExercises.builder().exercise(exercises.get(1)).muscle(Muscle.BICEPS).build(),
+                MusclesOfExercises.builder().exercise(exercises.get(2)).muscle(Muscle.LEG).build(),
+                MusclesOfExercises.builder().exercise(exercises.get(3)).muscle(Muscle.BACK_LATS).build(),
+                MusclesOfExercises.builder().exercise(exercises.get(0)).muscle(Muscle.TRICEPS).build(),
+                MusclesOfExercises.builder().exercise(exercises.get(1)).muscle(Muscle.BACK_LATS).build(),
+                MusclesOfExercises.builder().exercise(exercises.get(2)).muscle(Muscle.ABS).build(),
+                MusclesOfExercises.builder().exercise(exercises.get(3)).muscle(Muscle.BICEPS).build(),
+                MusclesOfExercises.builder().exercise(exercises.get(1)).muscle(Muscle.ABS).build(),
+                MusclesOfExercises.builder().exercise(exercises.get(4)).muscle(Muscle.ABS).build(),
+                MusclesOfExercises.builder().exercise(exercises.get(5)).muscle(Muscle.ABS).build(),
+                MusclesOfExercises.builder().exercise(exercises.get(6)).muscle(Muscle.ABS).build()
+            )));
+        var exercisesHasMusclesRes = new ArrayList<>(exercises.stream().map(exercise ->
+            ExercisesOfSessionResponse.builder().exercise(exercise).muscleList(new ArrayList<>())
+                //--All of Beginner Level exercises belong to session (with just testing data)
+                .withCurrentSession(exercise.getLevel().equals(Level.BEGINNER)).build()).toList());
+        for (MusclesOfExercises exeHasMusDB : exerciseHasMusclesFromDB) {
+            for (ExercisesOfSessionResponse exeHasMusRes : exercisesHasMusclesRes) {
+                if (exeHasMusRes.getExercise().getExerciseId().equals(exeHasMusDB.getExercise().getExerciseId()))
+                    exeHasMusRes.getMuscleList().add(exeHasMusDB.getMuscle());
+            }
+        }
+
+        ArrayList<ExercisesOfSessionResponse> actual = new ArrayList<>(exercisesOfSessionsRepository
+            .findAllExercisesHasMusclesPrioritizeRelationshipBySessionId(
+                sessionRequest.getSessionId(),
+                PageRequest.of(0, PageEnum.SIZE.getSize())
+            ).toList());
 
         assertNotNull(actual);
-        assertEquals(exercises.size(), actual.size());
-        for (int ind = 0; ind < actual.size(); ind++) {
-            assertEquals(actual.get(ind).getId(), exercises.get(ind).getId());
-            assertEquals(actual.get(ind).getExercise().getExerciseId(),
-                exercises.get(ind).getExercise().getExerciseId());
-            assertEquals(actual.get(ind).getSession().getSessionId(),
-                exercises.get(ind).getSession().getSessionId());
+        actual.sort(Comparator.comparing(exe -> exe.getExercise().getExerciseId()));
+        exercisesHasMusclesRes.sort(Comparator.comparing(exe -> exe.getExercise().getExerciseId()));
+        for (int index = 0; index < actual.size(); index++) {
+            var expectExe = exercisesHasMusclesRes.get(index).getExercise();
+            var actualExe = actual.get(index).getExercise();
+            long totalMuscle = exerciseHasMusclesFromDB.stream().filter(exeHasMusDB ->
+                exeHasMusDB.getExercise().getExerciseId().equals(expectExe.getExerciseId())).count();
+
+            assertEquals(expectExe.getName(), actualExe.getName());
+            assertEquals(expectExe.getLevel(), actualExe.getLevel());
+            assertEquals(expectExe.getBasicReps(), actualExe.getBasicReps());
+            assertEquals(totalMuscle, actual.get(index).getMuscleList().size());
         }
+        assertEquals(
+            actual.stream().filter(ExercisesOfSessionResponse::isWithCurrentSession).count(),
+            exercisesHasMusclesRes.stream().filter(ExercisesOfSessionResponse::isWithCurrentSession).count());
     }
 }

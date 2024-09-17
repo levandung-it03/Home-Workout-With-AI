@@ -1,7 +1,7 @@
 package com.restproject.backend.services.Auth;
 
 import com.restproject.backend.dtos.general.TokenDto;
-import com.restproject.backend.dtos.reponse.AuthenticationResponse;
+import com.restproject.backend.dtos.response.AuthenticationResponse;
 import com.restproject.backend.dtos.request.AuthenticationRequest;
 import com.restproject.backend.entities.Auth.RefreshToken;
 import com.restproject.backend.entities.Auth.User;

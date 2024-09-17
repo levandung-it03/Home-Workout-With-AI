@@ -1,6 +1,6 @@
-package com.restproject.backend.controllers;
+package com.restproject.backend.controllers.Private;
 
-import com.restproject.backend.dtos.reponse.ApiResponseObject;
+import com.restproject.backend.dtos.response.ApiResponseObject;
 import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.enums.SucceedCodes;
@@ -12,30 +12,12 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/private")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ExerciseControllers {
     ExerciseService exerciseServiceOfAdmin;
-
-    @ResponseBody
-    @GetMapping("/admin/v1/get-exercises-by-level-and-muscles")
-    public ResponseEntity<ApiResponseObject<List<Exercise>>> getExercisesByLevelAndMuscles(
-        @Valid @RequestBody ExercisesByLevelAndMusclesRequest request) {
-        return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_EXS_BY_LV_AND_MUSCLE,
-            exerciseServiceOfAdmin.getExercisesByLevelAndMuscles(request));
-    }
-
-    @ResponseBody
-    @GetMapping("/admin/v1/get-exercises-by-page")
-    public ResponseEntity<ApiResponseObject<List<Exercise>>> getPaginatedListOfExercises(
-        @Valid @RequestBody PaginatedObjectRequest request) {
-        return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_PAGINATED_EXERCISES,
-            exerciseServiceOfAdmin.getPaginatedListOfExercises(request));
-    }
 
     @ResponseBody
     @PostMapping("/admin/v1/create-exercise")
@@ -45,11 +27,11 @@ public class ExerciseControllers {
     }
 
     @ResponseBody
-    @PutMapping("/admin/v1/update-exercise")
-    public ResponseEntity<ApiResponseObject<Exercise>> updateExercise(
-        @Valid @RequestBody UpdateExerciseRequest request) throws Exception {
+    @PutMapping("/admin/v1/update-exercise-and-muscles")
+    public ResponseEntity<ApiResponseObject<Exercise>> updateExerciseAndMuscles(
+        @Valid @RequestBody UpdateExerciseRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.UPDATE_EXERCISE,
-            exerciseServiceOfAdmin.updateExercise(request));
+            exerciseServiceOfAdmin.updateExerciseAndMuscles(request));
     }
 
     @ResponseBody

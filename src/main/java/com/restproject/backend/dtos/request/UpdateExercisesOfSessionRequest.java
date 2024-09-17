@@ -1,21 +1,25 @@
 package com.restproject.backend.dtos.request;
 
-import jakarta.validation.constraints.Min;
+import com.restproject.backend.annotations.constraint.ListTypeConstraint;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.Collection;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PaginatedExercisesOfSessionRequest {
+public class UpdateExercisesOfSessionRequest {
 
     @NotNull
     Long sessionId;
 
+    @NotEmpty
     @NotNull
-    @Min(1)
-    Integer page;
+    @ListTypeConstraint(type = Long.class)
+    Collection<Long> exerciseIds;
 }

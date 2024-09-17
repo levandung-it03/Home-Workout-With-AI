@@ -21,15 +21,22 @@ public enum ErrorCodes {
     FORBIDDEN_UPDATING(10006, "Can not update or delete a depended object", BAD_REQUEST),
     NOT_SYNC_LEVEL(10007, "Level between relationships don't synchronize to each other", BAD_REQUEST),
     INVALID_FILTERING_FIELD_OR_VALUE(10008, "Invalid filtering field or value", BAD_REQUEST),
+    INVALID_SORTING_FIELD_OR_VALUE(1000, "Invalid sorting field or value", BAD_REQUEST),
     //--Auth(11)
     INVALID_CREDENTIALS(11001, "Username or Password is invalid", UNAUTHORIZED),
-    INVALID_TOKEN(11002, "Token or its claims are invalid", FORBIDDEN),
+    INVALID_TOKEN(11002, "Token or its claims are invalid", UNAUTHORIZED),
     EXPIRED_TOKEN(11003, "Token is expired", FORBIDDEN),
     FORBIDDEN_USER(11004, "User not found or access denied", BAD_REQUEST),
     LOGIN_SESSION_EXPIRED(11005, "Login session is expired, please login again", BAD_REQUEST),
     //--Enums(12)
     INVALID_LEVEL(12001, "Level is invalid", BAD_REQUEST),
     INVALID_MUSCLE_ID(12002, "Muscle Id is invalid", BAD_REQUEST),
+    //--Exercise(13)
+    DUPLICATED_EXERCISE(13001, "Exercise's Name, Level and Basic Reps set is already existing", BAD_REQUEST),
+    //--Session(14)
+    DUPLICATED_SESSION(14001, "Session's Name and Level pair is already existing", BAD_REQUEST),
+    //--ExercisesOfSessions(15)
+    DUPLICATED_EXERCISE_RELATED_TO_SESSION(150001, "Exercise has been already belonged to Session", BAD_REQUEST),
     ;
 
     int code;

@@ -1,7 +1,7 @@
 package com.restproject.backend.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.restproject.backend.dtos.reponse.ApiResponseObject;
+import com.restproject.backend.dtos.response.ApiResponseObject;
 import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.enums.TokenTypes;
 import com.restproject.backend.exceptions.ExpiredTokenException;

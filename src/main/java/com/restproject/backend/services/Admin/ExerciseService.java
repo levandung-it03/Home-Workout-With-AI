@@ -4,7 +4,6 @@ import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.entities.MusclesOfExercises;
 import com.restproject.backend.enums.ErrorCodes;
-import com.restproject.backend.enums.Level;
 import com.restproject.backend.enums.Muscle;
 import com.restproject.backend.exceptions.ApplicationException;
 import com.restproject.backend.mappers.ExerciseMappers;
@@ -16,48 +15,42 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ExerciseService {
     ExerciseMappers exerciseMappers;
-    PageMappers pageMappers;
     ExerciseRepository exerciseRepository;
     MusclesOfExercisesRepository musclesOfExercisesRepository;
     ExercisesOfSessionsRepository exercisesOfSessionsRepository;
 
-    public List<Exercise> getExercisesByLevelAndMuscles(ExercisesByLevelAndMusclesRequest request) {
-        return musclesOfExercisesRepository.findAllExercisesByLevelAndMuscles(
-            Level.getByLevel(request.getLevel()),
-            request.getMuscleIds().stream().map(Muscle::getById).toList()
-        );
-    }
-
-    @Transactional(rollbackOn = {Exception.class})
+    @Transactional(rollbackOn = {RuntimeException.class})
     public Exercise createExercise(NewExerciseRequest request) throws ApplicationException {
-        var savedExercise = exerciseRepository.save(exerciseMappers.insertionToPlain(request));
-
+        Exercise savedExercise;
+        try { savedExercise = exerciseRepository.save(exerciseMappers.insertionToPlain(request)); }
+        catch (DataIntegrityViolationException e) { throw new ApplicationException(ErrorCodes.DUPLICATED_EXERCISE); }
         musclesOfExercisesRepository.saveAll(request.getMuscleIds().stream().map(id ->
             MusclesOfExercises.builder().exercise(savedExercise).muscle(Muscle.getById(id)).build()).toList());
 
         return savedExercise;
     }
 
-    @Transactional(rollbackOn = {Exception.class})
-    public Exercise updateExercise(UpdateExerciseRequest request) throws Exception {
+    @Transactional(rollbackOn = {RuntimeException.class})
+    public Exercise updateExerciseAndMuscles(UpdateExerciseRequest request) throws ApplicationException {
         var formerEx = exerciseRepository.findById(request.getExerciseId())
             .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY));
         //--Check if this Exercise can be updated or not.
         if (exercisesOfSessionsRepository.existsByExerciseExerciseId(formerEx.getExerciseId()))
             throw new ApplicationException(ErrorCodes.FORBIDDEN_UPDATING);
         //--Query all related and updated data is existing in DB.
-        var formerRls = musclesOfExercisesRepository.findAllByExercise(formerEx);
+        var formerRls = musclesOfExercisesRepository.findAllByExerciseExerciseId(formerEx.getExerciseId());
         if (formerRls.isEmpty())    //--If data in DB is wrong.
             throw new ApplicationException(ErrorCodes.INVALID_IDS_COLLECTION);
 
@@ -66,10 +59,12 @@ public class ExerciseService {
         //--Start to save updated data.
         exerciseRepository.deleteById(formerEx.getExerciseId());
         var savedExercise = exerciseRepository.save(formerEx);
-        //--Check if muscles-exercise relationship has any changes to update or not.
-        if (formerRls.stream().map(r -> r.getMuscle().getId()).sorted().toList()
-            .equals(request.getMuscleIds().stream().sorted().toList()))
-            return savedExercise;   //--Doesn't update relationships because of un-changing muscles.
+
+        //--Check if there's changes with Muscles of Updated Exercise.
+        if (formerRls.stream().map(relationship -> relationship.getMuscle().getId()).sorted().toList()
+            .equals(request.getMuscleIds().stream().sorted().toList())) {
+            return savedExercise;   //--Nothing updated equal to return immediately.
+        }
 
         //--Delete the former muscles-exercise relationship.
         musclesOfExercisesRepository.deleteAllByExerciseExerciseId(formerEx.getExerciseId());
@@ -81,7 +76,7 @@ public class ExerciseService {
         return savedExercise;
     }
 
-    @Transactional(rollbackOn = {Exception.class})
+    @Transactional(rollbackOn = {RuntimeException.class})
     public void deleteExercise(DeleteObjectRequest request) {
         if (!exerciseRepository.existsById(request.getId()))
             throw new ApplicationException(ErrorCodes.INVALID_PRIMARY);
@@ -91,11 +86,5 @@ public class ExerciseService {
 
         exerciseRepository.deleteById(request.getId());
         musclesOfExercisesRepository.deleteAllByExerciseExerciseId(request.getId());
-    }
-
-    public List<Exercise> getPaginatedListOfExercises(PaginatedObjectRequest request) {
-        Pageable pageableConfig = pageMappers.pageRequestToPageable(request).toPageable();
-        Page<Exercise> repoResponse =  exerciseRepository.findAll(pageableConfig);
-        return repoResponse.stream().toList();
     }
 }

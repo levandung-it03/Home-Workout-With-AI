@@ -3,14 +3,11 @@ package com.restproject.backend.services.Admin;
 import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.entities.MusclesOfExercises;
-import com.restproject.backend.entities.PageObject;
 import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.enums.Level;
 import com.restproject.backend.enums.Muscle;
-import com.restproject.backend.enums.PageEnum;
 import com.restproject.backend.exceptions.ApplicationException;
 import com.restproject.backend.mappers.ExerciseMappers;
-import com.restproject.backend.mappers.PageMappers;
 import com.restproject.backend.repositories.ExerciseRepository;
 import com.restproject.backend.repositories.ExercisesOfSessionsRepository;
 import com.restproject.backend.repositories.MusclesOfExercisesRepository;
@@ -23,7 +20,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,8 +39,6 @@ public class ExerciseServiceTest {
     MusclesOfExercisesRepository musclesOfExercisesRepository;
     @MockBean
     ExerciseMappers exerciseMappers;
-    @MockBean
-    PageMappers pageMappers;
     
     @Test
     public void createExercise_admin_valid() {
@@ -54,60 +49,71 @@ public class ExerciseServiceTest {
             .level(Level.INTERMEDIATE.getLevel())
             .basicReps(14)
             .build();
-        Exercise savedExercise = Exercise.builder()
+        Exercise expectedExercise = Exercise.builder()
             .basicReps(newExerciseRequest.getBasicReps())
             .name(newExerciseRequest.getName())
             .level(Level.getByLevel(newExerciseRequest.getLevel()))
             .build();
         List<MusclesOfExercises> responseExAndMuscleRelationship = muscleList.stream().map(muscle ->
-            MusclesOfExercises.builder().exercise(savedExercise).muscle(muscle).build()).toList();
+            MusclesOfExercises.builder().exercise(expectedExercise).muscle(muscle).build()).toList();
 
         //--Declare testing tree.
-        Mockito.when(exerciseMappers.insertionToPlain(newExerciseRequest)).thenReturn(savedExercise);
-        Mockito.when(exerciseRepository.save(savedExercise)).thenReturn(savedExercise);
+        Mockito.when(exerciseMappers.insertionToPlain(newExerciseRequest)).thenReturn(expectedExercise);
+        Mockito.when(exerciseRepository.save(expectedExercise)).thenReturn(expectedExercise);
         Mockito.when(musclesOfExercisesRepository.saveAll(responseExAndMuscleRelationship))
             .thenReturn(responseExAndMuscleRelationship);
 
         //--Perform
-        Exercise savedMockExercise = exerciseServiceOfAdmin.createExercise(newExerciseRequest);
+        Exercise actual = exerciseServiceOfAdmin.createExercise(newExerciseRequest);
 
         //--Verify
-        assertEquals(savedMockExercise.getName(), savedExercise.getName());
-        assertEquals(savedMockExercise.getLevel(), savedExercise.getLevel());
-        assertEquals(savedMockExercise.getBasicReps(), savedExercise.getBasicReps());
+        assertEquals(actual.getName(), expectedExercise.getName());
+        assertEquals(actual.getLevel(), expectedExercise.getLevel());
+        assertEquals(actual.getBasicReps(), expectedExercise.getBasicReps());
 
-        Mockito.verify(exerciseRepository, Mockito.times(1)).save(savedExercise);
+        Mockito.verify(exerciseMappers, Mockito.times(1)).insertionToPlain(newExerciseRequest);
+        Mockito.verify(exerciseRepository, Mockito.times(1)).save(expectedExercise);
         Mockito.verify(musclesOfExercisesRepository, Mockito.times(1))
             .saveAll(responseExAndMuscleRelationship);
     }
 
     @Test
-    public void getExercisesByLevelAndMuscles_admin_valid() {
-        List<Muscle> reqMuscles = List.of(Muscle.CHEST, Muscle.TRICEPS);
-        Level reqLevel = Level.INTERMEDIATE;
-        var request = ExercisesByLevelAndMusclesRequest.builder().level(reqLevel.getLevel())
-            .muscleIds(reqMuscles.stream().map(Muscle::getId).toList()).build();
-        var response = List.of(
-            Exercise.builder().level(reqLevel).exerciseId(0L).build(),
-            Exercise.builder().level(reqLevel).exerciseId(3L).build()
-        );
+    public void createExercise_admin_duplicatedUniqueConstraint() {
+        var muscleList = List.of(Muscle.CHEST, Muscle.TRICEPS);
+        NewExerciseRequest newExerciseRequest = NewExerciseRequest.builder()
+            .name("Push-ups")
+            .muscleIds(muscleList.stream().map(Muscle::getId).toList())
+            .level(Level.INTERMEDIATE.getLevel())
+            .basicReps(14)
+            .build();
+        Exercise expectedExercise = Exercise.builder()
+            .basicReps(newExerciseRequest.getBasicReps())
+            .name(newExerciseRequest.getName())
+            .level(Level.getByLevel(newExerciseRequest.getLevel()))
+            .build();
 
-        Mockito.when(musclesOfExercisesRepository.findAllExercisesByLevelAndMuscles(reqLevel, reqMuscles))
-            .thenReturn(response);
+        //--Declare testing tree.
+        Mockito.when(exerciseMappers.insertionToPlain(newExerciseRequest)).thenReturn(expectedExercise);
+        Mockito.when(exerciseRepository.save(expectedExercise)).thenThrow(DataIntegrityViolationException.class);
 
-        List<Exercise> queriedExList = exerciseServiceOfAdmin.getExercisesByLevelAndMuscles(request);
+        //--Perform
+        var exc = assertThrows(ApplicationException.class, () ->
+            exerciseServiceOfAdmin.createExercise(newExerciseRequest));
 
-        assertArrayEquals(queriedExList.toArray(), response.toArray());
+        //--Verify
+        assertEquals(exc.getErrorCodes(), ErrorCodes.DUPLICATED_EXERCISE);
+        Mockito.verify(exerciseMappers, Mockito.times(1)).insertionToPlain(newExerciseRequest);
+        Mockito.verify(exerciseRepository, Mockito.times(1)).save(expectedExercise);
     }
 
-    UpdateExerciseRequest updateExerciseRequest() {
+    UpdateExerciseRequest updateExerciseAndMusclesRequest() {
         return UpdateExerciseRequest.builder().exerciseId(1L).name("Push-ups").level(2).basicReps(14)
             .muscleIds(List.of(0, 2)).build();
     }
 
     @Test
-    public void updateExercise_admin_validWithoutUpdatingMuscles() throws Exception {
-        var exeReq = this.updateExerciseRequest();
+    public void updateExerciseAndMuscles_admin_validWithoutUpdatingMuscles() {
+        var exeReq = this.updateExerciseAndMusclesRequest();
         var exeRes = Exercise.builder().exerciseId(exeReq.getExerciseId()).name(exeReq.getName())
             .basicReps(exeReq.getBasicReps()).level(Level.getByLevel(exeReq.getLevel())).build();
         var msByEx = exeReq.getMuscleIds().stream().map(id ->
@@ -117,26 +123,28 @@ public class ExerciseServiceTest {
         Mockito.when(exerciseRepository.findById(exeReq.getExerciseId())).thenReturn(Optional.of(exeRes));
         Mockito.when(exercisesOfSessionsRepository.existsByExerciseExerciseId(exeRes.getExerciseId()))
             .thenReturn(false);
-        Mockito.when(musclesOfExercisesRepository.findAllByExercise(exeRes)).thenReturn(msByEx);
+        Mockito.when(musclesOfExercisesRepository.findAllByExerciseExerciseId(exeRes.getExerciseId())).thenReturn(msByEx);
         Mockito.doNothing().when(exerciseMappers).updateTarget(exeRes, exeReq);
         Mockito.doNothing().when(exerciseRepository).deleteById(exeRes.getExerciseId());
         Mockito.when(exerciseRepository.save(exeRes)).thenReturn(exeRes);
 
-        Exercise savedEx = exerciseServiceOfAdmin.updateExercise(exeReq);
+        Exercise actual = exerciseServiceOfAdmin.updateExerciseAndMuscles(exeReq);
 
-        Mockito.verify(exerciseRepository).findById(exeReq.getExerciseId());
-        Mockito.verify(exercisesOfSessionsRepository).existsByExerciseExerciseId(exeRes.getExerciseId());
-        Mockito.verify(musclesOfExercisesRepository).findAllByExercise(exeRes);
-        Mockito.verify(exerciseMappers).updateTarget(exeRes, exeReq);
-        Mockito.verify(exerciseRepository).deleteById(exeRes.getExerciseId());
-        Mockito.verify(exerciseRepository).save(exeRes);
+        Mockito.verify(exerciseRepository, Mockito.times(1)).findById(exeReq.getExerciseId());
+        Mockito.verify(exercisesOfSessionsRepository, Mockito.times(1))
+            .existsByExerciseExerciseId(exeRes.getExerciseId());
+        Mockito.verify(musclesOfExercisesRepository, Mockito.times(1))
+            .findAllByExerciseExerciseId(exeRes.getExerciseId());
+        Mockito.verify(exerciseMappers, Mockito.times(1)).updateTarget(exeRes, exeReq);
+        Mockito.verify(exerciseRepository, Mockito.times(1)).deleteById(exeRes.getExerciseId());
+        Mockito.verify(exerciseRepository, Mockito.times(1)).save(exeRes);
 
-        assertEquals(exeRes, savedEx);
+        assertEquals(exeRes, actual);
     }
 
     @Test
-    public void updateExercise_admin_validWithUpdatingMuscles() throws Exception {
-        var exeReq = this.updateExerciseRequest();
+    public void updateExerciseAndMuscles_admin_validWithUpdatingMuscles() {
+        var exeReq = this.updateExerciseAndMusclesRequest();
         var exeRes = Exercise.builder().exerciseId(exeReq.getExerciseId()).name(exeReq.getName())
             .basicReps(exeReq.getBasicReps()).level(Level.getByLevel(exeReq.getLevel())).build();
         var msByEx = exeReq.getMuscleIds().stream().map(id ->
@@ -150,40 +158,49 @@ public class ExerciseServiceTest {
         Mockito.when(exerciseRepository.findById(exeReq.getExerciseId())).thenReturn(Optional.of(exeRes));
         Mockito.when(exercisesOfSessionsRepository.existsByExerciseExerciseId(exeRes.getExerciseId()))
             .thenReturn(false);
-        Mockito.when(musclesOfExercisesRepository.findAllByExercise(exeRes)).thenReturn(msByEx);
+        Mockito.when(musclesOfExercisesRepository.findAllByExerciseExerciseId(exeRes.getExerciseId())).thenReturn(msByEx);
         Mockito.doNothing().when(exerciseMappers).updateTarget(exeRes, exeReq);
         Mockito.doNothing().when(exerciseRepository).deleteById(exeRes.getExerciseId());
         Mockito.when(exerciseRepository.save(exeRes)).thenReturn(exeRes);
         Mockito.doNothing().when(musclesOfExercisesRepository).deleteAllByExerciseExerciseId(exeRes.getExerciseId());
         Mockito.when(musclesOfExercisesRepository.saveAll(newMsByEx)).thenReturn(Mockito.anyList());
 
-        Exercise savedEx = exerciseServiceOfAdmin.updateExercise(exeReq);
+        Exercise actual = exerciseServiceOfAdmin.updateExerciseAndMuscles(exeReq);
 
-        Mockito.verify(exerciseRepository).findById(exeReq.getExerciseId());
-        Mockito.verify(exercisesOfSessionsRepository).existsByExerciseExerciseId(exeRes.getExerciseId());
-        Mockito.verify(musclesOfExercisesRepository).findAllByExercise(exeRes);
-        Mockito.verify(exerciseMappers).updateTarget(exeRes, exeReq);
-        Mockito.verify(exerciseRepository).deleteById(exeRes.getExerciseId());
-        Mockito.verify(exerciseRepository).save(exeRes);
-        Mockito.verify(musclesOfExercisesRepository).deleteAllByExerciseExerciseId(exeRes.getExerciseId());
-        Mockito.verify(musclesOfExercisesRepository).saveAll(newMsByEx);
+        Mockito.verify(exerciseRepository, Mockito.times(1))
+            .findById(exeReq.getExerciseId());
+        Mockito.verify(exercisesOfSessionsRepository, Mockito.times(1))
+            .existsByExerciseExerciseId(exeRes.getExerciseId());
+        Mockito.verify(musclesOfExercisesRepository, Mockito.times(1))
+            .findAllByExerciseExerciseId(exeRes.getExerciseId());
+        Mockito.verify(exerciseMappers, Mockito.times(1))
+            .updateTarget(exeRes, exeReq);
+        Mockito.verify(exerciseRepository, Mockito.times(1))
+            .deleteById(exeRes.getExerciseId());
+        Mockito.verify(exerciseRepository, Mockito.times(1))
+            .save(exeRes);
+        Mockito.verify(musclesOfExercisesRepository, Mockito.times(1))
+            .deleteAllByExerciseExerciseId(exeRes.getExerciseId());
+        Mockito.verify(musclesOfExercisesRepository, Mockito.times(1))
+            .saveAll(newMsByEx);
 
-        assertEquals(exeRes, savedEx);
+        assertEquals(exeRes, actual);
     }
 
     @Test
-    public void updateExercise_admin_exerciseIdNotFound() {
-        var exeReq = this.updateExerciseRequest();
+    public void updateExerciseAndMuscles_admin_exerciseIdNotFound() {
+        var exeReq = this.updateExerciseAndMusclesRequest();
 
         Mockito.when(exerciseRepository.findById(exeReq.getExerciseId())).thenReturn(Optional.empty());
 
-        var exception = assertThrows(ApplicationException.class, () -> exerciseServiceOfAdmin.updateExercise(exeReq));
-        assertEquals(exception.getMessage(), ErrorCodes.INVALID_PRIMARY.getMessage());
+        var exception = assertThrows(ApplicationException.class, () -> exerciseServiceOfAdmin.updateExerciseAndMuscles(exeReq));
+        Mockito.verify(exerciseRepository, Mockito.times(1)).findById(exeReq.getExerciseId());
+        assertEquals(ErrorCodes.INVALID_PRIMARY.getMessage(), exception.getMessage());
     }
 
     @Test
-    public void updateExercise_admin_exerciseIdRelatedToSession() {
-        var exeReq = this.updateExerciseRequest();
+    public void updateExerciseAndMuscles_admin_exerciseIdRelatedToSession() {
+        var exeReq = this.updateExerciseAndMusclesRequest();
         var exeRes = Exercise.builder().exerciseId(exeReq.getExerciseId()).name(exeReq.getName())
             .basicReps(exeReq.getBasicReps()).level(Level.getByLevel(exeReq.getLevel())).build();
 
@@ -191,23 +208,32 @@ public class ExerciseServiceTest {
         Mockito.when(exercisesOfSessionsRepository.existsByExerciseExerciseId(exeReq.getExerciseId()))
             .thenReturn(true);
 
-        var exception = assertThrows(ApplicationException.class, () -> exerciseServiceOfAdmin.updateExercise(exeReq));
-        assertEquals(exception.getMessage(), ErrorCodes.FORBIDDEN_UPDATING.getMessage());
+        var exception = assertThrows(ApplicationException.class, () -> exerciseServiceOfAdmin.updateExerciseAndMuscles(exeReq));
+        Mockito.verify(exerciseRepository, Mockito.times(1)).findById(exeReq.getExerciseId());
+        Mockito.verify(exercisesOfSessionsRepository, Mockito.times(1))
+            .existsByExerciseExerciseId(exeReq.getExerciseId());
+        assertEquals(ErrorCodes.FORBIDDEN_UPDATING.getMessage(), exception.getMessage());
     }
 
     @Test
-    public void updateExercise_admin_emptyFormerMuscleIds() {
-        var exeReq = this.updateExerciseRequest();
+    public void updateExerciseAndMuscles_admin_emptyFormerMuscleIds() {
+        var exeReq = this.updateExerciseAndMusclesRequest();
         var exeRes = Exercise.builder().exerciseId(exeReq.getExerciseId()).name(exeReq.getName())
             .basicReps(exeReq.getBasicReps()).level(Level.getByLevel(exeReq.getLevel())).build();
 
         Mockito.when(exerciseRepository.findById(exeReq.getExerciseId())).thenReturn(Optional.of(exeRes));
         Mockito.when(exercisesOfSessionsRepository.existsByExerciseExerciseId(exeReq.getExerciseId()))
                 .thenReturn(false);
-        Mockito.when(musclesOfExercisesRepository.findAllByExercise(exeRes)).thenReturn(List.of());
+        Mockito.when(musclesOfExercisesRepository.findAllByExerciseExerciseId(exeRes.getExerciseId()))
+            .thenReturn(List.of());
 
-        var exception = assertThrows(ApplicationException.class, () -> exerciseServiceOfAdmin.updateExercise(exeReq));
-        assertEquals(exception.getMessage(), ErrorCodes.INVALID_IDS_COLLECTION.getMessage());
+        var exception = assertThrows(ApplicationException.class, () -> exerciseServiceOfAdmin.updateExerciseAndMuscles(exeReq));
+        Mockito.verify(exerciseRepository, Mockito.times(1)).findById(exeReq.getExerciseId());
+        Mockito.verify(exercisesOfSessionsRepository, Mockito.times(1))
+            .existsByExerciseExerciseId(exeReq.getExerciseId());
+        Mockito.verify(musclesOfExercisesRepository, Mockito.times(1))
+            .findAllByExerciseExerciseId(exeReq.getExerciseId());
+        assertEquals(ErrorCodes.INVALID_IDS_COLLECTION.getMessage(), exception.getMessage());
     }
 
     @Test
@@ -235,7 +261,7 @@ public class ExerciseServiceTest {
 
         var exc = assertThrows(ApplicationException.class, () -> exerciseServiceOfAdmin.deleteExercise(req));
         Mockito.verify(exerciseRepository, Mockito.times(1)).existsById(req.getId());
-        assertEquals(exc.getMessage(), ErrorCodes.INVALID_PRIMARY.getMessage());
+        assertEquals(ErrorCodes.INVALID_PRIMARY.getMessage(), exc.getMessage());
     }
 
     @Test
@@ -249,25 +275,6 @@ public class ExerciseServiceTest {
         Mockito.verify(exerciseRepository, Mockito.times(1)).existsById(req.getId());
         Mockito.verify(exercisesOfSessionsRepository, Mockito.times(1))
             .existsByExerciseExerciseId(req.getId());
-        assertEquals(exc.getMessage(), ErrorCodes.FORBIDDEN_UPDATING.getMessage());
-    }
-
-    @Test
-    public void getPaginatedListOfExercises_admin_valid() {
-        var req = PaginatedObjectRequest.builder().page(1).build();
-        var pgo = PageObject.builder().pageNumber(req.getPage()).pageSize(PageEnum.SIZE.getSize()).build();
-        var pgb = pgo.toPageable();
-        var res = new PageImpl<>(List.of(new Exercise(), new Exercise()));
-
-        Mockito.when(pageMappers.pageRequestToPageable(req)).thenReturn(pgo);
-        Mockito.when(exerciseRepository.findAll(pgb)).thenReturn(res);
-
-        List<Exercise> actual = exerciseServiceOfAdmin.getPaginatedListOfExercises(req);
-
-        assertNotNull(actual);
-        assertEquals(actual.size(), res.stream().toList().size());
-
-        Mockito.verify(pageMappers, Mockito.times(1)).pageRequestToPageable(req);
-        Mockito.verify(exerciseRepository, Mockito.times(1)).findAll(pgb);
+        assertEquals(ErrorCodes.FORBIDDEN_UPDATING.getMessage(), exc.getMessage());
     }
 }

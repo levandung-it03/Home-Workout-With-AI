@@ -1,6 +1,6 @@
-package com.restproject.backend.controllers;
+package com.restproject.backend.controllers.Private;
 
-import com.restproject.backend.dtos.reponse.ApiResponseObject;
+import com.restproject.backend.dtos.response.ApiResponseObject;
 import com.restproject.backend.enums.Level;
 import com.restproject.backend.enums.Muscle;
 import com.restproject.backend.enums.SucceedCodes;

@@ -10,7 +10,14 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "muscles_of_sessions")
+@Table(
+    name = "muscles_of_sessions",
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"muscle_enum, session_id"})},
+    indexes = {
+        @Index(name = "session_index", columnList = "session_id"),
+        @Index(name = "muscle_index", columnList = "muscle_enum")
+    }
+)
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class MusclesOfSessions {

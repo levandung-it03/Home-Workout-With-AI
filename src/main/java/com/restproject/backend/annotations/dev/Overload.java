@@ -5,7 +5,7 @@ import java.lang.annotation.*;
 /**
  * README: This annotation is used to make clarify method's meaning with Overloading.
  */
-@Target({ElementType.METHOD})
+@Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Overload {
 }

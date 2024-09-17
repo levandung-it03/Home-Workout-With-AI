@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.restproject.backend.annotations.dev.Constructors;
 import com.restproject.backend.annotations.dev.CoreEngines;
 import com.restproject.backend.annotations.dev.Overload;
-import com.restproject.backend.dtos.reponse.ApiResponseObject;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -40,19 +37,22 @@ public class MockAuthRequestBuilders {
         this.jwtTokens = jwtTokens;
     }
 
-    public <T> void setContent(T object) throws JsonProcessingException {
+    public <T> MockAuthRequestBuilders setContent(T object) throws JsonProcessingException {
         this.content = objectMapper.writeValueAsString(object);
+        return this;
     }
 
     @Overload
-    public void setContent(String content) {
-        this.content = content;
+    public MockAuthRequestBuilders setContent(String json) {
+        this.content = json;
+        return this;
     }
 
-    public <T> void replaceFieldOfContent(String name, T newValue) throws JsonProcessingException {
+    public <T> MockAuthRequestBuilders replaceFieldOfContent(String name, T newValue) throws JsonProcessingException {
         Map<String, Object> contentAsMap = objectMapper.readValue(this.content, Map.class);
         contentAsMap.put(name, newValue);
         this.content = objectMapper.writeValueAsString(contentAsMap);
+        return this;
     }
 
     public <T> MockHttpServletRequestBuilder buildAdminRequestWithContent(HttpMethod method, String uri) {
