@@ -4,6 +4,7 @@ import com.restproject.backend.dtos.request.UpdateExercisesOfSessionRequest;
 import com.restproject.backend.dtos.response.ApiResponseObject;
 import com.restproject.backend.dtos.request.PaginatedRelationshipRequest;
 import com.restproject.backend.dtos.response.ExercisesOfSessionResponse;
+import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.enums.SucceedCodes;
 import com.restproject.backend.services.Admin.ExercisesOfSessionsService;
@@ -25,7 +26,7 @@ public class ExercisesOfSessionsControllers {
 
     @ResponseBody
     @GetMapping("/admin/v1/get-exercises-has-muscles-of-session-pages")   //--For "Show Exercises" of Session.
-    public ResponseEntity<ApiResponseObject<List<ExercisesOfSessionResponse>>>
+    public ResponseEntity<ApiResponseObject<TablePagesResponse<ExercisesOfSessionResponse>>>
     getExercisesHasMusclesOfSessionPagesPrioritizeRelationship(
         @Valid @RequestBody PaginatedRelationshipRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_EXERCISES_HAS_MUSCLES_OF_SESSION_PAGES,

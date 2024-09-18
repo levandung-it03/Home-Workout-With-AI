@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Data
@@ -22,8 +23,7 @@ public class PaginatedRelationshipRequest {
     @Min(1)
     Integer page;
 
-    @NotNull
-    Map<String, Object> filterFields;
+    HashMap<String, Object> filterFields;
 
     String sortedField;
 

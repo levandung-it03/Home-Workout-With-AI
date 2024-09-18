@@ -23,7 +23,6 @@ public class PaginatedTableRequest {
     @Min(1)
     Integer page;
 
-    @NotNull
     HashMap<String, Object> filterFields;
 
     String sortedField;

@@ -36,7 +36,7 @@ public class MusclesOfSessionsService {
         //--Build Pageable with sorting mode.
         Pageable pageableCfg = pageMappers.tablePageRequestToPageable(request).toPageable();
 
-        if (request.getFilterFields().isEmpty()) {
+        if (Objects.isNull(request.getFilterFields()) || request.getFilterFields().isEmpty()) {
             Page<Object[]> repoRes = musclesOfSessionsRepository.findAllSessionsHasMuscles(pageableCfg);
             return TablePagesResponse.<SessionHasMusclesResponse>builder()
                 .data(repoRes.stream().map(SessionHasMusclesResponse::buildFromNativeQuery).toList())

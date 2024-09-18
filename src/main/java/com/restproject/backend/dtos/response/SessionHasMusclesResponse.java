@@ -31,17 +31,16 @@ public class SessionHasMusclesResponse {
             .name(params[1].toString())
             .description(params[2].toString())
             .level(Level.valueOf(params[3].toString()))
-            .muscleList(
-                Arrays.stream(params[4].toString()
-                    .replaceAll("[\\[\\]]", "")
-                    .split(String.valueOf(MusclesOfSessionsRepository.GROUP_CONCAT_SEPARATOR))
-                ).map(m -> Muscle.valueOf(m.toUpperCase().trim()).toString()).toList())
+            .muscleList(Arrays.stream(params[4].toString()
+                .replaceAll("[\\[\\]]", "")
+                .split(String.valueOf(MusclesOfSessionsRepository.GROUP_CONCAT_SEPARATOR))
+            ).toList())
             .build();
     }
 
     public static SessionHasMusclesResponse buildFromHashMap(HashMap<String, Object> map)
         throws ApplicationException, IllegalArgumentException, NullPointerException, NoSuchFieldException {
-        for (String key: map.keySet())
+        for (String key : map.keySet())
             SessionHasMusclesResponse.class.getDeclaredField(key); //--Ignored value.
 
         var sessionInfo = new SessionHasMusclesResponse();

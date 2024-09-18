@@ -36,7 +36,7 @@ public class MusclesOfExercisesService {
         //--Build Pageable with sorting mode.
         Pageable pageableCfg = pageMappers.tablePageRequestToPageable(request).toPageable();
 
-        if (request.getFilterFields().isEmpty()) {
+        if (Objects.isNull(request.getFilterFields()) || request.getFilterFields().isEmpty()) {
             Page<Object[]> repoRes = musclesOfExercisesRepository.findAllExercisesHasMuscles(pageableCfg);
             return TablePagesResponse.<ExerciseHasMusclesResponse>builder()
                 .data(repoRes.stream().map(ExerciseHasMusclesResponse::buildFromNativeQuery).toList())

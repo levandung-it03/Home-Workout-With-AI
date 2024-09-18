@@ -2,7 +2,9 @@ package com.restproject.backend.controllers;
 
 import com.restproject.backend.dtos.request.UpdateExercisesOfSessionRequest;
 import com.restproject.backend.dtos.request.PaginatedRelationshipRequest;
+import com.restproject.backend.dtos.response.ApiResponseObject;
 import com.restproject.backend.dtos.response.ExercisesOfSessionResponse;
+import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.enums.Muscle;
@@ -32,6 +34,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @SpringBootTest
@@ -62,10 +65,13 @@ public class ExercisesOfSessionsControllersTest {
     @Test
     public void getExercisesHasMusclesOfSessionPagesPrioritizeRelationship_admin_valid() throws Exception {
         var req = this.paginatedExercisesOfSessionRequest();
-        var res = List.of(
-            ExercisesOfSessionResponse.builder().exercise(Exercise.builder().exerciseId(1L).build())
-                .muscleList(List.of(Muscle.CHEST, Muscle.TRICEPS)).withCurrentSession(true).build()
-        );
+        var res = TablePagesResponse.<ExercisesOfSessionResponse>builder()
+            .data(List.of(
+                ExercisesOfSessionResponse.builder().exerciseId(2L)
+                    .muscleList(List.of(Muscle.CHEST.toString())).withCurrentSession(true).build()
+            ))
+            .currentPage(req.getPage())
+            .totalPages(10).build();
         Mockito.when(exercisesOfSessionsService.getExercisesHasMusclesOfSessionPagesPrioritizeRelationship(req))
             .thenReturn(res);
 
@@ -75,13 +81,14 @@ public class ExercisesOfSessionsControllersTest {
                 .buildAdminRequestWithContent(GET, "/v1/get-exercises-has-muscles-of-session-pages"))
             .andExpect(result -> {
                 assertNotNull(result);
-                var response = jsonService.parseResJsonByDataList(result.getResponse().getContentAsString(),
-                    ExercisesOfSessionResponse.class);
+                ApiResponseObject<TablePagesResponse> apiRes = jsonService
+                    .parseResponseJson(result.getResponse().getContentAsString(), TablePagesResponse.class);
+                TablePagesResponse response = apiRes.getData();
 
-                assertEquals(response.getData().size(), res.size());
-                assertEquals(SucceedCodes.GET_EXERCISES_HAS_MUSCLES_OF_SESSION_PAGES.getCode(), response.getApplicationCode());
-                assertEquals(response.getData().getFirst().getExercise().getExerciseId(),
-                    res.getFirst().getExercise().getExerciseId());
+                assertEquals(response.getData().size(), res.getData().size());
+                assertEquals(SucceedCodes.GET_EXERCISES_HAS_MUSCLES_OF_SESSION_PAGES.getCode(), apiRes.getApplicationCode());
+                assertEquals(Integer.parseInt(((LinkedHashMap) response.getData().get(0)).get("exerciseId").toString()),
+                    res.getData().getFirst().getExerciseId());
             });
     }
 
@@ -128,7 +135,7 @@ public class ExercisesOfSessionsControllersTest {
         mockMvc
             .perform(mockAuthRequestBuilders
                 .setContent(this.paginatedExercisesOfSessionRequest())
-                .replaceFieldOfContent("sessionId", null)
+                .replaceFieldOfContent("id", null)
                 .buildAdminRequestWithContent(GET, "/v1/get-exercises-has-muscles-of-session-pages"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
     }

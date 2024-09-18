@@ -2,7 +2,9 @@ package com.restproject.backend.services.Admin;
 
 import com.restproject.backend.dtos.request.UpdateExercisesOfSessionRequest;
 import com.restproject.backend.dtos.request.PaginatedRelationshipRequest;
+import com.restproject.backend.dtos.response.ExerciseHasMusclesResponse;
 import com.restproject.backend.dtos.response.ExercisesOfSessionResponse;
+import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.entities.ExercisesOfSessions;
 import com.restproject.backend.enums.ErrorCodes;
@@ -20,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -30,12 +33,43 @@ public class ExercisesOfSessionsService {
     ExerciseRepository exerciseRepository;
     ExercisesOfSessionsRepository exercisesOfSessionsRepository;
 
-    public List<ExercisesOfSessionResponse> getExercisesHasMusclesOfSessionPagesPrioritizeRelationship(
+    public TablePagesResponse<ExercisesOfSessionResponse> getExercisesHasMusclesOfSessionPagesPrioritizeRelationship(
         PaginatedRelationshipRequest request) {
-        Pageable pageableConfig = pageMappers.relationshipPageRequestToPageable(request).toPageable();
-        Page<ExercisesOfSessionResponse> repoResponse = exercisesOfSessionsRepository
-            .findAllExercisesHasMusclesPrioritizeRelationshipBySessionId(request.getId(), pageableConfig);
-        return repoResponse.stream().toList();
+        //--Build sorting info.
+        if (!Objects.isNull(request.getSortedField()) && !request.getSortedField().equals("muscleList")) {
+            try {  //--Ignored result
+                Exercise.class.getDeclaredField(request.getSortedField());
+            } catch (NoSuchFieldException e) {
+                throw new ApplicationException(ErrorCodes.INVALID_SORTING_FIELD_OR_VALUE);
+            }
+        }
+        //--Build Pageable with sorting mode.
+        Pageable pageableCfg = pageMappers.relationshipPageRequestToPageable(request).toPageable();
+
+        if (Objects.isNull(request.getFilterFields()) || request.getFilterFields().isEmpty()) {
+            Page<Object[]> repoRes = exercisesOfSessionsRepository
+                .findAllExercisesHasMusclesPrioritizeRelationshipBySessionId(request.getId(), pageableCfg);
+            return TablePagesResponse.<ExercisesOfSessionResponse>builder()
+                .data(repoRes.stream().map(ExercisesOfSessionResponse::buildFromNativeQuery).toList())
+                .currentPage(request.getPage())
+                .totalPages(repoRes.getTotalPages()).build();
+        }
+
+        //--Build filtering info.
+        ExercisesOfSessionResponse exerciseInfo;
+        try {
+            exerciseInfo = ExercisesOfSessionResponse.buildFromHashMap(request.getFilterFields());
+        } catch (ApplicationException | IllegalArgumentException | NullPointerException | NoSuchFieldException e) {
+            throw new ApplicationException(ErrorCodes.INVALID_FILTERING_FIELD_OR_VALUE);
+        }
+
+        Page<Object[]> repoRes = exercisesOfSessionsRepository
+            .findAllExercisesHasMusclesPrioritizeRelationshipBySessionId(request.getId(), exerciseInfo, pageableCfg);
+        return TablePagesResponse.<ExercisesOfSessionResponse>builder()
+            .data(repoRes.stream().map(ExercisesOfSessionResponse::buildFromNativeQuery).toList())
+            .currentPage(request.getPage())
+            .totalPages(repoRes.getTotalPages())
+            .build();
     }
 
     @Transactional(rollbackOn = {RuntimeException.class})

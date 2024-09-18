@@ -31,17 +31,16 @@ public class ExerciseHasMusclesResponse {
             .name(params[1].toString())
             .basicReps(Integer.parseInt(params[2].toString()))
             .level(Level.valueOf(params[3].toString()))
-            .muscleList(
-                Arrays.stream(params[4].toString()
-                    .replaceAll("[\\[\\]]", "")
-                    .split(String.valueOf(MusclesOfExercisesRepository.GROUP_CONCAT_SEPARATOR))
-            ).map(m -> Muscle.valueOf(m.toUpperCase().trim()).toString()).toList())
+            .muscleList(Arrays.stream(params[4].toString()
+                .replaceAll("[\\[\\]]", "")
+                .split(String.valueOf(MusclesOfExercisesRepository.GROUP_CONCAT_SEPARATOR))
+            ).toList())
             .build();
     }
-    
+
     public static ExerciseHasMusclesResponse buildFromHashMap(HashMap<String, Object> map)
         throws ApplicationException, IllegalArgumentException, NullPointerException, NoSuchFieldException {
-        for (String key: map.keySet())
+        for (String key : map.keySet())
             ExerciseHasMusclesResponse.class.getDeclaredField(key); //--Ignored value.
 
         var exerciseInfo = new ExerciseHasMusclesResponse();
@@ -52,8 +51,8 @@ public class ExerciseHasMusclesResponse {
             : Integer.parseInt(map.get("basicReps").toString()));
         exerciseInfo.setMuscleList(!map.containsKey("muscleList") ? new ArrayList<>()   //--May throw IllegalArgExc
             : Arrays.stream(map.get("muscleList").toString()
-                .replaceAll("[\\[\\]]", "").split(",")
-            ).map(id -> Muscle.getById(id).toString()).toList());
+            .replaceAll("[\\[\\]]", "").split(",")
+        ).map(id -> Muscle.getById(id).toString()).toList());
         return exerciseInfo;
     }
 

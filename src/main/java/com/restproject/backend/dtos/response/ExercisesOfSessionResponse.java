@@ -1,14 +1,13 @@
 package com.restproject.backend.dtos.response;
 
-import com.restproject.backend.annotations.dev.Constructors;
-import com.restproject.backend.annotations.dev.Overload;
-import com.restproject.backend.entities.Exercise;
+import com.restproject.backend.enums.Level;
 import com.restproject.backend.enums.Muscle;
+import com.restproject.backend.exceptions.ApplicationException;
+import com.restproject.backend.repositories.MusclesOfExercisesRepository;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Data
 @NoArgsConstructor
@@ -16,15 +15,42 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ExercisesOfSessionResponse {
-    Exercise exercise;
-    List<Muscle> muscleList;
+    Long exerciseId;
+    String name;
+    Level level;
+    Integer basicReps;
+    List<String> muscleList;    //--Keep MuscleEnum as String to make filter works correctly.
     boolean withCurrentSession;
 
-    @Constructors
-    @Overload
-    public ExercisesOfSessionResponse(Exercise exercise, String muscleListFromRepo, boolean withCurrentSession) {
-        this.exercise = exercise;
-        this.withCurrentSession = withCurrentSession;
-        this.muscleList = Arrays.stream(muscleListFromRepo.split(",")).map(Muscle::valueOf).toList();
+    public static ExercisesOfSessionResponse buildFromNativeQuery(Object[] params) {
+        return ExercisesOfSessionResponse.builder()
+            .exerciseId(Long.parseLong(params[0].toString()))
+            .name(params[1].toString())
+            .basicReps(Integer.parseInt(params[2].toString()))
+            .level(Level.valueOf(params[3].toString()))
+            .withCurrentSession(!Objects.isNull(params[4]) && params[4].toString().equals("1"))
+            .muscleList(Arrays.stream(params[5].toString()
+                .replaceAll("[\\[\\]]", "")
+                .split(String.valueOf(MusclesOfExercisesRepository.GROUP_CONCAT_SEPARATOR))
+            ).toList())
+            .build();
+    }
+
+    public static ExercisesOfSessionResponse buildFromHashMap(HashMap<String, Object> map)
+        throws ApplicationException, IllegalArgumentException, NullPointerException, NoSuchFieldException {
+        for (String key : map.keySet())
+            ExercisesOfSessionResponse.class.getDeclaredField(key); //--Ignored value.
+
+        var exerciseInfo = new ExercisesOfSessionResponse();
+        exerciseInfo.setMuscleList(!map.containsKey("muscleList") ? new ArrayList<>()   //--May throw IllegalArgExc
+            : Arrays.stream(map.get("muscleList").toString()
+            .replaceAll("[\\[\\]]", "").split(",")
+        ).map(id -> Muscle.getById(id).toString()).toList());
+        exerciseInfo.setName(!map.containsKey("name") ? null : map.get("name").toString());
+        exerciseInfo.setBasicReps(!map.containsKey("basicReps") ? null
+            : Integer.parseInt(map.get("basicReps").toString()));
+        exerciseInfo.setLevel(!map.containsKey("level") ? null
+            : Level.getByLevel(Integer.parseInt(map.get("level").toString()))); //--May throw AppExc
+        return exerciseInfo;
     }
 }
