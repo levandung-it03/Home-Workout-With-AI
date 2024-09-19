@@ -3,6 +3,7 @@ package com.restproject.backend.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.restproject.backend.entities.Auth.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -38,4 +39,8 @@ public class UserInfo {
 
     @Column(name = "email", nullable = false)
     String email;
+
+    @Column(name = "coins", nullable = false)
+    @Min(0)
+    Long coins;
 }

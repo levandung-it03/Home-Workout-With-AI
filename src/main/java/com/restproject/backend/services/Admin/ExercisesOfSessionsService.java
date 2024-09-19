@@ -35,15 +35,9 @@ public class ExercisesOfSessionsService {
 
     public TablePagesResponse<ExercisesOfSessionResponse> getExercisesHasMusclesOfSessionPagesPrioritizeRelationship(
         PaginatedRelationshipRequest request) {
-        //--Build sorting info.
-        if (!Objects.isNull(request.getSortedField()) && !request.getSortedField().equals("muscleList")) {
-            try {  //--Ignored result
-                Exercise.class.getDeclaredField(request.getSortedField());
-            } catch (NoSuchFieldException e) {
-                throw new ApplicationException(ErrorCodes.INVALID_SORTING_FIELD_OR_VALUE);
-            }
-        }
-        //--Build Pageable with sorting mode.
+        if (!Objects.isNull(request.getSortedField())   //--If it's null, it means client doesn't want to sort.
+        &&  !Exercise.INSTANCE_FIELDS.contains(request.getSortedField()))
+            throw new ApplicationException(ErrorCodes.INVALID_SORTING_FIELD_OR_VALUE);
         Pageable pageableCfg = pageMappers.relationshipPageRequestToPageable(request).toPageable();
 
         if (Objects.isNull(request.getFilterFields()) || request.getFilterFields().isEmpty()) {
@@ -51,8 +45,7 @@ public class ExercisesOfSessionsService {
                 .findAllExercisesHasMusclesPrioritizeRelationshipBySessionId(request.getId(), pageableCfg);
             return TablePagesResponse.<ExercisesOfSessionResponse>builder()
                 .data(repoRes.stream().map(ExercisesOfSessionResponse::buildFromNativeQuery).toList())
-                .currentPage(request.getPage())
-                .totalPages(repoRes.getTotalPages()).build();
+                .currentPage(request.getPage()).totalPages(repoRes.getTotalPages()).build();
         }
 
         //--Build filtering info.
@@ -67,9 +60,7 @@ public class ExercisesOfSessionsService {
             .findAllExercisesHasMusclesPrioritizeRelationshipBySessionId(request.getId(), exerciseInfo, pageableCfg);
         return TablePagesResponse.<ExercisesOfSessionResponse>builder()
             .data(repoRes.stream().map(ExercisesOfSessionResponse::buildFromNativeQuery).toList())
-            .currentPage(request.getPage())
-            .totalPages(repoRes.getTotalPages())
-            .build();
+            .currentPage(request.getPage()).totalPages(repoRes.getTotalPages()).build();
     }
 
     @Transactional(rollbackOn = {RuntimeException.class})

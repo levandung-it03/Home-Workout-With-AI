@@ -54,8 +54,7 @@ public interface MusclesOfExercisesRepository extends JpaRepository<MusclesOfExe
         SELECT e.exercise_id, e.name, e.basic_reps, e.level_enum, GROUP_CONCAT(
             DISTINCT m.muscle_enum
             ORDER BY m.muscle_enum
-            ASC SEPARATOR '""" + GROUP_CONCAT_SEPARATOR
-        + "') " + """
+            ASC SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "') AS muscleList" + """
         FROM muscles_of_exercises m
         INNER JOIN exercise e ON e.exercise_id = m.exercise_id
         GROUP BY m.exercise_id

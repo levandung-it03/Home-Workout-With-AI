@@ -7,7 +7,6 @@ import com.restproject.backend.repositories.MusclesOfExercisesRepository;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -41,7 +40,8 @@ public class ExerciseHasMusclesResponse {
     public static ExerciseHasMusclesResponse buildFromHashMap(HashMap<String, Object> map)
         throws ApplicationException, IllegalArgumentException, NullPointerException, NoSuchFieldException {
         for (String key : map.keySet())
-            ExerciseHasMusclesResponse.class.getDeclaredField(key); //--Ignored value.
+            if (Arrays.stream(ExerciseHasMusclesResponse.class.getDeclaredFields())
+                .noneMatch(f -> f.getName().equals(key))) throw new NoSuchFieldException(); //--Ignored value.
 
         var exerciseInfo = new ExerciseHasMusclesResponse();
         exerciseInfo.setName(!map.containsKey("name") ? null : map.get("name").toString());

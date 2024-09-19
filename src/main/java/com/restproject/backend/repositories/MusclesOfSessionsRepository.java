@@ -26,8 +26,7 @@ public interface MusclesOfSessionsRepository extends JpaRepository<MusclesOfSess
         SELECT s.session_id, s.name, s.description, s.level_enum, GROUP_CONCAT(
             DISTINCT mosft.muscle_enum
             ORDER BY mosft.muscle_enum ASC
-            SEPARATOR '""" + GROUP_CONCAT_SEPARATOR
-        + "')" + """
+            SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "') AS muscleList" + """
         FROM (
             SELECT mosjid.session_id AS session_id, mosjid.muscle_enum AS muscle_enum
             FROM muscles_of_sessions mosjid

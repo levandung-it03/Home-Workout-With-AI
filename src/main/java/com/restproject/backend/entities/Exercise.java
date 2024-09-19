@@ -8,6 +8,11 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Length;
 
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,6 +26,8 @@ import org.hibernate.validator.constraints.Length;
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Exercise {
+    public static Set<String> INSTANCE_FIELDS = Arrays.stream(Exercise.class.getDeclaredFields()).map(Field::getName)
+        .collect(Collectors.toSet());
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

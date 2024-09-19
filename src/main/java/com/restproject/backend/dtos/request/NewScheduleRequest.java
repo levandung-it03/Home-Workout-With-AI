@@ -31,6 +31,9 @@ public class NewScheduleRequest {
     Integer level;
 
     @NotNull
+    Long coins;
+
+    @NotNull
     @NotEmpty
     @ListTypeConstraint(type = Long.class)
     Collection<Long> sessionIds;

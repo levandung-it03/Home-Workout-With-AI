@@ -1,6 +1,7 @@
 package com.restproject.backend.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.restproject.backend.enums.Aim;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -38,8 +39,8 @@ public class Subscription {
     @JsonIgnore
     Schedule schedule;
 
-    @Column(name = "is_completed", nullable = false, columnDefinition = "BIT")
-    boolean isCompleted;
+    @Column(name = "completed_time", columnDefinition = "TIMESTAMP")
+    LocalDateTime completedTime;
 
     @Column(name = "subscribed_time", nullable = false, columnDefinition = "TIMESTAMP")
     LocalDateTime subscribedTime;
@@ -49,12 +50,15 @@ public class Subscription {
     @Max(100)
     Byte repRatio;
 
-    @Column(name = "aim", nullable = false, columnDefinition = "TINYINT")
-    @Min(-100)
-    @Max(100)
-    Byte aim;
+    @Column(name = "aim", nullable = false)
+    Aim aim;
 
-    @Column(name = "base_tdee", nullable = false, columnDefinition = "SMALLINT")
+    @Column(name = "bmr", nullable = false)
     @Min(0)
-    Integer baseMaintainCalories;   //--TDEE
+    Double bmr;   //--TDEE
+
+    @Column(name = "is_efficient", columnDefinition = "BIT")
+    @Min(0)
+    @Max(1)
+    boolean isEfficient;
 }

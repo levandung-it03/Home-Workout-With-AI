@@ -41,7 +41,9 @@ public class SessionHasMusclesResponse {
     public static SessionHasMusclesResponse buildFromHashMap(HashMap<String, Object> map)
         throws ApplicationException, IllegalArgumentException, NullPointerException, NoSuchFieldException {
         for (String key : map.keySet())
-            SessionHasMusclesResponse.class.getDeclaredField(key); //--Ignored value.
+            if (Arrays.stream(SessionHasMusclesResponse.class.getDeclaredFields())
+                .noneMatch(f -> f.getName().equals(key)))
+                throw new NoSuchFieldException(); //--Ignored value.
 
         var sessionInfo = new SessionHasMusclesResponse();
         sessionInfo.setName(!map.containsKey("name") ? null : map.get("name").toString());

@@ -60,7 +60,7 @@ public interface ExercisesOfSessionsRepository extends JpaRepository<ExercisesOf
         GROUP_CONCAT(
             DISTINCT moe.muscle_enum
             ORDER BY moe.muscle_enum ASC
-            SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "')" + """
+            SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "') AS muscleList" + """
         FROM muscles_of_exercises moe
         INNER JOIN exercise e ON e.exercise_id = moe.exercise_id
         LEFT OUTER JOIN exercises_of_sessions eos ON eos.exercise_id = e.exercise_id

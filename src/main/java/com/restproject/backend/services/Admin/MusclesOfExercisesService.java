@@ -25,23 +25,16 @@ public class MusclesOfExercisesService {
     PageMappers pageMappers;
 
     public TablePagesResponse<ExerciseHasMusclesResponse> getExercisesHasMusclesPages(PaginatedTableRequest request) {
-        //--Build sorting info.
-        if (!Objects.isNull(request.getSortedField()) && !request.getSortedField().equals("muscleList")) {
-            try {  //--Ignored result
-                Exercise.class.getDeclaredField(request.getSortedField());
-            } catch (NoSuchFieldException e) {
-                throw new ApplicationException(ErrorCodes.INVALID_SORTING_FIELD_OR_VALUE);
-            }
-        }
-        //--Build Pageable with sorting mode.
+        if (!Objects.isNull(request.getSortedField())   //--If it's null, it means client doesn't want to sort.
+        &&  !Exercise.INSTANCE_FIELDS.contains(request.getSortedField()))
+            throw new ApplicationException(ErrorCodes.INVALID_SORTING_FIELD_OR_VALUE);
         Pageable pageableCfg = pageMappers.tablePageRequestToPageable(request).toPageable();
 
         if (Objects.isNull(request.getFilterFields()) || request.getFilterFields().isEmpty()) {
             Page<Object[]> repoRes = musclesOfExercisesRepository.findAllExercisesHasMuscles(pageableCfg);
             return TablePagesResponse.<ExerciseHasMusclesResponse>builder()
                 .data(repoRes.stream().map(ExerciseHasMusclesResponse::buildFromNativeQuery).toList())
-                .currentPage(request.getPage())
-                .totalPages(repoRes.getTotalPages()).build();
+                .currentPage(request.getPage()).totalPages(repoRes.getTotalPages()).build();
         }
 
         //--Build filtering info.
@@ -55,8 +48,6 @@ public class MusclesOfExercisesService {
         Page<Object[]> repoRes = musclesOfExercisesRepository.findAllExercisesHasMuscles(exerciseInfo, pageableCfg);
         return TablePagesResponse.<ExerciseHasMusclesResponse>builder()
             .data(repoRes.stream().map(ExerciseHasMusclesResponse::buildFromNativeQuery).toList())
-            .currentPage(request.getPage())
-            .totalPages(repoRes.getTotalPages())
-            .build();
+            .currentPage(request.getPage()).totalPages(repoRes.getTotalPages()).build();
     }
 }
