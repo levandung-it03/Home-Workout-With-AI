@@ -233,7 +233,7 @@ public class ExerciseServiceTest {
             .existsByExerciseExerciseId(exeReq.getExerciseId());
         Mockito.verify(musclesOfExercisesRepository, Mockito.times(1))
             .findAllByExerciseExerciseId(exeReq.getExerciseId());
-        assertEquals(ErrorCodes.INVALID_IDS_COLLECTION.getMessage(), exception.getMessage());
+        assertEquals(ErrorCodes.INVALID_PRIMARY.getMessage(), exception.getMessage());
     }
 
     @Test

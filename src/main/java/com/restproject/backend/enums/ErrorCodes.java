@@ -36,8 +36,9 @@ public enum ErrorCodes {
     //--Session(14)
     DUPLICATED_SESSION(14001, "Session's Name and Level pair is already existing", BAD_REQUEST),
     //--ExercisesOfSessions(15)
-    DUPLICATED_EXERCISE_RELATED_TO_SESSION(150001, "Exercise has been already belonged to Session", BAD_REQUEST),
-    ;
+    DUPLICATED_EXERCISE_RELATED_TO_SESSION(15001, "Exercise has been already belonged to Session", BAD_REQUEST),
+    //--Schedule(16)
+    DUPLICATED_SCHEDULE(16001, "Schedule's Name and Level pair is already existing", BAD_REQUEST);
 
     int code;
     String message;

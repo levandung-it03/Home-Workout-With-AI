@@ -56,7 +56,7 @@ public class SessionService {
         //--Query all related and updated data is existing in DB.
         var formerRls = musclesOfSessionsRepository.findAllBySessionSessionId(formerEx.getSessionId());
         if (formerRls.isEmpty())    //--If data in DB is wrong.
-            throw new ApplicationException(ErrorCodes.INVALID_IDS_COLLECTION);
+            throw new ApplicationException(ErrorCodes.INVALID_PRIMARY);
 
         //--Mapping new values into "formerEx".
         sessionMappers.updateTarget(formerEx, request);

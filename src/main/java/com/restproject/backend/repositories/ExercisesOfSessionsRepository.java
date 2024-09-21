@@ -18,7 +18,7 @@ public interface ExercisesOfSessionsRepository extends JpaRepository<ExercisesOf
     /**
      * Required-initialization: ExerciseHasMusclesResponse(new Exercise(), Collections.emptyList())
      *
-     * @return Object[] {Exercise.exerciseId, Exercise.name, Exercise.basicReps, Exercise.level, muscleList}
+     * @return Object[] {Exercise.exerciseId, Exercise.name, Exercise.basicReps, Exercise.level, boolean::withSession, muscleList}
      */
     @Query(name = "findAllExercisesHasMusclesWithFilteringOfSession", nativeQuery = true, value = """
         SELECT e.exercise_id, e.name, e.basic_reps, e.level_enum,
@@ -26,7 +26,8 @@ public interface ExercisesOfSessionsRepository extends JpaRepository<ExercisesOf
         GROUP_CONCAT(
             DISTINCT moeft.muscle_enum
             ORDER BY moeft.muscle_enum ASC
-            SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "')" + """
+            SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "'" + """
+        ) AS muscleList
         FROM (
             SELECT moejid.exercise_id AS exercise_id, moejid.muscle_enum AS muscle_enum
             FROM muscles_of_exercises moejid
@@ -36,10 +37,9 @@ public interface ExercisesOfSessionsRepository extends JpaRepository<ExercisesOf
             )
         ) AS moeft INNER JOIN exercise e ON e.exercise_id = moeft.exercise_id
         LEFT OUTER JOIN exercises_of_sessions eos ON eos.exercise_id = e.exercise_id
-        WHERE  (:#{#filterObj.exerciseId} IS NULL  OR :#{#filterObj.exerciseId} = e.exercise_id)
-        AND (:#{#filterObj.level} IS NULL      OR :#{#filterObj.level} = e.level_enum)
-        AND (:#{#filterObj.basicReps} IS NULL  OR :#{#filterObj.basicReps} = e.basic_reps)
-        AND (:#{#filterObj.name} IS NULL       OR e.name LIKE CONCAT('%',:#{#filterObj.name},'%'))
+        WHERE (:#{#filterObj.level} IS NULL OR :#{#filterObj.level} = e.level_enum)
+        AND (:#{#filterObj.basicReps} IS NULL OR :#{#filterObj.basicReps} = e.basic_reps)
+        AND (:#{#filterObj.name} IS NULL    OR e.name LIKE CONCAT('%',:#{#filterObj.name},'%'))
         GROUP BY e.exercise_id, withSession
         ORDER BY withSession DESC
         """)
@@ -52,7 +52,7 @@ public interface ExercisesOfSessionsRepository extends JpaRepository<ExercisesOf
     /**
      * Required-initialization: ExerciseHasMusclesResponse(new Exercise(), Collections.emptyList())
      *
-     * @return Object[] {Exercise.exerciseId, Exercise.name, Exercise.basicReps, Exercise.level, muscleList}
+     * @return Object[] {Exercise.exerciseId, Exercise.name, Exercise.basicReps, Exercise.level, boolean::withSession, muscleList}
      */
     @Query(name = "findAllExercisesHasMusclesOfSession", nativeQuery = true, value = """
         SELECT e.exercise_id, e.name, e.basic_reps, e.level_enum,
@@ -60,7 +60,8 @@ public interface ExercisesOfSessionsRepository extends JpaRepository<ExercisesOf
         GROUP_CONCAT(
             DISTINCT moe.muscle_enum
             ORDER BY moe.muscle_enum ASC
-            SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "') AS muscleList" + """
+            SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "'" + """
+        ) AS muscleList
         FROM muscles_of_exercises moe
         INNER JOIN exercise e ON e.exercise_id = moe.exercise_id
         LEFT OUTER JOIN exercises_of_sessions eos ON eos.exercise_id = e.exercise_id

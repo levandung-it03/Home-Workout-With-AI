@@ -22,7 +22,10 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "schedule")
+@Table(
+    name = "schedule",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"name","level_enum"})
+)
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Schedule {

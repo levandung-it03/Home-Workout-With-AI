@@ -12,8 +12,6 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/private")
@@ -40,6 +38,6 @@ public class SessionControllers {
     @DeleteMapping("/admin/v1/delete-session")
     public ResponseEntity<ApiResponseObject<Void>> deleteSession(@Valid @RequestBody DeleteObjectRequest request) {
         sessionServiceOfAdmin.deleteSession(request);
-        return ApiResponseObject.buildSuccessResponse(SucceedCodes.DELETE_EXERCISE);
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.DELETE_SESSION);
     }
 }

@@ -20,7 +20,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +54,7 @@ public class ExerciseService {
         //--Query all related and updated data is existing in DB.
         var formerRls = musclesOfExercisesRepository.findAllByExerciseExerciseId(formerEx.getExerciseId());
         if (formerRls.isEmpty())    //--If data in DB is wrong.
-            throw new ApplicationException(ErrorCodes.INVALID_IDS_COLLECTION);
+            throw new ApplicationException(ErrorCodes.INVALID_PRIMARY);
 
         //--Mapping new values into "formerEx".
         exerciseMappers.updateTarget(formerEx, request);
@@ -61,8 +63,8 @@ public class ExerciseService {
         var savedExercise = exerciseRepository.save(formerEx);
 
         //--Check if there's changes with Muscles of Updated Exercise.
-        if (formerRls.stream().map(relationship -> relationship.getMuscle().getId()).sorted().toList()
-            .equals(request.getMuscleIds().stream().sorted().toList())) {
+        if (!formerRls.stream().map(r -> r.getMuscle().getId()).collect(Collectors.toSet())
+            .equals(new HashSet<>(request.getMuscleIds()))) {
             return savedExercise;   //--Nothing updated equal to return immediately.
         }
 

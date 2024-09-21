@@ -305,7 +305,7 @@ public class SessionServiceTest {
             .existsBySessionSessionId(sesReq.getSessionId());
         Mockito.verify(musclesOfSessionsRepository, Mockito.times(1))
             .findAllBySessionSessionId(sesReq.getSessionId());
-        assertEquals(ErrorCodes.INVALID_IDS_COLLECTION.getMessage(), exception.getMessage());
+        assertEquals(ErrorCodes.INVALID_PRIMARY.getMessage(), exception.getMessage());
     }
     
     @Test

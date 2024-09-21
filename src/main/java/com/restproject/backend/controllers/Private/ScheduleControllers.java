@@ -1,6 +1,8 @@
 package com.restproject.backend.controllers.Private;
 
+import com.restproject.backend.dtos.request.DeleteObjectRequest;
 import com.restproject.backend.dtos.request.PaginatedTableRequest;
+import com.restproject.backend.dtos.request.UpdateScheduleRequest;
 import com.restproject.backend.dtos.response.ApiResponseObject;
 import com.restproject.backend.dtos.request.NewScheduleRequest;
 import com.restproject.backend.dtos.response.TablePagesResponse;
@@ -31,8 +33,24 @@ public class ScheduleControllers {
 
     @ResponseBody
     @PostMapping("/admin/v1/create-schedule")
-    public ResponseEntity<ApiResponseObject<Schedule>> createSchedule(@RequestBody NewScheduleRequest request) {
+    public ResponseEntity<ApiResponseObject<Schedule>> createSchedule(
+        @Valid @RequestBody NewScheduleRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.CREATE_SCHEDULE,
             scheduleServiceOfAdmin.createSchedule(request));
+    }
+
+    @ResponseBody
+    @PutMapping("/admin/v1/update-schedule")
+    public ResponseEntity<ApiResponseObject<Schedule>> updateSchedule(
+        @Valid @RequestBody UpdateScheduleRequest request) {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.UPDATE_SCHEDULE,
+            scheduleServiceOfAdmin.updateSchedule(request));
+    }
+
+    @ResponseBody
+    @DeleteMapping("/admin/v1/delete-schedule")
+    public ResponseEntity<ApiResponseObject<Void>> deleteSchedule(@Valid @RequestBody DeleteObjectRequest request) {
+        scheduleServiceOfAdmin.deleteSchedule(request);
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.DELETE_SCHEDULE);
     }
 }

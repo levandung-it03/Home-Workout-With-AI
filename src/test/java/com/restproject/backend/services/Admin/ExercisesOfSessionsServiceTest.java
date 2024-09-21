@@ -1,9 +1,7 @@
 package com.restproject.backend.services.Admin;
 
-import com.restproject.backend.dtos.request.PaginatedTableRequest;
 import com.restproject.backend.dtos.request.UpdateExercisesOfSessionRequest;
 import com.restproject.backend.dtos.request.PaginatedRelationshipRequest;
-import com.restproject.backend.dtos.response.ExerciseHasMusclesResponse;
 import com.restproject.backend.dtos.response.ExercisesOfSessionResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.entities.Exercise;
@@ -29,6 +27,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,10 +41,14 @@ public class ExercisesOfSessionsServiceTest {
     PageMappers pageMappers;
     @MockBean
     ExercisesOfSessionsRepository exercisesOfSessionsRepository;
+    @MockBean
+    SessionRepository sessionRepository;
+    @MockBean
+    ExerciseRepository exerciseRepository;
 
 
     @Test
-    public void getExercisesHasMusclesPages_admin_valid() {
+    public void getExercisesHasMusclesOfSessionPagesPrioritizeRelationship_admin_valid() {
         //--Build request data.
         var request = PaginatedRelationshipRequest.builder().id(1L).page(1)
             .filterFields(new HashMap<>(Map.ofEntries(
@@ -63,11 +66,11 @@ public class ExercisesOfSessionsServiceTest {
 
         //--Build response data.
         var repoResponse = new ArrayList<Object[]>();
-        repoResponse.add(    //--exerciseId,name,level::String,muscleList::List<String>,withSession
-            new Object[]{10L,"Strength",14,Level.INTERMEDIATE.toString(),
-                muscleList.stream().map(Muscle::toString).toList(),true}
+        repoResponse.add(    //--exerciseId,name,basicReps,level::String,withSession,muscleList::List<String>
+            new Object[]{10L,"Strength",14,Level.INTERMEDIATE.toString(),true,
+                muscleList.stream().map(Muscle::toString).toList()}
         );
-        var res = repoResponse.stream().map(ExerciseHasMusclesResponse::buildFromNativeQuery).toList();
+        var res = repoResponse.stream().map(ExercisesOfSessionResponse::buildFromNativeQuery).toList();
 
         //--Mocking Bean's actions.
         Mockito.when(pageMappers.relationshipPageRequestToPageable(request)).thenReturn(pageObject);
@@ -85,13 +88,13 @@ public class ExercisesOfSessionsServiceTest {
             .findAllExercisesHasMusclesPrioritizeRelationshipBySessionId(
                 request.getId(), exerciseInfoForFilter, pageObject.toPageable());
         assertEquals(
-            String.join(",", res.getFirst().getMuscleList()),
-            String.join(",", actual.getData().getFirst().getMuscleList())
+            new HashSet<>(res.getFirst().getMuscleList()),
+            new HashSet<>(actual.getData().getFirst().getMuscleList())
         );
     }
 
     @Test
-    public void getExercisesHasMusclesPages_admin_invalidSortedField() {
+    public void getExercisesHasMusclesOfSessionPagesPrioritizeRelationship_admin_invalidSortedField() {
         var ftr = new HashMap<String, Object>();
         ftr.put("name", "Stre");
         ftr.put("level", 2);
@@ -103,7 +106,7 @@ public class ExercisesOfSessionsServiceTest {
     }
 
     @Test
-    public void getExercisesHasMusclesPages_admin_invalidFilteringValues() {
+    public void getExercisesHasMusclesOfSessionPagesPrioritizeRelationship_admin_invalidFilteringValues() {
         var ftr = new HashMap<String, Object>();
         ftr.put("name", "Stre");
         ftr.put("level", 4);
@@ -121,7 +124,7 @@ public class ExercisesOfSessionsServiceTest {
     }
 
     @Test
-    public void getExercisesHasMusclesPages_admin_invalidFilteringFields() {
+    public void getExercisesHasMusclesOfSessionPagesPrioritizeRelationship_admin_invalidFilteringFields() {
         var ftr = new HashMap<String, Object>();
         ftr.put("name", "Stre");
         ftr.put("leveling", "INTERMEDIATE");
@@ -136,5 +139,58 @@ public class ExercisesOfSessionsServiceTest {
 
         Mockito.verify(pageMappers, Mockito.times(1)).relationshipPageRequestToPageable(req);
         assertEquals(exc.getErrorCodes(), ErrorCodes.INVALID_FILTERING_FIELD_OR_VALUE);
+    }
+
+    @Test
+    public void updateExercisesOfSession_admin_valid() {
+        var req = UpdateExercisesOfSessionRequest.builder().sessionId(1L).exerciseIds(List.of(1L, 3L)).build();
+        var session = Session.builder().sessionId(req.getSessionId()).build();
+        var newExercises = req.getExerciseIds().stream().map(id -> Exercise.builder().exerciseId(id).build()).toList();
+        var newRelationships = newExercises.stream().map(e ->
+            ExercisesOfSessions.builder().exercise(e).session(session).build()).toList();
+        Mockito.when(sessionRepository.findById(req.getSessionId())).thenReturn(Optional.of(session));
+        Mockito.when(exerciseRepository.findAllById(req.getExerciseIds())).thenReturn(newExercises);
+        Mockito.doNothing().when(exercisesOfSessionsRepository).deleteAllBySessionSessionId(req.getSessionId());
+        Mockito.when(exercisesOfSessionsRepository.saveAll(newRelationships)).thenReturn(newRelationships);
+
+        List<Exercise> actual = exercisesOfSessionsServiceOfAdmin.updateExercisesOfSession(req);
+
+        assertNotNull(actual);
+        Mockito.verify(sessionRepository, Mockito.times(1)).findById(req.getSessionId());
+        Mockito.verify(exerciseRepository, Mockito.times(1)).findAllById(req.getExerciseIds());
+        Mockito.verify(exercisesOfSessionsRepository, Mockito.times(1)).deleteAllBySessionSessionId(req.getSessionId());
+        Mockito.verify(exercisesOfSessionsRepository, Mockito.times(1)).saveAll(newRelationships);
+        assertEquals(
+            new HashSet<>(actual),
+            newRelationships.stream().map(ExercisesOfSessions::getExercise).collect(Collectors.toSet())
+        );
+    }
+
+    @Test
+    public void updateExercisesOfSession_admin_invalidSessionId() {
+        var req = UpdateExercisesOfSessionRequest.builder().sessionId(1L).exerciseIds(List.of(1L, 3L)).build();
+        Mockito.when(sessionRepository.findById(req.getSessionId())).thenReturn(Optional.empty());
+
+        var exc = assertThrows(ApplicationException.class, () ->
+            exercisesOfSessionsServiceOfAdmin.updateExercisesOfSession(req));
+
+        Mockito.verify(sessionRepository, Mockito.times(1)).findById(req.getSessionId());
+        assertEquals(ErrorCodes.INVALID_PRIMARY, exc.getErrorCodes());
+    }
+
+    @Test
+    public void updateExercisesOfSession_admin_invalidExerciseIdes() {
+        var req = UpdateExercisesOfSessionRequest.builder().sessionId(1L).exerciseIds(List.of(1L, 3L)).build();
+        var session = Session.builder().sessionId(req.getSessionId()).build();
+        var newExercises = List.of(Exercise.builder().exerciseId(1L).build());
+        Mockito.when(sessionRepository.findById(req.getSessionId())).thenReturn(Optional.of(session));
+        Mockito.when(exerciseRepository.findAllById(req.getExerciseIds())).thenReturn(newExercises);
+
+        var exc = assertThrows(ApplicationException.class, () ->
+            exercisesOfSessionsServiceOfAdmin.updateExercisesOfSession(req));
+
+        Mockito.verify(sessionRepository, Mockito.times(1)).findById(req.getSessionId());
+        Mockito.verify(exerciseRepository, Mockito.times(1)).findAllById(req.getExerciseIds());
+        assertEquals(ErrorCodes.INVALID_IDS_COLLECTION, exc.getErrorCodes());
     }
 }

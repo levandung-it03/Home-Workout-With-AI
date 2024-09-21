@@ -1,6 +1,7 @@
 package com.restproject.backend.controllers;
 
 import com.restproject.backend.annotations.dev.CoreEngines;
+import com.restproject.backend.dtos.request.DeleteObjectRequest;
 import com.restproject.backend.dtos.request.NewSessionRequest;
 import com.restproject.backend.dtos.request.UpdateSessionRequest;
 import com.restproject.backend.entities.Session;
@@ -455,4 +456,40 @@ public class SessionControllersTest {
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.PARSE_JSON_ERR.getCode()));
     }
 
+    @Test
+    public void deleteSession_admin_valid() throws Exception {
+        var req = DeleteObjectRequest.builder().id(2L).build();
+        Mockito.doNothing().when(sessionServiceOfAdmin).deleteSession(req);
+
+        mockMvc
+            .perform(mockAuthRequestBuilders
+                .setContent(req)
+                .buildAdminRequestWithContent(DELETE, "/v1/delete-session"))
+            .andExpect(jsonPath("applicationCode").value(SucceedCodes.DELETE_SESSION.getCode()));
+    }
+
+    @Test
+    public void deleteSession_admin_unauthorized() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.request(POST, "/api/private/admin/v1/delete-session"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void deleteSession_admin_invalidTypeSessionId() throws Exception {
+        mockMvc
+            .perform(mockAuthRequestBuilders
+                .setContent(DeleteObjectRequest.builder().id(2L).build())
+                .replaceFieldOfContent("sessionId", "abc")
+                .buildAdminRequestWithContent(DELETE, "/v1/delete-session"))
+            .andExpect(jsonPath("applicationCode").value(ErrorCodes.PARSE_JSON_ERR.getCode()));
+    }
+
+    @Test
+    public void deleteSession_admin_nullSessionId() throws Exception {
+        mockMvc
+            .perform(mockAuthRequestBuilders
+                .setContent(DeleteObjectRequest.builder().id(null).build())
+                .buildAdminRequestWithContent(DELETE, "/v1/delete-session"))
+            .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
+    }
 }

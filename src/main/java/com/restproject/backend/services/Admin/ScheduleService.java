@@ -1,14 +1,16 @@
 package com.restproject.backend.services.Admin;
 
+import com.restproject.backend.dtos.request.DeleteObjectRequest;
 import com.restproject.backend.dtos.request.NewScheduleRequest;
 import com.restproject.backend.dtos.request.PaginatedTableRequest;
+import com.restproject.backend.dtos.request.UpdateScheduleRequest;
 import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.entities.Schedule;
 import com.restproject.backend.entities.SessionsOfSchedules;
 import com.restproject.backend.enums.ErrorCodes;
-import com.restproject.backend.enums.Level;
 import com.restproject.backend.exceptions.ApplicationException;
 import com.restproject.backend.mappers.PageMappers;
+import com.restproject.backend.mappers.ScheduleMappers;
 import com.restproject.backend.repositories.ScheduleRepository;
 import com.restproject.backend.repositories.SessionRepository;
 import com.restproject.backend.repositories.SessionsOfSchedulesRepository;
@@ -16,6 +18,7 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -30,6 +33,7 @@ public class ScheduleService {
     ScheduleRepository scheduleRepository;
     SessionRepository sessionRepository;
     SessionsOfSchedulesRepository sessionsOfSchedulesRepository;
+    ScheduleMappers scheduleMappers;
 
     public TablePagesResponse<Schedule> getSchedulesPages(PaginatedTableRequest request) {
         if (!Objects.isNull(request.getSortedField())   //--If sortedField is null, it means client doesn't want to sort
@@ -56,13 +60,47 @@ public class ScheduleService {
 
     @Transactional(rollbackOn = {RuntimeException.class})
     public Schedule createSchedule(NewScheduleRequest request) throws ApplicationException {
-        var savedSchedule = scheduleRepository.save(Schedule.builder().name(request.getName())
-            .description(request.getDescription()).level(Level.getByLevel(request.getLevel())).build());
+        Schedule savedSchedule;
+        try { savedSchedule = scheduleRepository.save(scheduleMappers.insertionToPlain(request)); }
+        catch (DataIntegrityViolationException e) { throw new ApplicationException(ErrorCodes.DUPLICATED_SCHEDULE); }
 
-        sessionsOfSchedulesRepository.saveAll(request.getSessionIds().stream().map(id ->
-            SessionsOfSchedules.builder().schedule(savedSchedule).session(sessionRepository.findById(id)
-                .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_IDS_COLLECTION))).build()).toList());
+        sessionsOfSchedulesRepository.saveAll(request.getSessionIds().stream().map(id -> {
+            var foundSession = sessionRepository.findById(id)
+                .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_IDS_COLLECTION));
+            if (!foundSession.getLevel().equals(savedSchedule.getLevel()))
+                throw new ApplicationException(ErrorCodes.NOT_SYNC_LEVEL);
+
+            return SessionsOfSchedules.builder().schedule(savedSchedule).session(foundSession).build();
+        }).toList());
 
         return savedSchedule;
+    }
+
+
+    @Transactional(rollbackOn = {RuntimeException.class})
+    public Schedule updateSchedule(UpdateScheduleRequest request) throws ApplicationException {
+        var formerEx = scheduleRepository.findById(request.getScheduleId())
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY));
+        //--Check if this Schedule can be updated or not.
+        if (sessionsOfSchedulesRepository.existsByScheduleScheduleId(formerEx.getScheduleId()))
+            throw new ApplicationException(ErrorCodes.FORBIDDEN_UPDATING);
+
+        //--Mapping new values into "formerEx".
+        scheduleMappers.updateTarget(formerEx, request);
+        //--Start to save updated data.
+        scheduleRepository.deleteById(formerEx.getScheduleId());
+        return scheduleRepository.save(formerEx);
+    }
+
+    @Transactional(rollbackOn = {RuntimeException.class})
+    public void deleteSchedule(DeleteObjectRequest request) throws ApplicationException {
+        if (!scheduleRepository.existsById(request.getId()))
+            throw new ApplicationException(ErrorCodes.INVALID_PRIMARY);
+
+        if (sessionsOfSchedulesRepository.existsByScheduleScheduleId(request.getId()))
+            throw new ApplicationException(ErrorCodes.FORBIDDEN_UPDATING);
+
+        sessionsOfSchedulesRepository.deleteAllByScheduleScheduleId(request.getId());
+        scheduleRepository.deleteById(request.getId());
     }
 }
