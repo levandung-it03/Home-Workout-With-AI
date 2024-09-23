@@ -6,6 +6,7 @@ import com.restproject.backend.dtos.request.AuthenticationRequest;
 import com.restproject.backend.dtos.response.ApiResponseObject;
 import com.restproject.backend.enums.SucceedCodes;
 import com.restproject.backend.services.Auth.AuthenticationService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,7 +23,7 @@ public class PublicAuthControllers {
     @ResponseBody
     @PostMapping("/v1/authenticate")
     public ResponseEntity<ApiResponseObject<AuthenticationResponse>> authenticate(
-        @RequestBody AuthenticationRequest request) {
+        @Valid @RequestBody AuthenticationRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.AUTHENTICATION,
             authenticationService.authenticate(request));
     }
