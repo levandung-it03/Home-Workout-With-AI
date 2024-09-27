@@ -43,7 +43,8 @@ public class SessionsOfScheduleResponse {
             SessionsOfScheduleResponse.class.getDeclaredField(key); //--Ignored value.
 
         var sessionInfo = new SessionsOfScheduleResponse();
-        sessionInfo.setMuscleList(!map.containsKey("muscleList") ? new ArrayList<>()   //--May throw IllegalArgExc
+        sessionInfo.setMuscleList(
+            !map.containsKey("muscleList") ? new ArrayList<>()   //--May throw IllegalArgExc
             : Arrays.stream(map.get("muscleList").toString()
             .replaceAll("[\\[\\]]", "").split(",")
         ).map(id -> Muscle.getById(id).toString()).toList());

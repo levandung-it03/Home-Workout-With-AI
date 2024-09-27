@@ -1,6 +1,6 @@
 package com.restproject.backend.controllers.Auth;
 
-import com.restproject.backend.dtos.general.TokenDto;
+import com.restproject.backend.dtos.general.TestDto;
 import com.restproject.backend.dtos.response.AuthenticationResponse;
 import com.restproject.backend.dtos.request.AuthenticationRequest;
 import com.restproject.backend.dtos.response.ApiResponseObject;

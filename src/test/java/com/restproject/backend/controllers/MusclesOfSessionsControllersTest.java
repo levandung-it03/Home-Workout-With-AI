@@ -9,7 +9,7 @@ import com.restproject.backend.enums.SucceedCodes;
 import com.restproject.backend.helpers.JsonService;
 import com.restproject.backend.helpers.MockAuthRequestBuilders;
 import com.restproject.backend.helpers.MockAuthentication;
-import com.restproject.backend.services.Admin.MusclesOfSessionsService;
+import com.restproject.backend.services.MusclesOfSessionsService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.junit.jupiter.api.BeforeEach;
@@ -122,7 +122,7 @@ public class MusclesOfSessionsControllersTest {
 
     @Test
     public void getSessionsHasMusclesPages_admin_nullFilterFields() throws Exception {
-        var req = PaginatedTableRequest.builder().page(1).filterFields(null).build();
+        var req = PaginatedTableRequest.builder().page(0).filterFields(null).build();
 
         Mockito.when(musclesOfSessionsServiceOfAdmin.getSessionsHasMusclesPages(req)).thenReturn(null);
 

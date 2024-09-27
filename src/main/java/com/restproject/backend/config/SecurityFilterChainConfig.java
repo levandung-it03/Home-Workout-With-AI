@@ -55,7 +55,7 @@ public class SecurityFilterChainConfig {
     @Bean
     public org.springframework.security.web.SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-            .cors(configurer -> configurer.configurationSource(corsConfigurationSource()))
+            .cors(configurer -> configurer.configurationSource(configurationSource()))
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(request -> request
@@ -165,14 +165,12 @@ public class SecurityFilterChainConfig {
      * @return [CorsConfigurationSource]
      */
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource configurationSource() {
         var config = new CorsConfiguration();
-        config.setMaxAge(3_600L);
-        config.setAllowedOrigins(List.of(frontendBaseDomain));
-        config.setAllowedMethods(List.of("GET", "POST", "DELETE", "PUT"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
-        config.setAllowCredentials(true);
-
+        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedOrigins(List.of("*"));
+        config.setAllowedMethods(List.of("*"));
+        config.setAllowedHeaders(List.of("*"));
         var source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;

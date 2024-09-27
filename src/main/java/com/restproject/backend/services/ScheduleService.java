@@ -1,4 +1,4 @@
-package com.restproject.backend.services.Admin;
+package com.restproject.backend.services;
 
 import com.restproject.backend.dtos.request.DeleteObjectRequest;
 import com.restproject.backend.dtos.request.NewScheduleRequest;
@@ -57,7 +57,6 @@ public class ScheduleService {
         return TablePagesResponse.<Schedule>builder().data(repoRes.stream().toList())
             .totalPages(repoRes.getTotalPages()).currentPage(request.getPage()).build();
     }
-
     @Transactional(rollbackOn = {RuntimeException.class})
     public Schedule createSchedule(NewScheduleRequest request) throws ApplicationException {
         Schedule savedSchedule;

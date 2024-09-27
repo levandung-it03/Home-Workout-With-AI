@@ -12,7 +12,7 @@ import com.restproject.backend.enums.SucceedCodes;
 import com.restproject.backend.helpers.JsonService;
 import com.restproject.backend.helpers.MockAuthRequestBuilders;
 import com.restproject.backend.helpers.MockAuthentication;
-import com.restproject.backend.services.Admin.SessionService;
+import com.restproject.backend.services.SessionService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.junit.jupiter.api.BeforeEach;

@@ -17,6 +17,7 @@ import com.restproject.backend.mappers.PageMappers;
 import com.restproject.backend.repositories.SessionRepository;
 import com.restproject.backend.repositories.SessionsOfSchedulesRepository;
 import com.restproject.backend.repositories.ScheduleRepository;
+import com.restproject.backend.services.SessionsOfSchedulesService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.junit.jupiter.api.Test;
@@ -61,7 +62,7 @@ public class SessionsOfSchedulesServiceTest {
             .name(request.getFilterFields().get("name").toString())
             .level(Level.getByLevel(Integer.parseInt(request.getFilterFields().get("level").toString())))
             .muscleList(muscleList.stream().map(Muscle::toString).toList()).build();
-        var pageObject = PageObject.builder().pageNumber(request.getPage()).pageSize(PageEnum.SIZE.getSize()).build();
+        var pageObject = PageObject.builder().page(request.getPage()).build();
 
         //--Build response data.
         var repoResponse = new ArrayList<Object[]>();
@@ -112,7 +113,7 @@ public class SessionsOfSchedulesServiceTest {
         List<Object> muscleList = List.of(1, 2, 3);
         var req = PaginatedRelationshipRequest.builder().page(1).filterFields(ftr).build();
         Mockito.when(pageMappers.relationshipPageRequestToPageable(req))
-            .thenReturn(PageObject.builder().pageNumber(req.getPage()).pageSize(PageEnum.SIZE.getSize()).build());
+            .thenReturn(PageObject.builder().page(req.getPage()).build());
 
         ftr.put("muscleList", muscleList);
         var exc = assertThrows(ApplicationException.class, () -> sessionsOfSchedulesServiceOfAdmin
@@ -130,7 +131,7 @@ public class SessionsOfSchedulesServiceTest {
         List<Object> muscleList = List.of(1, 2, 3);
         var req = PaginatedRelationshipRequest.builder().page(1).filterFields(ftr).build();
         Mockito.when(pageMappers.relationshipPageRequestToPageable(req))
-            .thenReturn(PageObject.builder().pageNumber(req.getPage()).pageSize(PageEnum.SIZE.getSize()).build());
+            .thenReturn(PageObject.builder().page(req.getPage()).build());
 
         ftr.put("muscleList", muscleList);
         var exc = assertThrows(ApplicationException.class, () -> sessionsOfSchedulesServiceOfAdmin

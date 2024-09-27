@@ -16,6 +16,7 @@ public enum SucceedCodes {
     //--Enums(22)
     GET_ALL_LEVEL_ENUMS(22001, "Get all Levels successfully"),
     GET_ALL_MUSCLE_ENUMS(22002, "Get all Muscles successfully"),
+    GET_ALL_GENDER_ENUMS(22003, "Get all Genders successfully"),
     //--Exercise(23)
     CREATE_EXERCISE(23001, "Create new Exercise successfully"),
     UPDATE_EXERCISE(23002, "Update Exercise successfully"),
@@ -33,6 +34,12 @@ public enum SucceedCodes {
     DELETE_SESSION(25003, "Delete Exercise successfully"),
     GET_SESSIONS_HAS_MUSCLES_PAGES(25004, "Get Session has Muscles pages successfully"),
     GET_EXERCISES_HAS_MUSCLES_OF_SESSION_PAGES(25005, "Get Exercises in Session pages successfully"),
+    //--UserInfo(26)
+    CREATE_USER_INFO(26001, "Create new User Info successfully"),
+    GET_USER_INFO_PAGES(26002, "Get User Info pages successfully"),
+    UPDATE_USER_INFO(26003, "Update User Info successfully"),
+    //--User(27)
+    UPDATE_USER_STATUS(27001, "Update User status"),
     ;
 
     int code;

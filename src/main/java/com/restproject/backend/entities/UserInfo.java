@@ -2,6 +2,7 @@ package com.restproject.backend.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.restproject.backend.entities.Auth.User;
+import com.restproject.backend.enums.Gender;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
@@ -33,6 +34,10 @@ public class UserInfo {
 
     @Column(name = "last_name", nullable = false)
     String lastName;
+
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "gender_enum", nullable = false)
+    Gender gender;
 
     @Column(name = "dob", nullable = false, columnDefinition = "DATE")
     LocalDate dob;

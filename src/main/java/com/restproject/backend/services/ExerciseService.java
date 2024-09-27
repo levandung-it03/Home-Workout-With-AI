@@ -1,4 +1,4 @@
-package com.restproject.backend.services.Admin;
+package com.restproject.backend.services;
 
 import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.entities.Exercise;
@@ -7,10 +7,10 @@ import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.enums.Muscle;
 import com.restproject.backend.exceptions.ApplicationException;
 import com.restproject.backend.mappers.ExerciseMappers;
-import com.restproject.backend.mappers.PageMappers;
 import com.restproject.backend.repositories.ExerciseRepository;
 import com.restproject.backend.repositories.ExercisesOfSessionsRepository;
 import com.restproject.backend.repositories.MusclesOfExercisesRepository;
+import com.restproject.backend.services.ThirdParty.ImgCloudUpload;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,16 +18,15 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Objects;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ExerciseService {
+    ImgCloudUpload imgCloudUpload;
     ExerciseMappers exerciseMappers;
     ExerciseRepository exerciseRepository;
     MusclesOfExercisesRepository musclesOfExercisesRepository;
@@ -88,5 +87,18 @@ public class ExerciseService {
 
         exerciseRepository.deleteById(request.getId());
         musclesOfExercisesRepository.deleteAllByExerciseExerciseId(request.getId());
+    }
+
+    public Map<String, String> uploadExerciseImg(UpsertExerciseImageRequest request) throws IOException {
+        var exercise = exerciseRepository.findById(request.getExerciseId())
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY));
+        if (!Objects.isNull(exercise.getImagePublicId()))
+            imgCloudUpload.remove(exercise.getImagePublicId());
+
+        var infoMap = imgCloudUpload.uploadAndReturnInfo(request.getExerciseImage());
+        exercise.setImagePublicId(infoMap.get("publicId"));
+        exercise.setImageUrl(infoMap.get("url"));
+        exerciseRepository.updateImageUrlByExerciseId(exercise);
+        return Map.of("imageUrl", infoMap.get("url"));
     }
 }

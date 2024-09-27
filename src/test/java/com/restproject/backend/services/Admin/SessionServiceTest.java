@@ -10,6 +10,7 @@ import com.restproject.backend.enums.Muscle;
 import com.restproject.backend.exceptions.ApplicationException;
 import com.restproject.backend.mappers.SessionMappers;
 import com.restproject.backend.repositories.*;
+import com.restproject.backend.services.SessionService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.junit.jupiter.api.Test;

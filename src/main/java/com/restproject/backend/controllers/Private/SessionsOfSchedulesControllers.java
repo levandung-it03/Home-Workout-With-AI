@@ -7,7 +7,7 @@ import com.restproject.backend.dtos.response.SessionsOfScheduleResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.entities.Session;
 import com.restproject.backend.enums.SucceedCodes;
-import com.restproject.backend.services.Admin.SessionsOfSchedulesService;
+import com.restproject.backend.services.SessionsOfSchedulesService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ public class SessionsOfSchedulesControllers {
     @GetMapping("/admin/v1/get-sessions-has-muscles-of-schedule-pages")
     public ResponseEntity<ApiResponseObject<TablePagesResponse<SessionsOfScheduleResponse>>>
     getSessionsHasMusclesOfSchedulePagesPrioritizeRelationship(
-        @Valid @RequestBody PaginatedRelationshipRequest request) {
+        @Valid PaginatedRelationshipRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_SESSIONS_HAS_MUSCLES_OF_SCHEDULE_PAGES,
             sessionsOfSchedulesServiceOfAdmin.getSessionsHasMusclesOfSchedulePagesPrioritizeRelationship(request));
     }

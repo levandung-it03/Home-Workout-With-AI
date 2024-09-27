@@ -4,7 +4,7 @@ import com.restproject.backend.dtos.response.ApiResponseObject;
 import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.entities.Session;
 import com.restproject.backend.enums.SucceedCodes;
-import com.restproject.backend.services.Admin.SessionService;
+import com.restproject.backend.services.SessionService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

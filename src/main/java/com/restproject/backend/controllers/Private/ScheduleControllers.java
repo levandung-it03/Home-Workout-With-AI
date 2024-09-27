@@ -8,7 +8,7 @@ import com.restproject.backend.dtos.request.NewScheduleRequest;
 import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.entities.Schedule;
 import com.restproject.backend.enums.SucceedCodes;
-import com.restproject.backend.services.Admin.ScheduleService;
+import com.restproject.backend.services.ScheduleService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class ScheduleControllers {
     @ResponseBody
     @GetMapping("/admin/v1/get-schedules-pages")
     public ResponseEntity<ApiResponseObject<TablePagesResponse<Schedule>>> getSchedulesPages(
-        @Valid @RequestBody PaginatedTableRequest request) {
+        @Valid PaginatedTableRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_SCHEDULES_PAGES,
             scheduleServiceOfAdmin.getSchedulesPages(request));
     }

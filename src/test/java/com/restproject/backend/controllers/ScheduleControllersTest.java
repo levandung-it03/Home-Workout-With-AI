@@ -11,7 +11,7 @@ import com.restproject.backend.helpers.JsonService;
 import com.restproject.backend.helpers.MockAuthRequestBuilders;
 import com.restproject.backend.helpers.MockAuthentication;
 import com.restproject.backend.mappers.ScheduleMappers;
-import com.restproject.backend.services.Admin.ScheduleService;
+import com.restproject.backend.services.ScheduleService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import static org.junit.jupiter.api.Assertions.*;

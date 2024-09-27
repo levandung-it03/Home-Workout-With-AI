@@ -1,4 +1,4 @@
-package com.restproject.backend.services.Admin;
+package com.restproject.backend.services;
 
 import com.restproject.backend.dtos.request.PaginatedTableRequest;
 import com.restproject.backend.dtos.response.SessionHasMusclesResponse;

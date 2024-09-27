@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import javax.crypto.spec.SecretKeySpec;
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -31,17 +33,18 @@ public class JwtService {
 
     public HashMap<String, String> generateToken(User user, Long duration, String type) {
         try {
+            var nowInstant = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toInstant();
             var tokenId = UUID.randomUUID().toString();
             var jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getUsername())
-                .issuer("oauth2-example-server")
-                .issueTime(new Date(Instant.now().toEpochMilli()))
-                .expirationTime(new Date(Instant.now().plus(duration, ChronoUnit.SECONDS).toEpochMilli()))
+                .issuer("home-workout-with-ai")
+                .issueTime(new Date(nowInstant.toEpochMilli()))
+                .expirationTime(new Date(nowInstant.plus(duration, ChronoUnit.SECONDS).toEpochMilli()))
                 .jwtID(tokenId)
                 .claim("scope", user.buildScope())
                 .claim("type", type)
                 .build();
-            var jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
+            var jwsHeader = new JWSHeader.Builder(JWSAlgorithm.HS512).type(JOSEObjectType.JWT).build();
             var jwsObject = new JWSObject(jwsHeader, jwtClaimsSet.toPayload());
             jwsObject.sign(new MACSigner(mySecretKeySpec));
 
@@ -65,8 +68,10 @@ public class JwtService {
 
     public JWTClaimsSet verifyTokenOrElseThrow(String token, boolean isIgnoreExpiry) throws ApplicationException {
         try {
+            //--Handle token Bearer type or not.
+            var plainToken = token.contains("Bearer ") ? token.split("Bearer ")[1] : token;
             //--Prepare components to parse and verify token.
-            var signedJWT = SignedJWT.parse(token);
+            var signedJWT = SignedJWT.parse(plainToken);
             var macVerifier = new MACVerifier(mySecretKeySpec);
             //--Verify with built Secret Key Spec.
             if (!signedJWT.verify(macVerifier))
@@ -81,5 +86,18 @@ public class JwtService {
         } catch (JOSEException | ParseException e) {
             throw new ApplicationException(ErrorCodes.INVALID_TOKEN);
         }
+    }
+
+    public HashMap<String, String> readPayload(String token) {
+        var payload = token.split("\\.")[1];
+        payload += '=' * (4 - payload.length() % 4);    //--Required format if (payload.length % 4) # 0
+        var payLoadJson = new String(Base64.getUrlDecoder().decode(payload));
+        var strItems = payLoadJson.replaceAll("[{}]", "").split(",");
+        var result = new HashMap<String, String>();
+        Arrays.stream(strItems).forEach(strItem -> {
+            var items = strItem.replaceAll("[\"]", "").split(":");
+            result.put(items[0], items[1]);
+        });
+        return result;
     }
 }

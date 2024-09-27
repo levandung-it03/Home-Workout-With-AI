@@ -46,4 +46,10 @@ public class Exercise {
     @Min(0)
     @Max(9999)
     Integer basicReps;
+
+    @Column(name = "image_public_id")
+    String imagePublicId;
+
+    @Column(name = "image_url")
+    String imageUrl;
 }

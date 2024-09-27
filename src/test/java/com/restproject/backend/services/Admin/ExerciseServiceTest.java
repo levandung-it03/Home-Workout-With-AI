@@ -11,6 +11,7 @@ import com.restproject.backend.mappers.ExerciseMappers;
 import com.restproject.backend.repositories.ExerciseRepository;
 import com.restproject.backend.repositories.ExercisesOfSessionsRepository;
 import com.restproject.backend.repositories.MusclesOfExercisesRepository;
+import com.restproject.backend.services.ExerciseService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import static org.junit.jupiter.api.Assertions.*;

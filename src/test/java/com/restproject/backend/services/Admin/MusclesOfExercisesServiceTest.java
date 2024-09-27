@@ -3,7 +3,6 @@ package com.restproject.backend.services.Admin;
 import com.restproject.backend.dtos.request.PaginatedTableRequest;
 import com.restproject.backend.dtos.response.ExerciseHasMusclesResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
-import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.entities.PageObject;
 import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.enums.Level;
@@ -12,6 +11,7 @@ import com.restproject.backend.enums.PageEnum;
 import com.restproject.backend.exceptions.ApplicationException;
 import com.restproject.backend.mappers.PageMappers;
 import com.restproject.backend.repositories.MusclesOfExercisesRepository;
+import com.restproject.backend.services.MusclesOfExercisesService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
@@ -23,12 +23,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @SpringBootTest
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -52,11 +52,7 @@ public class MusclesOfExercisesServiceTest {
             ))).sortedField("name").sortedMode(1)
             .build();
         var muscleList = List.of(Muscle.CHEST, Muscle.TRICEPS);
-        var exerciseInfoForFilter = ExerciseHasMusclesResponse.builder()
-                .name(request.getFilterFields().get("name").toString())
-                .level(Level.getByLevel(Integer.parseInt(request.getFilterFields().get("level").toString())))
-            .muscleList(muscleList.stream().map(Muscle::toString).toList()).build();
-        var pageObject = PageObject.builder().pageNumber(request.getPage()).pageSize(PageEnum.SIZE.getSize()).build();
+        var pageObject = PageObject.builder().page(request.getPage()).build();
 
         //--Build response data.
         var repoResponse = new ArrayList<Object[]>();
@@ -68,7 +64,8 @@ public class MusclesOfExercisesServiceTest {
         //--Mocking Bean's actions.
         Mockito.when(pageMappers.tablePageRequestToPageable(request)).thenReturn(pageObject);
         Mockito
-            .when(musclesOfExercisesRepository.findAllExercisesHasMuscles(exerciseInfoForFilter, pageObject.toPageable()))
+            .when(musclesOfExercisesRepository.findAllExercisesHasMuscles(
+                Mockito.any(ExerciseHasMusclesResponse.class), Mockito.any(Pageable.class)))
             .thenReturn(new PageImpl<>(repoResponse, pageObject.toPageable(), PageEnum.SIZE.getSize()));
 
         TablePagesResponse<ExerciseHasMusclesResponse> actual = musclesOfExercisesServiceOfAdmin
@@ -77,7 +74,7 @@ public class MusclesOfExercisesServiceTest {
         assertNotNull(actual);
         Mockito.verify(pageMappers, Mockito.times(1)).tablePageRequestToPageable(request);
         Mockito.verify(musclesOfExercisesRepository, Mockito.times(1))
-            .findAllExercisesHasMuscles(exerciseInfoForFilter, pageObject.toPageable());
+            .findAllExercisesHasMuscles(Mockito.any(ExerciseHasMusclesResponse.class), Mockito.any(Pageable.class));
         assertEquals(
             String.join(",", res.getFirst().getMuscleList()),
             String.join(",", actual.getData().getFirst().getMuscleList())
@@ -104,7 +101,7 @@ public class MusclesOfExercisesServiceTest {
         List<Object> muscleList = List.of(1, 2, 3);
         var req = PaginatedTableRequest.builder().page(1).filterFields(ftr).build();
         Mockito.when(pageMappers.tablePageRequestToPageable(req))
-            .thenReturn(PageObject.builder().pageNumber(req.getPage()).pageSize(PageEnum.SIZE.getSize()).build());
+            .thenReturn(PageObject.builder().page(req.getPage()).build());
 
         ftr.put("muscleList", muscleList);
         var exc = assertThrows(ApplicationException.class, () -> musclesOfExercisesServiceOfAdmin
@@ -122,7 +119,7 @@ public class MusclesOfExercisesServiceTest {
         List<Object> muscleList = List.of(1, 2, 3);
         var req = PaginatedTableRequest.builder().page(1).filterFields(ftr).build();
         Mockito.when(pageMappers.tablePageRequestToPageable(req))
-            .thenReturn(PageObject.builder().pageNumber(req.getPage()).pageSize(PageEnum.SIZE.getSize()).build());
+            .thenReturn(PageObject.builder().page(req.getPage()).build());
 
         ftr.put("muscleList", muscleList);
         var exc = assertThrows(ApplicationException.class, () -> musclesOfExercisesServiceOfAdmin

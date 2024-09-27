@@ -1,5 +1,6 @@
 package com.restproject.backend.entities;
 
+import com.restproject.backend.enums.PageEnum;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.PageRequest;
@@ -16,10 +17,11 @@ import java.util.Objects;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PageObject {
-    int pageNumber;
-    int pageSize;
+    private final int pageSize = PageEnum.SIZE.getSize();
+    Integer page;
     String sortedField;
     Integer sortedMode;
+
     private final HashMap<Integer, Direction> SORTING_DIRECTION = new HashMap<>(Map.ofEntries(
         Map.entry(1, Direction.ASC),
         Map.entry(-1, Direction.DESC)
@@ -27,9 +29,9 @@ public class PageObject {
 
     public Pageable toPageable() {
         if (Objects.isNull(sortedField) || sortedField.isEmpty())
-            return PageRequest.of(pageNumber - 1, pageSize);
+            return PageRequest.of(page - 1, pageSize);
         if (Objects.isNull(sortedMode))
             sortedMode = 1;
-        return PageRequest.of(pageNumber - 1, pageSize, SORTING_DIRECTION.get(sortedMode), sortedField);
+        return PageRequest.of(page - 1, pageSize, SORTING_DIRECTION.get(sortedMode), sortedField);
     }
 }

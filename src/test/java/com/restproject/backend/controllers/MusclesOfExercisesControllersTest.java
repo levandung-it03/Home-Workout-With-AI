@@ -4,13 +4,12 @@ import com.restproject.backend.dtos.request.PaginatedTableRequest;
 import com.restproject.backend.dtos.response.ApiResponseObject;
 import com.restproject.backend.dtos.response.ExerciseHasMusclesResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
-import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.enums.SucceedCodes;
 import com.restproject.backend.helpers.JsonService;
 import com.restproject.backend.helpers.MockAuthRequestBuilders;
 import com.restproject.backend.helpers.MockAuthentication;
-import com.restproject.backend.services.Admin.MusclesOfExercisesService;
+import com.restproject.backend.services.MusclesOfExercisesService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.junit.jupiter.api.BeforeEach;
@@ -126,7 +125,7 @@ public class MusclesOfExercisesControllersTest {
 
     @Test
     public void getExercisesHasMusclesPages_admin_nullFilterFields() throws Exception {
-        var req = PaginatedTableRequest.builder().page(1).filterFields(null).build();
+        var req = PaginatedTableRequest.builder().page(0).filterFields(null).build();
 
         Mockito.when(musclesOfExercisesServiceOfAdmin.getExercisesHasMusclesPages(req)).thenReturn(null);
 

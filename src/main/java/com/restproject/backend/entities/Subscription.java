@@ -50,8 +50,12 @@ public class Subscription {
     @Max(100)
     Byte repRatio;
 
+    @Enumerated(value = EnumType.STRING)
     @Column(name = "aim", nullable = false)
     Aim aim;
+
+    @Column(name = "efficient_days")
+    Integer efficientDays;
 
     @Column(name = "bmr", nullable = false)
     @Min(0)

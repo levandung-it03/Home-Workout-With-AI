@@ -31,6 +31,7 @@ public enum ErrorCodes {
     //--Enums(12)
     INVALID_LEVEL(12001, "Level is invalid", BAD_REQUEST),
     INVALID_MUSCLE_ID(12002, "Muscle Id is invalid", BAD_REQUEST),
+    INVALID_GENDER_ID(12003, "Gender Id is invalid", BAD_REQUEST),
     //--Exercise(13)
     DUPLICATED_EXERCISE(13001, "Exercise's Name, Level and Basic Reps set is already existing", BAD_REQUEST),
     //--Session(14)
@@ -38,7 +39,8 @@ public enum ErrorCodes {
     //--ExercisesOfSessions(15)
     DUPLICATED_EXERCISE_RELATED_TO_SESSION(15001, "Exercise has been already belonged to Session", BAD_REQUEST),
     //--Schedule(16)
-    DUPLICATED_SCHEDULE(16001, "Schedule's Name and Level pair is already existing", BAD_REQUEST);
+    DUPLICATED_SCHEDULE(16001, "Schedule's Name and Level pair is already existing", BAD_REQUEST),
+    ;
 
     int code;
     String message;

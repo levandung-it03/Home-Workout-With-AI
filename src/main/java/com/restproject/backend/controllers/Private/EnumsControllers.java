@@ -1,6 +1,7 @@
 package com.restproject.backend.controllers.Private;
 
 import com.restproject.backend.dtos.response.ApiResponseObject;
+import com.restproject.backend.enums.Gender;
 import com.restproject.backend.enums.Level;
 import com.restproject.backend.enums.Muscle;
 import com.restproject.backend.enums.SucceedCodes;
@@ -31,5 +32,11 @@ public class EnumsControllers {
     @GetMapping({"/admin/v1/get-all-muscles", "/user/v1/get-all-muscles"})
     public ResponseEntity<ApiResponseObject<List<Muscle>>> getAllMuscles() {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_ALL_MUSCLE_ENUMS, Muscle.getAllMuscles());
+    }
+
+    @ResponseBody
+    @GetMapping({"/admin/v1/get-all-genders", "/user/v1/get-all-genders"})
+    public ResponseEntity<ApiResponseObject<List<Gender>>> getAllGenders() {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_ALL_GENDER_ENUMS, Gender.getAllGenders());
     }
 }

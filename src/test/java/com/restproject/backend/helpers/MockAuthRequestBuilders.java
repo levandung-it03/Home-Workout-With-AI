@@ -6,6 +6,7 @@ import com.restproject.backend.annotations.dev.Constructors;
 import com.restproject.backend.annotations.dev.CoreEngines;
 import com.restproject.backend.annotations.dev.Overload;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class MockAuthRequestBuilders {
     final ObjectMapper objectMapper;

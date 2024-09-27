@@ -12,7 +12,7 @@ import com.restproject.backend.enums.SucceedCodes;
 import com.restproject.backend.helpers.JsonService;
 import com.restproject.backend.helpers.MockAuthRequestBuilders;
 import com.restproject.backend.helpers.MockAuthentication;
-import com.restproject.backend.services.Admin.ExercisesOfSessionsService;
+import com.restproject.backend.services.ExercisesOfSessionsService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 

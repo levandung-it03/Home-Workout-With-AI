@@ -98,8 +98,7 @@ public class AuthenticationService {
         //--Check if Access Token is valid or expired. If it's not, then save into blacklist.
         invalidTokenService.saveInvalidToken(accessToken);  //--May throw ApplicationExc(INVALID_TOKEN).
         //--If Access Token is invalid, the code can't be touched at here to remove Refresh Token.
-        var refreshTok = refreshToken.split("Bearer ")[1];
-        var refreshJwt = jwtService.verifyTokenOrElseThrow(refreshTok, false);
+        var refreshJwt = jwtService.verifyTokenOrElseThrow(refreshToken, false);
         refreshTokenService.removeRefreshTokenByJwtId(refreshJwt.getJWTID());
     }
 }
