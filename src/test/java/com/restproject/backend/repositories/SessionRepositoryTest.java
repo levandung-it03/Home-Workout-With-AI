@@ -30,8 +30,8 @@ public class SessionRepositoryTest {
 
     @Test
     public void save_admin_duplicatedUniqueConstraint() {
-        sessionRepository.save(Session.builder().name("Push-ups").level(Level.INTERMEDIATE).description("a").build());
+        sessionRepository.save(Session.builder().name("Push-ups").levelEnum(Level.INTERMEDIATE).description("a").build());
         assertThrows(DataIntegrityViolationException.class, () -> sessionRepository
-            .save(Session.builder().name("Push-ups").level(Level.INTERMEDIATE).description("a").build()));
+            .save(Session.builder().name("Push-ups").levelEnum(Level.INTERMEDIATE).description("a").build()));
     }
 }

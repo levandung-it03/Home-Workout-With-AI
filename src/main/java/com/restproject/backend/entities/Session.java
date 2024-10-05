@@ -25,8 +25,6 @@ import java.util.stream.Collectors;
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Session {
-    public static Set<String> INSTANCE_FIELDS = Arrays.stream(Session.class.getDeclaredFields()).map(Field::getName)
-        .collect(Collectors.toSet());
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,7 +37,7 @@ public class Session {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "level_enum", nullable = false)
-    Level level;
+    Level levelEnum;
 
     @Column(name = "description", nullable = false)
     @Length(max = 100)

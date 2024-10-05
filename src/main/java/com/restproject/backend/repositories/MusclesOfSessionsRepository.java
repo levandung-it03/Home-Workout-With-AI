@@ -3,7 +3,6 @@ package com.restproject.backend.repositories;
 import com.restproject.backend.annotations.dev.Overload;
 import com.restproject.backend.dtos.response.SessionHasMusclesResponse;
 import com.restproject.backend.entities.MusclesOfSessions;
-import com.restproject.backend.entities.Session;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,23 +19,23 @@ public interface MusclesOfSessionsRepository extends JpaRepository<MusclesOfSess
     /**
      * Required-initialization: SessionHasMusclesResponse(new Session(), Collections.emptyList())
      *
-     * @return Object[] {Session.sessionId, Session.name, Session.basicReps, Session.level, muscleList}
+     * @return Object[] {Session.sessionId, Session.name, Session.basicReps, Session.levelEnum, muscleList}
      */
     @Query(name = "findAllSessionsHasMusclesWithFiltering", nativeQuery = true, value = """
         SELECT s.session_id, s.name, s.description, s.level_enum, GROUP_CONCAT(
             DISTINCT mosft.muscle_enum
             ORDER BY mosft.muscle_enum ASC
             SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "') AS muscleList" + """
-        FROM (
+        FROM session s INNER JOIN (
             SELECT mosjid.session_id AS session_id, mosjid.muscle_enum AS muscle_enum
             FROM muscles_of_sessions mosjid
-            WHERE :#{#filterObj.muscleList.isEmpty()} OR moejid.session_id IN (
+            WHERE :#{#filterObj.muscleList.isEmpty()} OR mosjid.session_id IN (
                 SELECT DISTINCT m.session_id FROM muscles_of_sessions m
                 WHERE m.muscle_enum IN :#{#filterObj.muscleList}
             )
-        ) AS mosft INNER JOIN session s ON s.session_id = mosft.session_id
+        ) AS mosft ON s.session_id = mosft.session_id
         WHERE  (:#{#filterObj.sessionId} IS NULL OR :#{#filterObj.sessionId} = s.session_id)
-            AND (:#{#filterObj.level} IS NULL   OR :#{#filterObj.level} = s.level_enum)
+            AND (:#{#filterObj.levelEnum} IS NULL   OR :#{#filterObj.levelEnum} = s.level_enum)
             AND (:#{#filterObj.name} IS NULL    OR s.name LIKE CONCAT('%',:#{#filterObj.name},'%'))
         GROUP BY s.session_id
     """)
@@ -46,7 +45,7 @@ public interface MusclesOfSessionsRepository extends JpaRepository<MusclesOfSess
     );
 
     /**
-     * @return Object[] {Session.sessionId, Session.name, Session.basicReps, Session.level, muscleList}
+     * @return Object[] {Session.sessionId, Session.name, Session.basicReps, Session.levelEnum, muscleList}
      */
     @Overload
     @Query(name = "findAllSessionsHasMuscles", nativeQuery = true, value = """
@@ -55,8 +54,8 @@ public interface MusclesOfSessionsRepository extends JpaRepository<MusclesOfSess
             ORDER BY m.muscle_enum
             ASC SEPARATOR '""" + GROUP_CONCAT_SEPARATOR
         + "') " + """
-        FROM muscles_of_sessions m
-        INNER JOIN session s ON s.session_id = m.session_id
+        FROM session s
+        INNER JOIN muscles_of_sessions m ON s.session_id = m.session_id
         GROUP BY m.session_id
     """)
     Page<Object[]> findAllSessionsHasMuscles(Pageable pageable);

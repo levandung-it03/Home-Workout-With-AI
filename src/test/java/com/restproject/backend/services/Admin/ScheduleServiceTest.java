@@ -47,15 +47,15 @@ public class ScheduleServiceTest {
     @Test
     public void createSchedule_admin_valid() {
         var foundSessions = List.of(
-            Session.builder().sessionId(1L).level(Level.INTERMEDIATE).build(),
-            Session.builder().sessionId(2L).level(Level.INTERMEDIATE).build()
+            Session.builder().sessionId(1L).levelEnum(Level.INTERMEDIATE).build(),
+            Session.builder().sessionId(2L).levelEnum(Level.INTERMEDIATE).build()
         );
         var req = NewScheduleRequest.builder().name("Shoulders - immediate")
             .description("Just shoulder's sessions in total under 1 hour")
             .sessionIds(foundSessions.stream().map(Session::getSessionId).toList())
-            .coins(2000L).level(Level.INTERMEDIATE.getLevel()).build();
+            .coins(2000L).levelEnum(Level.INTERMEDIATE.getLevelEnum()).build();
         var savedSchedule = Schedule.builder().name(req.getName()).description(req.getDescription())
-            .level(Level.getByLevel(req.getLevel())).sessionsOfSchedule(foundSessions).build();
+            .levelEnum(Level.getByLevel(req.getLevelEnum())).sessionsOfSchedule(foundSessions).build();
         var sessionsSchedules = foundSessions.stream().map(e ->
             SessionsOfSchedules.builder().session(e).schedule(savedSchedule).build()).toList();
 
@@ -74,7 +74,7 @@ public class ScheduleServiceTest {
         Mockito.verify(scheduleRepository, Mockito.times(1)).save(savedSchedule);
         foundSessions.forEach(e -> {
             Mockito.verify(sessionRepository, Mockito.times(1)).findById(e.getSessionId());
-            assertEquals(e.getLevel(), actual.getLevel());
+            assertEquals(e.getLevelEnum(), actual.getLevelEnum());
         });
         Mockito.verify(sessionsOfSchedulesRepository, Mockito.times(1)).saveAll(sessionsSchedules);
     }
@@ -82,14 +82,14 @@ public class ScheduleServiceTest {
     @Test
     public void createSchedule_admin_duplicatedScheduleWithLevel() {
         var foundSessions = List.of(
-            Session.builder().sessionId(1L).level(Level.INTERMEDIATE).build()
+            Session.builder().sessionId(1L).levelEnum(Level.INTERMEDIATE).build()
         );
         var req = NewScheduleRequest.builder().name("Shoulders - immediate")
             .description("Just shoulder's sessions in total under 1 hour")
             .sessionIds(List.of(foundSessions.getFirst().getSessionId(), 9_999L))
-            .coins(2000L).level(foundSessions.getFirst().getLevel().getLevel()).build();
+            .coins(2000L).levelEnum(foundSessions.getFirst().getLevelEnum().getLevelEnum()).build();
         var savedSchedule = Schedule.builder().name(req.getName()).description(req.getDescription())
-            .level(foundSessions.getFirst().getLevel()).build();
+            .levelEnum(foundSessions.getFirst().getLevelEnum()).build();
 
         Mockito.when(scheduleMappers.insertionToPlain(req)).thenReturn(savedSchedule);
         Mockito.when(scheduleRepository.save(savedSchedule)).thenThrow(DataIntegrityViolationException.class);
@@ -104,15 +104,15 @@ public class ScheduleServiceTest {
     @Test
     public void createSchedule_admin_invalidSessionIds() {
         var foundSessions = List.of(
-            Session.builder().sessionId(1L).level(Level.INTERMEDIATE).build()
+            Session.builder().sessionId(1L).levelEnum(Level.INTERMEDIATE).build()
         );
         var invalidId = 9_9999L;
         var req = NewScheduleRequest.builder().name("Shoulders - immediate")
             .description("Just shoulder's sessions in total under 1 hour")
             .sessionIds(List.of(foundSessions.getFirst().getSessionId(), invalidId))
-            .coins(2000L).level(foundSessions.getFirst().getLevel().getLevel()).build();
+            .coins(2000L).levelEnum(foundSessions.getFirst().getLevelEnum().getLevelEnum()).build();
         var savedSchedule = Schedule.builder().name(req.getName()).description(req.getDescription())
-            .level(foundSessions.getFirst().getLevel()).build();
+            .levelEnum(foundSessions.getFirst().getLevelEnum()).build();
 
         Mockito.when(scheduleMappers.insertionToPlain(req)).thenReturn(savedSchedule);
         Mockito.when(scheduleRepository.save(savedSchedule)).thenReturn(savedSchedule);
@@ -127,22 +127,22 @@ public class ScheduleServiceTest {
         Mockito.verify(scheduleRepository, Mockito.times(1)).save(savedSchedule);
         Mockito.verify(sessionRepository, Mockito.times(1))
             .findById(req.getSessionIds().stream().toList().getFirst());
-        assertEquals(savedSchedule.getLevel(), foundSessions.getFirst().getLevel());
+        assertEquals(savedSchedule.getLevelEnum(), foundSessions.getFirst().getLevelEnum());
         Mockito.verify(sessionRepository, Mockito.times(1)).findById(invalidId);
     }
 
     @Test
     public void createSchedule_admin_invalidLevel() {
         var foundSessions = List.of(
-            Session.builder().sessionId(1L).level(Level.INTERMEDIATE).build(),
-            Session.builder().sessionId(2L).level(Level.BEGINNER).build()
+            Session.builder().sessionId(1L).levelEnum(Level.INTERMEDIATE).build(),
+            Session.builder().sessionId(2L).levelEnum(Level.BEGINNER).build()
         );
         var req = NewScheduleRequest.builder().name("Shoulders - immediate")
             .description("Just shoulder's sessions in total under 1 hour")
             .sessionIds(foundSessions.stream().map(Session::getSessionId).toList())
-            .level(Level.INTERMEDIATE.getLevel()).build();
+            .levelEnum(Level.INTERMEDIATE.getLevelEnum()).build();
         var savedSchedule = Schedule.builder().name(req.getName()).description(req.getDescription())
-            .level(Level.INTERMEDIATE).build();
+            .levelEnum(Level.INTERMEDIATE).build();
 
         Mockito.when(scheduleMappers.insertionToPlain(req)).thenReturn(savedSchedule);
         Mockito.when(scheduleRepository.save(savedSchedule)).thenReturn(savedSchedule);
@@ -156,14 +156,14 @@ public class ScheduleServiceTest {
         Mockito.verify(scheduleRepository, Mockito.times(1)).save(savedSchedule);
         Mockito.verify(sessionRepository, Mockito.times(1))
             .findById(foundSessions.getFirst().getSessionId());
-        assertEquals(foundSessions.getFirst().getLevel(), savedSchedule.getLevel());
+        assertEquals(foundSessions.getFirst().getLevelEnum(), savedSchedule.getLevelEnum());
         Mockito.verify(sessionRepository, Mockito.times(1))
             .findById(foundSessions.getLast().getSessionId());
-        assertNotEquals(foundSessions.getLast().getLevel(), savedSchedule.getLevel());
+        assertNotEquals(foundSessions.getLast().getLevelEnum(), savedSchedule.getLevelEnum());
     }
     
     UpdateScheduleRequest updateMuscle() {
-        return UpdateScheduleRequest.builder().scheduleId(1L).name("Push-ups").level(2).description("Hello")
+        return UpdateScheduleRequest.builder().scheduleId(1L).name("Push-ups").levelEnum(2).description("Hello")
             .coins(2000L).build();
     }
 
@@ -171,7 +171,7 @@ public class ScheduleServiceTest {
     public void updateScheduleAndMuscles_admin_validWithoutUpdatingMuscles() {
         var sesReq = this.updateMuscle();
         var sesRes = Schedule.builder().scheduleId(sesReq.getScheduleId()).name(sesReq.getName())
-            .description("Hello").level(Level.getByLevel(sesReq.getLevel())).coins(sesReq.getCoins()).build();
+            .description("Hello").levelEnum(Level.getByLevel(sesReq.getLevelEnum())).coins(sesReq.getCoins()).build();
 
         Mockito.when(scheduleRepository.findById(sesReq.getScheduleId())).thenReturn(Optional.of(sesRes));
         Mockito.when(sessionsOfSchedulesRepository.existsByScheduleScheduleId(sesRes.getScheduleId()))
@@ -196,7 +196,7 @@ public class ScheduleServiceTest {
     public void updateScheduleAndMuscles_admin_validWithUpdatingMuscles() {
         var sesReq = this.updateMuscle();
         var sesRes = Schedule.builder().scheduleId(sesReq.getScheduleId()).name(sesReq.getName())
-            .description("Hello").level(Level.getByLevel(sesReq.getLevel())).coins(sesReq.getCoins()).build();
+            .description("Hello").levelEnum(Level.getByLevel(sesReq.getLevelEnum())).coins(sesReq.getCoins()).build();
 
         Mockito.when(scheduleRepository.findById(sesReq.getScheduleId())).thenReturn(Optional.of(sesRes));
         Mockito.when(sessionsOfSchedulesRepository.existsByScheduleScheduleId(sesRes.getScheduleId()))

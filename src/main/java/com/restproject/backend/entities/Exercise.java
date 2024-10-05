@@ -40,7 +40,7 @@ public class Exercise {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "level_enum", nullable = false)
-    Level level;
+    Level levelEnum;
 
     @Column(name = "basic_reps", nullable = false)
     @Min(0)

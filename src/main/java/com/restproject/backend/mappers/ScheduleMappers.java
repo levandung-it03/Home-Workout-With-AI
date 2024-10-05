@@ -12,10 +12,10 @@ import org.mapstruct.Named;
 @Mapper(componentModel = "spring")
 public interface ScheduleMappers {
 
-    @Mapping(target = "level", source = "level", qualifiedByName = "mapLevelField")
+    @Mapping(target = "levelEnum", source = "level", qualifiedByName = "mapLevelField")
     Schedule insertionToPlain(NewScheduleRequest newScheduleRequest);
 
-    @Mapping(target = "level", source = "level", qualifiedByName = "mapLevelField")
+    @Mapping(target = "levelEnum", source = "level", qualifiedByName = "mapLevelField")
     void updateTarget(@MappingTarget Schedule updatedSchedule, UpdateScheduleRequest scheduleRequest);
 
     @Named("mapLevelField")

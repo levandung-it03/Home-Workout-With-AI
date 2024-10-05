@@ -48,16 +48,16 @@ public class SessionServiceTest {
     @Test
     public void createSession_admin_valid() {
         var foundExercises = List.of(
-            Exercise.builder().exerciseId(1L).level(Level.INTERMEDIATE).build(),
-            Exercise.builder().exerciseId(2L).level(Level.INTERMEDIATE).build()
+            Exercise.builder().exerciseId(1L).levelEnum(Level.INTERMEDIATE).build(),
+            Exercise.builder().exerciseId(2L).levelEnum(Level.INTERMEDIATE).build()
         );
         var req = NewSessionRequest.builder().name("Shoulders - immediate")
             .description("Just shoulder's exercises in total under 1 hour")
             .muscleIds(List.of(Muscle.SHOULDERS.getId()))
             .exerciseIds(foundExercises.stream().map(Exercise::getExerciseId).toList())
-            .level(Level.INTERMEDIATE.getLevel()).build();
+            .levelEnum(Level.INTERMEDIATE.getLevelEnum()).build();
         var savedSession = Session.builder().name(req.getName()).description(req.getDescription())
-            .level(Level.getByLevel(req.getLevel())).exercisesOfSession(foundExercises).build();
+            .levelEnum(Level.getByLevel(req.getLevelEnum())).exercisesOfSession(foundExercises).build();
         var musclesOfSessions = req.getMuscleIds().stream().map(id ->
             MusclesOfSessions.builder().muscle(Muscle.getById(id)).session(savedSession).build()).toList();
         var exercisesSessions = foundExercises.stream().map(e ->
@@ -80,7 +80,7 @@ public class SessionServiceTest {
         Mockito.verify(musclesOfSessionsRepository, Mockito.times(1)).saveAll(musclesOfSessions);
         foundExercises.forEach(e -> {
             Mockito.verify(exerciseRepository, Mockito.times(1)).findById(e.getExerciseId());
-            assertEquals(e.getLevel(), actual.getLevel());
+            assertEquals(e.getLevelEnum(), actual.getLevelEnum());
         });
         Mockito.verify(exercisesOfSessionsRepository, Mockito.times(1)).saveAll(exercisesSessions);
     }
@@ -88,15 +88,15 @@ public class SessionServiceTest {
     @Test
     public void createSession_admin_duplicatedSessionWithLevel() {
         var foundExercises = List.of(
-            Exercise.builder().exerciseId(1L).level(Level.INTERMEDIATE).build()
+            Exercise.builder().exerciseId(1L).levelEnum(Level.INTERMEDIATE).build()
         );
         var req = NewSessionRequest.builder().name("Shoulders - immediate")
             .description("Just shoulder's exercises in total under 1 hour")
             .muscleIds(List.of(Muscle.SHOULDERS.getId()))
             .exerciseIds(List.of(foundExercises.getFirst().getExerciseId(), 9_999L))
-            .level(foundExercises.getFirst().getLevel().getLevel()).build();
+            .levelEnum(foundExercises.getFirst().getLevelEnum().getLevelEnum()).build();
         var savedSession = Session.builder().name(req.getName()).description(req.getDescription())
-            .level(foundExercises.getFirst().getLevel()).build();
+            .levelEnum(foundExercises.getFirst().getLevelEnum()).build();
 
         Mockito.when(sessionMappers.insertionToPlain(req)).thenReturn(savedSession);
         Mockito.when(sessionRepository.save(savedSession)).thenThrow(DataIntegrityViolationException.class);
@@ -111,16 +111,16 @@ public class SessionServiceTest {
     @Test
     public void createSession_admin_invalidExerciseIds() {
         var foundExercises = List.of(
-            Exercise.builder().exerciseId(1L).level(Level.INTERMEDIATE).build()
+            Exercise.builder().exerciseId(1L).levelEnum(Level.INTERMEDIATE).build()
         );
         var invalidId = 9_9999L;
         var req = NewSessionRequest.builder().name("Shoulders - immediate")
             .description("Just shoulder's exercises in total under 1 hour")
             .muscleIds(List.of(Muscle.SHOULDERS.getId()))
             .exerciseIds(List.of(foundExercises.getFirst().getExerciseId(), invalidId))
-            .level(foundExercises.getFirst().getLevel().getLevel()).build();
+            .levelEnum(foundExercises.getFirst().getLevelEnum().getLevelEnum()).build();
         var savedSession = Session.builder().name(req.getName()).description(req.getDescription())
-            .level(foundExercises.getFirst().getLevel()).build();
+            .levelEnum(foundExercises.getFirst().getLevelEnum()).build();
         var musclesOfSessions = req.getMuscleIds().stream().map(id ->
             MusclesOfSessions.builder().muscle(Muscle.getById(id)).session(savedSession).build()).toList();
 
@@ -139,23 +139,23 @@ public class SessionServiceTest {
         Mockito.when(musclesOfSessionsRepository.saveAll(musclesOfSessions)).thenReturn(musclesOfSessions);
         Mockito.verify(exerciseRepository, Mockito.times(1))
             .findById(req.getExerciseIds().stream().toList().getFirst());
-        assertEquals(savedSession.getLevel(), foundExercises.getFirst().getLevel());
+        assertEquals(savedSession.getLevelEnum(), foundExercises.getFirst().getLevelEnum());
         Mockito.verify(exerciseRepository, Mockito.times(1)).findById(invalidId);
     }
 
     @Test
     public void createSession_admin_invalidLevel() {
         var foundExercises = List.of(
-            Exercise.builder().exerciseId(1L).level(Level.INTERMEDIATE).build(),
-            Exercise.builder().exerciseId(2L).level(Level.BEGINNER).build()
+            Exercise.builder().exerciseId(1L).levelEnum(Level.INTERMEDIATE).build(),
+            Exercise.builder().exerciseId(2L).levelEnum(Level.BEGINNER).build()
         );
         var req = NewSessionRequest.builder().name("Shoulders - immediate")
             .description("Just shoulder's exercises in total under 1 hour")
             .muscleIds(List.of(Muscle.SHOULDERS.getId()))
             .exerciseIds(foundExercises.stream().map(Exercise::getExerciseId).toList())
-            .level(Level.INTERMEDIATE.getLevel()).build();
+            .levelEnum(Level.INTERMEDIATE.getLevelEnum()).build();
         var savedSession = Session.builder().name(req.getName()).description(req.getDescription())
-            .level(Level.INTERMEDIATE).build();
+            .levelEnum(Level.INTERMEDIATE).build();
         var musclesOfSessions = req.getMuscleIds().stream().map(id ->
             MusclesOfSessions.builder().muscle(Muscle.getById(id)).session(savedSession).build()).toList();
 
@@ -173,14 +173,14 @@ public class SessionServiceTest {
         Mockito.when(musclesOfSessionsRepository.saveAll(musclesOfSessions)).thenReturn(musclesOfSessions);
         Mockito.verify(exerciseRepository, Mockito.times(1))
             .findById(foundExercises.getFirst().getExerciseId());
-        assertEquals(foundExercises.getFirst().getLevel(), savedSession.getLevel());
+        assertEquals(foundExercises.getFirst().getLevelEnum(), savedSession.getLevelEnum());
         Mockito.verify(exerciseRepository, Mockito.times(1))
             .findById(foundExercises.getLast().getExerciseId());
-        assertNotEquals(foundExercises.getLast().getLevel(), savedSession.getLevel());
+        assertNotEquals(foundExercises.getLast().getLevelEnum(), savedSession.getLevelEnum());
     }
     
     UpdateSessionRequest updateSessionAndMusclesRequest() {
-        return UpdateSessionRequest.builder().sessionId(1L).name("Push-ups").level(2).description("Hello")
+        return UpdateSessionRequest.builder().sessionId(1L).name("Push-ups").levelEnum(2).description("Hello")
             .muscleIds(List.of(0, 2)).build();
     }
 
@@ -188,7 +188,7 @@ public class SessionServiceTest {
     public void updateSessionAndMuscles_admin_validWithoutUpdatingMuscles() {
         var sesReq = this.updateSessionAndMusclesRequest();
         var sesRes = Session.builder().sessionId(sesReq.getSessionId()).name(sesReq.getName())
-            .description("Hello").level(Level.getByLevel(sesReq.getLevel())).build();
+            .description("Hello").levelEnum(Level.getByLevel(sesReq.getLevelEnum())).build();
         var msByEx = sesReq.getMuscleIds().stream().map(id ->
             MusclesOfSessions.builder().session(sesRes).muscle(Muscle.getById(id)).build()
         ).toList();
@@ -219,7 +219,7 @@ public class SessionServiceTest {
     public void updateSessionAndMuscles_admin_validWithUpdatingMuscles() {
         var sesReq = this.updateSessionAndMusclesRequest();
         var sesRes = Session.builder().sessionId(sesReq.getSessionId()).name(sesReq.getName())
-            .description("Hello").level(Level.getByLevel(sesReq.getLevel())).build();
+            .description("Hello").levelEnum(Level.getByLevel(sesReq.getLevelEnum())).build();
         var msByEx = sesReq.getMuscleIds().stream().map(id ->
             MusclesOfSessions.builder().session(sesRes).muscle(Muscle.getById(id)).build()
         ).toList();
@@ -275,7 +275,7 @@ public class SessionServiceTest {
     public void updateSessionAndMuscles_admin_sessionIdRelatedToSession() {
         var sesReq = this.updateSessionAndMusclesRequest();
         var sesRes = Session.builder().sessionId(sesReq.getSessionId()).name(sesReq.getName())
-            .description("Hello").level(Level.getByLevel(sesReq.getLevel())).build();
+            .description("Hello").levelEnum(Level.getByLevel(sesReq.getLevelEnum())).build();
 
         Mockito.when(sessionRepository.findById(sesReq.getSessionId())).thenReturn(Optional.of(sesRes));
         Mockito.when(sessionsOfSchedulesRepository.existsBySessionSessionId(sesReq.getSessionId()))
@@ -292,7 +292,7 @@ public class SessionServiceTest {
     public void updateSessionAndMuscles_admin_emptyFormerMuscleIds() {
         var sesReq = this.updateSessionAndMusclesRequest();
         var sesRes = Session.builder().sessionId(sesReq.getSessionId()).name(sesReq.getName())
-            .description("Hello").level(Level.getByLevel(sesReq.getLevel())).build();
+            .description("Hello").levelEnum(Level.getByLevel(sesReq.getLevelEnum())).build();
 
         Mockito.when(sessionRepository.findById(sesReq.getSessionId())).thenReturn(Optional.of(sesRes));
         Mockito.when(sessionsOfSchedulesRepository.existsBySessionSessionId(sesReq.getSessionId()))

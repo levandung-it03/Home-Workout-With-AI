@@ -37,11 +37,11 @@ public class MusclesOfExercisesRepositoryTest {
     @Test
     public void findAllExercisesHasMuscles_admin_valid() {
         ArrayList<Exercise> exercises = new ArrayList<>(exerciseRepository.saveAll(List.of(
-            Exercise.builder().name("Push Up").level(Level.BEGINNER).basicReps(15).build(),
-            Exercise.builder().name("Bicep Curl").level(Level.INTERMEDIATE).basicReps(12).build(),
-            Exercise.builder().name("Tricep Dip").level(Level.INTERMEDIATE).basicReps(10).build(),
-            Exercise.builder().name("Squat").level(Level.ADVANCE).basicReps(20).build(),
-            Exercise.builder().name("Plank").level(Level.BEGINNER).basicReps(30).build()
+            Exercise.builder().name("Push Up").levelEnum(Level.BEGINNER).basicReps(15).build(),
+            Exercise.builder().name("Bicep Curl").levelEnum(Level.INTERMEDIATE).basicReps(12).build(),
+            Exercise.builder().name("Tricep Dip").levelEnum(Level.INTERMEDIATE).basicReps(10).build(),
+            Exercise.builder().name("Squat").levelEnum(Level.ADVANCE).basicReps(20).build(),
+            Exercise.builder().name("Plank").levelEnum(Level.BEGINNER).basicReps(30).build()
         )));
         var exerciseHasMusclesFromDB = new ArrayList<>(musclesOfExercisesRepository.saveAll(List.of(
             MusclesOfExercises.builder().exercise(exercises.get(0)).muscle(Muscle.CHEST).build(),
@@ -57,7 +57,7 @@ public class MusclesOfExercisesRepositoryTest {
         )));
         var exercisesHasMusclesRes = new ArrayList<>(exercises.stream()
             .map(e -> ExerciseHasMusclesResponse.builder()
-                .exerciseId(e.getExerciseId()).name(e.getName()).basicReps(e.getBasicReps()).level(e.getLevel().toString())
+                .exerciseId(e.getExerciseId()).name(e.getName()).basicReps(e.getBasicReps()).levelEnum(e.getLevelEnum().toString())
                 .muscleList(new ArrayList<>())
                 .build()).toList());
         for (MusclesOfExercises exeHasMusDB : exerciseHasMusclesFromDB) {
@@ -83,7 +83,7 @@ public class MusclesOfExercisesRepositoryTest {
                 exeHasMusDB.getExercise().getExerciseId().equals(expectExe.getExerciseId())).count();
 
             assertEquals(expectExe.getName(), actualExe.getName());
-            assertEquals(expectExe.getLevel(), actualExe.getLevel());
+            assertEquals(expectExe.getLevelEnum(), actualExe.getLevelEnum());
             assertEquals(expectExe.getBasicReps(), actualExe.getBasicReps());
             assertEquals(totalMuscle, actual.get(index).getMuscleList().size());
         }
@@ -95,11 +95,11 @@ public class MusclesOfExercisesRepositoryTest {
             .muscleList(List.of(Muscle.ABS.toString(), Muscle.BACK_LATS.toString()))
             .build();
         var exercises = new ArrayList<>(exerciseRepository.saveAll(List.of(
-            Exercise.builder().level(Level.BEGINNER).name("Test Exercise1").basicReps(14).imageUrl("hehe").build(),
-            Exercise.builder().level(Level.INTERMEDIATE).name("Test Exercise02").basicReps(13).imageUrl("hehe").build(),
-            Exercise.builder().level(Level.INTERMEDIATE).name("Test Exercise03").basicReps(12).imageUrl("hehe").build(),
-            Exercise.builder().level(Level.ADVANCE).name("Test Exercise4").basicReps(10).imageUrl("hehe").build(),
-            Exercise.builder().level(Level.BEGINNER).name("Test Exercise5").basicReps(14).imageUrl("hehe").build()
+            Exercise.builder().levelEnum(Level.BEGINNER).name("Test Exercise1").basicReps(14).imageUrl("hehe").build(),
+            Exercise.builder().levelEnum(Level.INTERMEDIATE).name("Test Exercise02").basicReps(13).imageUrl("hehe").build(),
+            Exercise.builder().levelEnum(Level.INTERMEDIATE).name("Test Exercise03").basicReps(12).imageUrl("hehe").build(),
+            Exercise.builder().levelEnum(Level.ADVANCE).name("Test Exercise4").basicReps(10).imageUrl("hehe").build(),
+            Exercise.builder().levelEnum(Level.BEGINNER).name("Test Exercise5").basicReps(14).imageUrl("hehe").build()
         )));
         var exerciseHasMusclesFromDB = new ArrayList<>(musclesOfExercisesRepository.saveAll(List.of(
             MusclesOfExercises.builder().exercise(exercises.get(0)).muscle(Muscle.CHEST).build(),
@@ -127,7 +127,7 @@ public class MusclesOfExercisesRepositoryTest {
                             .exerciseId(sesHasMusDB.getExercise().getExerciseId())
                             .name(sesHasMusDB.getExercise().getName())
                             .basicReps(sesHasMusDB.getExercise().getBasicReps())
-                            .level(sesHasMusDB.getExercise().getLevel().toString())
+                            .levelEnum(sesHasMusDB.getExercise().getLevelEnum().toString())
                             .muscleList(new ArrayList<>(List.of(sesHasMusDB.getMuscle().toString()))).build()
                     );
             }
@@ -154,7 +154,7 @@ public class MusclesOfExercisesRepositoryTest {
             var eachExpect = exercisesHasMusclesRes.get(eachActual.getExerciseId());
 
             assertEquals(eachExpect.getName(), eachActual.getName());
-            assertEquals(eachExpect.getLevel(), eachActual.getLevel());
+            assertEquals(eachExpect.getLevelEnum(), eachActual.getLevelEnum());
             assertEquals(eachExpect.getBasicReps(), eachActual.getBasicReps());
             assertEquals(eachExpect.getMuscleList(), eachActual.getMuscleList());
         }
@@ -164,15 +164,15 @@ public class MusclesOfExercisesRepositoryTest {
     public void findAllExercisesHasMuscles_admin_validWithFilteringWithoutMuscleList() {
         var request = ExerciseHasMusclesResponse.builder()
             .name("Exercise0")
-            .level(Level.ADVANCE.toString())
+            .levelEnum(Level.ADVANCE.toString())
             .muscleList(new ArrayList<>())
             .build();
         var exercises = new ArrayList<>(exerciseRepository.saveAll(List.of(
-            Exercise.builder().level(Level.BEGINNER).name("Test Exercise1").basicReps(14).imageUrl("hehe").build(),
-            Exercise.builder().level(Level.INTERMEDIATE).name("Test Exercise02").basicReps(13).imageUrl("hehe").build(),
-            Exercise.builder().level(Level.ADVANCE).name("Test Exercise03").basicReps(12).imageUrl("hehe").build(),
-            Exercise.builder().level(Level.ADVANCE).name("Test Exercise4").basicReps(10).imageUrl("hehe").build(),
-            Exercise.builder().level(Level.BEGINNER).name("Test Exercise5").basicReps(14).imageUrl("hehe").build()
+            Exercise.builder().levelEnum(Level.BEGINNER).name("Test Exercise1").basicReps(14).imageUrl("hehe").build(),
+            Exercise.builder().levelEnum(Level.INTERMEDIATE).name("Test Exercise02").basicReps(13).imageUrl("hehe").build(),
+            Exercise.builder().levelEnum(Level.ADVANCE).name("Test Exercise03").basicReps(12).imageUrl("hehe").build(),
+            Exercise.builder().levelEnum(Level.ADVANCE).name("Test Exercise4").basicReps(10).imageUrl("hehe").build(),
+            Exercise.builder().levelEnum(Level.BEGINNER).name("Test Exercise5").basicReps(14).imageUrl("hehe").build()
         )));
         var exerciseHasMusclesFromDB = new ArrayList<>(musclesOfExercisesRepository.saveAll(List.of(
             MusclesOfExercises.builder().exercise(exercises.get(0)).muscle(Muscle.CHEST).build(),
@@ -197,7 +197,7 @@ public class MusclesOfExercisesRepositoryTest {
                         .put(sesHasMusDB.getExercise().getExerciseId(), ExerciseHasMusclesResponse.builder()
                             .exerciseId(sesHasMusDB.getExercise().getExerciseId())
                             .name(sesHasMusDB.getExercise().getName())
-                            .level(sesHasMusDB.getExercise().getLevel().toString())
+                            .levelEnum(sesHasMusDB.getExercise().getLevelEnum().toString())
                             .basicReps(sesHasMusDB.getExercise().getBasicReps())
                             .build());
                 }
@@ -216,7 +216,7 @@ public class MusclesOfExercisesRepositoryTest {
             var eachExpect = exercisesHasMusclesRes.get(eachActual.getExerciseId());
 
             assertEquals(eachExpect.getName(), eachActual.getName());
-            assertEquals(eachExpect.getLevel(), eachActual.getLevel());
+            assertEquals(eachExpect.getLevelEnum(), eachActual.getLevelEnum());
             assertEquals(eachExpect.getBasicReps(), eachActual.getBasicReps());
         }
     }

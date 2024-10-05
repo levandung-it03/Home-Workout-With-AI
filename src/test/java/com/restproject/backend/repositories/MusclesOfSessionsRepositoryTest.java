@@ -34,11 +34,11 @@ public class MusclesOfSessionsRepositoryTest {
     @Test
     public void findAllSessionsHasMuscles_admin_valid() {
         var sessions = new ArrayList<>(sessionRepository.saveAll(List.of(
-            Session.builder().level(Level.BEGINNER).name("Test Session1").description("Testing").build(),
-            Session.builder().level(Level.INTERMEDIATE).name("Test Session2").description("Testing").build(),
-            Session.builder().level(Level.INTERMEDIATE).name("Test Session3").description("Testing").build(),
-            Session.builder().level(Level.ADVANCE).name("Test Session4").description("Testing").build(),
-            Session.builder().level(Level.BEGINNER).name("Test Session5").description("Testing").build()
+            Session.builder().levelEnum(Level.BEGINNER).name("Test Session1").description("Testing").build(),
+            Session.builder().levelEnum(Level.INTERMEDIATE).name("Test Session2").description("Testing").build(),
+            Session.builder().levelEnum(Level.INTERMEDIATE).name("Test Session3").description("Testing").build(),
+            Session.builder().levelEnum(Level.ADVANCE).name("Test Session4").description("Testing").build(),
+            Session.builder().levelEnum(Level.BEGINNER).name("Test Session5").description("Testing").build()
         )));
         var sessionHasMusclesFromDB = new ArrayList<>(musclesOfSessionsRepository.saveAll(List.of(
             MusclesOfSessions.builder().session(sessions.get(0)).muscle(Muscle.CHEST).build(),
@@ -54,7 +54,7 @@ public class MusclesOfSessionsRepositoryTest {
         )));
         var sessionsHasMusclesRes = new ArrayList<>(sessions.stream()
             .map(e -> SessionHasMusclesResponse.builder()
-                .sessionId(e.getSessionId()).name(e.getName()).description(e.getDescription()).level(e.getLevel().toString())
+                .sessionId(e.getSessionId()).name(e.getName()).description(e.getDescription()).levelEnum(e.getLevelEnum().toString())
                 .muscleList(new ArrayList<>())
                 .build()).toList());
         for (MusclesOfSessions exeHasMusDB : sessionHasMusclesFromDB) {
@@ -80,7 +80,7 @@ public class MusclesOfSessionsRepositoryTest {
                 exeHasMusDB.getSession().getSessionId().equals(expectSes.getSessionId())).count();
 
             assertEquals(expectSes.getName(), actualExe.getName());
-            assertEquals(expectSes.getLevel(), actualExe.getLevel());
+            assertEquals(expectSes.getLevelEnum(), actualExe.getLevelEnum());
             assertEquals(expectSes.getDescription(), actualExe.getDescription());
             assertEquals(totalMuscle, actual.get(index).getMuscleList().size());
         }
@@ -92,11 +92,11 @@ public class MusclesOfSessionsRepositoryTest {
             .muscleList(List.of(Muscle.ABS.toString(), Muscle.BACK_LATS.toString()))
             .build();
         var sessions = new ArrayList<>(sessionRepository.saveAll(List.of(
-            Session.builder().level(Level.BEGINNER).name("Test Session1").description("Testing").build(),
-            Session.builder().level(Level.INTERMEDIATE).name("Test Session2").description("Testing").build(),
-            Session.builder().level(Level.INTERMEDIATE).name("Test Session3").description("Testing").build(),
-            Session.builder().level(Level.ADVANCE).name("Test Session4").description("Testing").build(),
-            Session.builder().level(Level.BEGINNER).name("Test Session5").description("Testing").build()
+            Session.builder().levelEnum(Level.BEGINNER).name("Test Session1").description("Testing").build(),
+            Session.builder().levelEnum(Level.INTERMEDIATE).name("Test Session2").description("Testing").build(),
+            Session.builder().levelEnum(Level.INTERMEDIATE).name("Test Session3").description("Testing").build(),
+            Session.builder().levelEnum(Level.ADVANCE).name("Test Session4").description("Testing").build(),
+            Session.builder().levelEnum(Level.BEGINNER).name("Test Session5").description("Testing").build()
         )));
         var sessionHasMusclesFromDB = new ArrayList<>(musclesOfSessionsRepository.saveAll(List.of(
             MusclesOfSessions.builder().session(sessions.get(0)).muscle(Muscle.CHEST).build(),
@@ -124,7 +124,7 @@ public class MusclesOfSessionsRepositoryTest {
                             .sessionId(sesHasMusDB.getSession().getSessionId())
                             .name(sesHasMusDB.getSession().getName())
                             .description(sesHasMusDB.getSession().getDescription())
-                            .level(sesHasMusDB.getSession().getLevel().toString())
+                            .levelEnum(sesHasMusDB.getSession().getLevelEnum().toString())
                             .muscleList(new ArrayList<>(List.of(sesHasMusDB.getMuscle().toString()))).build()
                     );
             }
@@ -151,7 +151,7 @@ public class MusclesOfSessionsRepositoryTest {
             var eachExpect = sessionsHasMusclesRes.get(eachActual.getSessionId());
 
             assertEquals(eachExpect.getName(), eachActual.getName());
-            assertEquals(eachExpect.getLevel(), eachActual.getLevel());
+            assertEquals(eachExpect.getLevelEnum(), eachActual.getLevelEnum());
             assertEquals(eachExpect.getDescription(), eachActual.getDescription());
             assertEquals(eachExpect.getMuscleList(), eachActual.getMuscleList());
         }
@@ -164,11 +164,11 @@ public class MusclesOfSessionsRepositoryTest {
             .muscleList(new ArrayList<>())
             .build();
         var sessions = new ArrayList<>(sessionRepository.saveAll(List.of(
-            Session.builder().level(Level.BEGINNER).name("Test Session1").description("Testing").build(),
-            Session.builder().level(Level.INTERMEDIATE).name("Test Session2").description("Testing").build(),
-            Session.builder().level(Level.INTERMEDIATE).name("Test Session3").description("Testing").build(),
-            Session.builder().level(Level.ADVANCE).name("Test Session4").description("Testing").build(),
-            Session.builder().level(Level.BEGINNER).name("Test Session5").description("Testing").build()
+            Session.builder().levelEnum(Level.BEGINNER).name("Test Session1").description("Testing").build(),
+            Session.builder().levelEnum(Level.INTERMEDIATE).name("Test Session2").description("Testing").build(),
+            Session.builder().levelEnum(Level.INTERMEDIATE).name("Test Session3").description("Testing").build(),
+            Session.builder().levelEnum(Level.ADVANCE).name("Test Session4").description("Testing").build(),
+            Session.builder().levelEnum(Level.BEGINNER).name("Test Session5").description("Testing").build()
         )));
         var sessionHasMusclesFromDB = new ArrayList<>(musclesOfSessionsRepository.saveAll(List.of(
             MusclesOfSessions.builder().session(sessions.get(0)).muscle(Muscle.CHEST).build(),
@@ -193,7 +193,7 @@ public class MusclesOfSessionsRepositoryTest {
                         .put(sesHasMusDB.getSession().getSessionId(), SessionHasMusclesResponse.builder()
                             .sessionId(sesHasMusDB.getSession().getSessionId())
                             .name(sesHasMusDB.getSession().getName())
-                            .level(sesHasMusDB.getSession().getLevel().toString())
+                            .levelEnum(sesHasMusDB.getSession().getLevelEnum().toString())
                             .description(sesHasMusDB.getSession().getDescription())
                             .build());
                 }
@@ -212,7 +212,7 @@ public class MusclesOfSessionsRepositoryTest {
             var eachExpect = sessionsHasMusclesRes.get(eachActual.getSessionId());
 
             assertEquals(eachExpect.getName(), eachActual.getName());
-            assertEquals(eachExpect.getLevel(), eachActual.getLevel());
+            assertEquals(eachExpect.getLevelEnum(), eachActual.getLevelEnum());
             assertEquals(eachExpect.getDescription(), eachActual.getDescription());
         }
     }

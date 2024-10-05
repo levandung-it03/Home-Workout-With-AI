@@ -6,6 +6,11 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,6 +26,14 @@ import lombok.experimental.FieldDefaults;
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class MusclesOfExercises {
+    public static final Set<String> INSTANCE_FIELDS;
+    static {    //--Initializing when static field is called
+        INSTANCE_FIELDS = Arrays.stream(Exercise.class.getDeclaredFields())
+            .map(Field::getName)
+            .collect(Collectors.toSet());
+        INSTANCE_FIELDS.add("muscleList"); // Directly add the field name
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;

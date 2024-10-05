@@ -63,7 +63,7 @@ public class SessionControllersTest {
 
     @CoreEngines
     private Session session() {
-        return Session.builder().name("Shoulders exercises for beginner").level(Level.INTERMEDIATE)
+        return Session.builder().name("Shoulders exercises for beginner").levelEnum(Level.INTERMEDIATE)
             .description("Just shoulders in about 1 hour")
             .build();
     }
@@ -266,7 +266,7 @@ public class SessionControllersTest {
     @Test
     public void updateSessionAndMuscles_admin_valid() throws Exception {
         var req = updateSessionAndMusclesRequest();
-        var res = Session.builder().sessionId(req.getSessionId()).level(Level.getByLevel(req.getLevel()))
+        var res = Session.builder().sessionId(req.getSessionId()).levelEnum(Level.getByLevel(req.getLevel()))
             .description(req.getDescription()).name(req.getName()).build();
 
         Mockito.when(sessionServiceOfAdmin.updateSessionAndMuscles(req)).thenReturn(res);

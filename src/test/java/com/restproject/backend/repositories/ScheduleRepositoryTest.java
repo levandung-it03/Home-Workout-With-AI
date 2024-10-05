@@ -36,11 +36,11 @@ public class ScheduleRepositoryTest {
     public void findAllBySchedule_admin_validWithFiltering() {
         var req = Schedule.builder().name("Schedule0").build();
         var schedules = new ArrayList<>(scheduleRepository.saveAll(List.of(
-            Schedule.builder().level(Level.BEGINNER).name("Test Schedule1").description("Testing").coins(2000L).build(),
-            Schedule.builder().level(Level.INTERMEDIATE).name("Test Schedule02").description("Testing").coins(2000L).build(),
-            Schedule.builder().level(Level.INTERMEDIATE).name("Test Schedule03").description("Testing").coins(2000L).build(),
-            Schedule.builder().level(Level.ADVANCE).name("Test Schedule4").description("Testing").coins(2000L).build(),
-            Schedule.builder().level(Level.BEGINNER).name("Test Schedule5").description("Testing").coins(2000L).build()
+            Schedule.builder().levelEnum(Level.BEGINNER).name("Test Schedule1").description("Testing").coins(2000L).build(),
+            Schedule.builder().levelEnum(Level.INTERMEDIATE).name("Test Schedule02").description("Testing").coins(2000L).build(),
+            Schedule.builder().levelEnum(Level.INTERMEDIATE).name("Test Schedule03").description("Testing").coins(2000L).build(),
+            Schedule.builder().levelEnum(Level.ADVANCE).name("Test Schedule4").description("Testing").coins(2000L).build(),
+            Schedule.builder().levelEnum(Level.BEGINNER).name("Test Schedule5").description("Testing").coins(2000L).build()
         )));
         var pageableCf = PageRequest.of(0, PageEnum.SIZE.getSize());
 

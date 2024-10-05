@@ -50,7 +50,7 @@ public class MusclesOfSessionsServiceTest {
         var muscleList = List.of(Muscle.CHEST, Muscle.TRICEPS);
         var sessionInfoForFilter = SessionHasMusclesResponse.builder()
             .name(request.getFilterFields().get("name").toString())
-            .level(request.getFilterFields().get("level").toString())
+            .levelEnum(request.getFilterFields().get("level").toString())
             .muscleList(muscleList.stream().map(Muscle::toString).toList()).build();
         var pageObject = PageObject.builder().page(request.getPage()).build();
 

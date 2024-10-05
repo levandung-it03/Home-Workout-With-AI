@@ -38,7 +38,7 @@ public class SessionService {
         exercisesOfSessionsRepository.saveAll(request.getExerciseIds().stream().map(id -> {
             var foundExercise = exerciseRepository.findById(id)
                 .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY));
-            if (foundExercise.getLevel() != savedSession.getLevel())
+            if (foundExercise.getLevelEnum() != savedSession.getLevelEnum())
                 throw new ApplicationException(ErrorCodes.NOT_SYNC_LEVEL);
 
             return ExercisesOfSessions.builder().session(savedSession).exercise(foundExercise).build();

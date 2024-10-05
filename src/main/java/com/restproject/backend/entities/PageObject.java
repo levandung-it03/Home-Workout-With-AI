@@ -28,10 +28,22 @@ public class PageObject {
     ));
 
     public Pageable toPageable() {
+        if (!Objects.isNull(this.sortedField))
+            this.sortedField = this.camelCaseToUnderscore(this.sortedField);
         if (Objects.isNull(sortedField) || sortedField.isEmpty())
             return PageRequest.of(page - 1, pageSize);
         if (Objects.isNull(sortedMode))
             sortedMode = 1;
         return PageRequest.of(page - 1, pageSize, SORTING_DIRECTION.get(sortedMode), sortedField);
+    }
+
+    public String camelCaseToUnderscore(String s) {
+        StringBuilder r = new StringBuilder();
+        for (char c: s.toCharArray()) {
+            if (65 <= (int) c && (int) c <= 90)
+                r.append("_").append(Character.toChars(c + 32));
+            else r.append(c);
+        }
+        return r.toString();
     }
 }

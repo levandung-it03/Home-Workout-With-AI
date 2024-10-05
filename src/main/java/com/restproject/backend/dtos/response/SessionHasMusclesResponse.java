@@ -20,7 +20,7 @@ import java.util.List;
 public class SessionHasMusclesResponse {
     Long sessionId;
     String name;
-    String level;   //--Keep String type to make filter work correctly
+    String levelEnum;   //--Keep String type to make filter work correctly
     String description;
     List<String> muscleList;    //--Keep MuscleEnum as String to make filter works correctly.
 
@@ -29,7 +29,7 @@ public class SessionHasMusclesResponse {
             .sessionId(Long.parseLong(params[0].toString()))
             .name(params[1].toString())
             .description(params[2].toString())
-            .level(params[3].toString())
+            .levelEnum(params[3].toString())
             .muscleList(Arrays.stream(params[4].toString()
                 .replaceAll("[\\[\\]]", "")
                 .split(String.valueOf(MusclesOfSessionsRepository.GROUP_CONCAT_SEPARATOR))
@@ -47,7 +47,7 @@ public class SessionHasMusclesResponse {
 
         var sessionInfo = new SessionHasMusclesResponse();
         sessionInfo.setName(!map.containsKey("name") ? null : map.get("name").toString());
-        sessionInfo.setLevel(!map.containsKey("level") ? null
+        sessionInfo.setLevelEnum(!map.containsKey("level") ? null
             : Level.getByLevel(Integer.parseInt(map.get("level").toString())).toString());
         sessionInfo.setDescription(!map.containsKey("description") ? null : map.get("description").toString());
         sessionInfo.setMuscleList(!map.containsKey("muscleIds") ? new ArrayList<>()   //--May throw IllegalArgExc

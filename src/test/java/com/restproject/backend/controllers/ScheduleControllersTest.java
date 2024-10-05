@@ -76,7 +76,7 @@ public class ScheduleControllersTest {
                 assertEquals(apiRes.getApplicationCode(), SucceedCodes.CREATE_SCHEDULE.getCode());
                 assertEquals(apiRes.getData().getName(), req.getName());
                 assertEquals(apiRes.getData().getDescription(), req.getDescription());
-                assertEquals(apiRes.getData().getLevel().getLevel(), req.getLevel());
+                assertEquals(apiRes.getData().getLevelEnum().getLevel(), req.getLevel());
                 assertEquals(apiRes.getData().getCoins(), req.getCoins());
             });
     }
@@ -240,7 +240,7 @@ public class ScheduleControllersTest {
     @Test
     public void updateScheduleAndMuscles_admin_valid() throws Exception {
         var req = updateSchedule();
-        var res = Schedule.builder().scheduleId(req.getScheduleId()).level(Level.getByLevel(req.getLevel()))
+        var res = Schedule.builder().scheduleId(req.getScheduleId()).levelEnum(Level.getByLevel(req.getLevel()))
             .description(req.getDescription()).name(req.getName()).coins(2000L).build();
 
         Mockito.when(scheduleServiceOfAdmin.updateSchedule(req)).thenReturn(res);

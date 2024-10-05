@@ -4,6 +4,7 @@ import com.restproject.backend.dtos.request.PaginatedTableRequest;
 import com.restproject.backend.dtos.response.ExerciseHasMusclesResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.entities.Exercise;
+import com.restproject.backend.entities.MusclesOfExercises;
 import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.exceptions.ApplicationException;
 import com.restproject.backend.mappers.PageMappers;
@@ -26,7 +27,7 @@ public class MusclesOfExercisesService {
 
     public TablePagesResponse<ExerciseHasMusclesResponse> getExercisesHasMusclesPages(PaginatedTableRequest request) {
         if (!Objects.isNull(request.getSortedField())   //--If it's null, it means client doesn't want to sort.
-        &&  !Exercise.INSTANCE_FIELDS.contains(request.getSortedField()))
+        &&  !MusclesOfExercises.INSTANCE_FIELDS.contains(request.getSortedField()))
             throw new ApplicationException(ErrorCodes.INVALID_SORTING_FIELD_OR_VALUE);
         Pageable pageableCfg = pageMappers.tablePageRequestToPageable(request).toPageable();
 

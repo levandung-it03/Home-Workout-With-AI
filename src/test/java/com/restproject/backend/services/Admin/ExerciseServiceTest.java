@@ -47,13 +47,13 @@ public class ExerciseServiceTest {
         NewExerciseRequest newExerciseRequest = NewExerciseRequest.builder()
             .name("Push-ups")
             .muscleIds(muscleList.stream().map(Muscle::getId).toList())
-            .level(Level.INTERMEDIATE.getLevel())
+            .levelEnum(Level.INTERMEDIATE.getLevelEnum())
             .basicReps(14)
             .build();
         Exercise expectedExercise = Exercise.builder()
             .basicReps(newExerciseRequest.getBasicReps())
             .name(newExerciseRequest.getName())
-            .level(Level.getByLevel(newExerciseRequest.getLevel()))
+            .levelEnum(Level.getByLevel(newExerciseRequest.getLevelEnum()))
             .build();
         List<MusclesOfExercises> responseExAndMuscleRelationship = muscleList.stream().map(muscle ->
             MusclesOfExercises.builder().exercise(expectedExercise).muscle(muscle).build()).toList();
@@ -69,7 +69,7 @@ public class ExerciseServiceTest {
 
         //--Verify
         assertEquals(actual.getName(), expectedExercise.getName());
-        assertEquals(actual.getLevel(), expectedExercise.getLevel());
+        assertEquals(actual.getLevelEnum(), expectedExercise.getLevelEnum());
         assertEquals(actual.getBasicReps(), expectedExercise.getBasicReps());
 
         Mockito.verify(exerciseMappers, Mockito.times(1)).insertionToPlain(newExerciseRequest);
@@ -84,13 +84,13 @@ public class ExerciseServiceTest {
         NewExerciseRequest newExerciseRequest = NewExerciseRequest.builder()
             .name("Push-ups")
             .muscleIds(muscleList.stream().map(Muscle::getId).toList())
-            .level(Level.INTERMEDIATE.getLevel())
+            .levelEnum(Level.INTERMEDIATE.getLevelEnum())
             .basicReps(14)
             .build();
         Exercise expectedExercise = Exercise.builder()
             .basicReps(newExerciseRequest.getBasicReps())
             .name(newExerciseRequest.getName())
-            .level(Level.getByLevel(newExerciseRequest.getLevel()))
+            .levelEnum(Level.getByLevel(newExerciseRequest.getLevelEnum()))
             .build();
 
         //--Declare testing tree.
@@ -108,7 +108,7 @@ public class ExerciseServiceTest {
     }
 
     UpdateExerciseRequest updateExerciseAndMusclesRequest() {
-        return UpdateExerciseRequest.builder().exerciseId(1L).name("Push-ups").level(2).basicReps(14)
+        return UpdateExerciseRequest.builder().exerciseId(1L).name("Push-ups").levelEnum(2).basicReps(14)
             .muscleIds(List.of(0, 2)).build();
     }
 
@@ -116,7 +116,7 @@ public class ExerciseServiceTest {
     public void updateExerciseAndMuscles_admin_validWithoutUpdatingMuscles() {
         var exeReq = this.updateExerciseAndMusclesRequest();
         var exeRes = Exercise.builder().exerciseId(exeReq.getExerciseId()).name(exeReq.getName())
-            .basicReps(exeReq.getBasicReps()).level(Level.getByLevel(exeReq.getLevel())).build();
+            .basicReps(exeReq.getBasicReps()).levelEnum(Level.getByLevel(exeReq.getLevelEnum())).build();
         var msByEx = exeReq.getMuscleIds().stream().map(id ->
             MusclesOfExercises.builder().exercise(exeRes).muscle(Muscle.getById(id)).build()
         ).toList();
@@ -147,7 +147,7 @@ public class ExerciseServiceTest {
     public void updateExerciseAndMuscles_admin_validWithUpdatingMuscles() {
         var exeReq = this.updateExerciseAndMusclesRequest();
         var exeRes = Exercise.builder().exerciseId(exeReq.getExerciseId()).name(exeReq.getName())
-            .basicReps(exeReq.getBasicReps()).level(Level.getByLevel(exeReq.getLevel())).build();
+            .basicReps(exeReq.getBasicReps()).levelEnum(Level.getByLevel(exeReq.getLevelEnum())).build();
         var msByEx = exeReq.getMuscleIds().stream().map(id ->
             MusclesOfExercises.builder().exercise(exeRes).muscle(Muscle.getById(id)).build()
         ).toList();
@@ -203,7 +203,7 @@ public class ExerciseServiceTest {
     public void updateExerciseAndMuscles_admin_exerciseIdRelatedToSession() {
         var exeReq = this.updateExerciseAndMusclesRequest();
         var exeRes = Exercise.builder().exerciseId(exeReq.getExerciseId()).name(exeReq.getName())
-            .basicReps(exeReq.getBasicReps()).level(Level.getByLevel(exeReq.getLevel())).build();
+            .basicReps(exeReq.getBasicReps()).levelEnum(Level.getByLevel(exeReq.getLevelEnum())).build();
 
         Mockito.when(exerciseRepository.findById(exeReq.getExerciseId())).thenReturn(Optional.of(exeRes));
         Mockito.when(exercisesOfSessionsRepository.existsByExerciseExerciseId(exeReq.getExerciseId()))
@@ -220,7 +220,7 @@ public class ExerciseServiceTest {
     public void updateExerciseAndMuscles_admin_emptyFormerMuscleIds() {
         var exeReq = this.updateExerciseAndMusclesRequest();
         var exeRes = Exercise.builder().exerciseId(exeReq.getExerciseId()).name(exeReq.getName())
-            .basicReps(exeReq.getBasicReps()).level(Level.getByLevel(exeReq.getLevel())).build();
+            .basicReps(exeReq.getBasicReps()).levelEnum(Level.getByLevel(exeReq.getLevelEnum())).build();
 
         Mockito.when(exerciseRepository.findById(exeReq.getExerciseId())).thenReturn(Optional.of(exeRes));
         Mockito.when(exercisesOfSessionsRepository.existsByExerciseExerciseId(exeReq.getExerciseId()))

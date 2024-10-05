@@ -41,7 +41,7 @@ public interface SessionsOfSchedulesRepository extends JpaRepository<SessionsOfS
             )
         ) AS mosft INNER JOIN session s ON s.session_id = mosft.session_id
         LEFT OUTER JOIN sessions_of_schedules sos ON sos.session_id = s.session_id
-        WHERE (:#{#filterObj.level} IS NULL OR :#{#filterObj.level} = s.level_enum)
+        WHERE (:#{#filterObj.levelEnum} IS NULL OR :#{#filterObj.levelEnum} = s.level_enum)
         AND (:#{#filterObj.name} IS NULL OR s.name LIKE CONCAT('%',:#{#filterObj.name},'%'))
         GROUP BY s.session_id, withSchedule
         ORDER BY withSchedule DESC

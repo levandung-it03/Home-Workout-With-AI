@@ -31,7 +31,7 @@ public class ExerciseRepositoryTest {
 
     @CoreEngines
     public Exercise getStereo() {
-        return Exercise.builder().name("Push-ups").basicReps(14).level(Level.INTERMEDIATE).build();
+        return Exercise.builder().name("Push-ups").basicReps(14).levelEnum(Level.INTERMEDIATE).build();
     }
 
     @Test
@@ -40,7 +40,7 @@ public class ExerciseRepositoryTest {
         Exercise saveExercise = exerciseRepository.save(stereo);
 
         assertEquals(stereo.getName(), saveExercise.getName());
-        assertEquals(stereo.getLevel(), saveExercise.getLevel());
+        assertEquals(stereo.getLevelEnum(), saveExercise.getLevelEnum());
         assertEquals(stereo.getBasicReps(), saveExercise.getBasicReps());
 
         Exercise duplicated = this.getStereo();

@@ -29,8 +29,6 @@ import java.util.stream.Collectors;
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Schedule {
-    public static Set<String> INSTANCE_FIELDS = Arrays.stream(Schedule.class.getDeclaredFields()).map(Field::getName)
-        .collect(Collectors.toSet());
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,7 +45,7 @@ public class Schedule {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "level_enum", nullable = false)
-    Level level;
+    Level levelEnum;
 
     @Column(name = "coins", nullable = false)
     @Min(0)
@@ -70,7 +68,7 @@ public class Schedule {
 
         var result = new Schedule();
         result.setName(!map.containsKey("name") ? null : map.get("name").toString());
-        result.setLevel(!map.containsKey("level") ? null :
+        result.setLevelEnum(!map.containsKey("level") ? null :
             Level.getByLevel(Integer.parseInt(map.get("level").toString())));
         result.setDescription(!map.containsKey("description") ? null : map.get("description").toString());
         result.setCoins(!map.containsKey("coins") ? null : Long.parseLong(map.get("coins").toString()));

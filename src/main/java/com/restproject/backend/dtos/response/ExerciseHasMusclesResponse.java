@@ -20,7 +20,7 @@ import java.util.List;
 public class ExerciseHasMusclesResponse {
     Long exerciseId;
     String name;
-    String level;   //--Keep String type to make filter work correctly
+    String levelEnum;   //--Keep String type to make filter work correctly
     Integer basicReps;
     List<String> muscleList;    //--Keep MuscleEnum as String to make filter works correctly.
     String imageUrl;
@@ -30,7 +30,7 @@ public class ExerciseHasMusclesResponse {
             .exerciseId(Long.parseLong(params[0].toString()))
             .name(params[1].toString())
             .basicReps(Integer.parseInt(params[2].toString()))
-            .level(params[3].toString())
+            .levelEnum(params[3].toString())
             .muscleList(Arrays.stream(params[4].toString()
                 .replaceAll("[\\[\\]]", "")
                 .split(String.valueOf(MusclesOfExercisesRepository.GROUP_CONCAT_SEPARATOR))
@@ -49,7 +49,7 @@ public class ExerciseHasMusclesResponse {
 
         var exerciseInfo = new ExerciseHasMusclesResponse();
         exerciseInfo.setName(!map.containsKey("name") ? null : map.get("name").toString());
-        exerciseInfo.setLevel(!map.containsKey("level") ? null
+        exerciseInfo.setLevelEnum(!map.containsKey("level") ? null
             : Level.getByLevel(Integer.parseInt(map.get("level").toString())).toString());
         exerciseInfo.setBasicReps(!map.containsKey("basicReps") ? null
             : Integer.parseInt(map.get("basicReps").toString()));

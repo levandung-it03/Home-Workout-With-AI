@@ -48,19 +48,19 @@ public class SessionsOfSchedulesRepositoryTest {
      */
     @Test
     public void findAllSessionsHasMusclesPrioritizeRelationshipByScheduleId_admin_valid() {
-        var schedule = scheduleRepository.save(Schedule.builder().level(Level.BEGINNER).name("Schedule 2: Chest,...")
+        var schedule = scheduleRepository.save(Schedule.builder().levelEnum(Level.BEGINNER).name("Schedule 2: Chest,...")
             .description("This is Schedule").coins(2000L).build());
         var sessions = new ArrayList<>(sessionRepository.saveAll(List.of(
-            Session.builder().name("Push Up").level(Level.BEGINNER).description("Description").build(),
-            Session.builder().name("Bicep Curl").level(Level.INTERMEDIATE).description("Description").build(),
-            Session.builder().name("Triceps Dip").level(Level.INTERMEDIATE).description("Description").build(),
-            Session.builder().name("Squat").level(Level.ADVANCE).description("Description").build(),
-            Session.builder().name("Plank").level(Level.BEGINNER).description("Description").build(),
-            Session.builder().name("Jump Squat").level(Level.ADVANCE).description("Description").build(),
-            Session.builder().name("One Leg Squat").level(Level.ADVANCE).description("Description").build()
+            Session.builder().name("Push Up").levelEnum(Level.BEGINNER).description("Description").build(),
+            Session.builder().name("Bicep Curl").levelEnum(Level.INTERMEDIATE).description("Description").build(),
+            Session.builder().name("Triceps Dip").levelEnum(Level.INTERMEDIATE).description("Description").build(),
+            Session.builder().name("Squat").levelEnum(Level.ADVANCE).description("Description").build(),
+            Session.builder().name("Plank").levelEnum(Level.BEGINNER).description("Description").build(),
+            Session.builder().name("Jump Squat").levelEnum(Level.ADVANCE).description("Description").build(),
+            Session.builder().name("One Leg Squat").levelEnum(Level.ADVANCE).description("Description").build()
         )));
         //--All of Beginner Level sessions belong to schedule (with just testing data)
-        var sessionsScheduleRelationship = sessions.stream().filter(e -> e.getLevel().equals(Level.BEGINNER)).toList();
+        var sessionsScheduleRelationship = sessions.stream().filter(e -> e.getLevelEnum().equals(Level.BEGINNER)).toList();
         sessionsOfSchedulesRepository.saveAll(sessionsScheduleRelationship.stream().map(exe ->
             SessionsOfSchedules.builder().session(exe).schedule(schedule).build()).toList());
         var sessionHasMusclesFromDB = new ArrayList<>(musclesOfSessionsRepository.saveAll(
@@ -83,11 +83,11 @@ public class SessionsOfSchedulesRepositoryTest {
                 .sessionId(session.getSessionId())
                 .name(session.getName())
                 .description(session.getDescription())
-                .level(session.getLevel()) //--All Beginner session belongs to schedule by default.
-                .withCurrentSchedule(session.getLevel().equals(Level.BEGINNER))
+                .levelEnum(session.getLevelEnum()) //--All Beginner session belongs to schedule by default.
+                .withCurrentSchedule(session.getLevelEnum().equals(Level.BEGINNER))
                 .muscleList(new ArrayList<>())
                 //--All of Beginner Level sessions belong to schedule (with just testing data)
-                .withCurrentSchedule(session.getLevel().equals(Level.BEGINNER)).build()).toList());
+                .withCurrentSchedule(session.getLevelEnum().equals(Level.BEGINNER)).build()).toList());
         for (MusclesOfSessions exeHasMusDB : sessionHasMusclesFromDB) {
             for (SessionsOfScheduleResponse exeHasMusRes : sessionsHasMusclesRes) {
                 if (exeHasMusRes.getSessionId().equals(exeHasMusDB.getSession().getSessionId()))
@@ -114,7 +114,7 @@ public class SessionsOfSchedulesRepositoryTest {
                 exeHasMusDB.getSession().getSessionId().equals(expectExe.getSessionId())).count();
 
             assertEquals(expectExe.getName(), actualExe.getName());
-            assertEquals(expectExe.getLevel(), actualExe.getLevel());
+            assertEquals(expectExe.getLevelEnum(), actualExe.getLevelEnum());
             assertEquals(expectExe.getDescription(), actualExe.getDescription());
             assertEquals(totalMuscle, actual.get(index).getMuscleList().size());
         }
@@ -130,19 +130,19 @@ public class SessionsOfSchedulesRepositoryTest {
     @Test
     public void findAllSessionsHasMusclesPrioritizeRelationshipByScheduleId_admin_validWithFiltering() {
         var req = SessionsOfScheduleResponse.builder().name("p").muscleList(new ArrayList<>()).build();
-        var scheduleRequest = scheduleRepository.save(Schedule.builder().level(Level.BEGINNER).name("Schedule 2: Chest,...")
+        var scheduleRequest = scheduleRepository.save(Schedule.builder().levelEnum(Level.BEGINNER).name("Schedule 2: Chest,...")
             .description("This is Schedule").coins(2000L).build());
         var sessions = new ArrayList<>(sessionRepository.saveAll(List.of(
-            Session.builder().name("Push Up").level(Level.BEGINNER).description("Description").build(),
-            Session.builder().name("Bicep Curl").level(Level.INTERMEDIATE).description("Description").build(),
-            Session.builder().name("Triceps Dip").level(Level.INTERMEDIATE).description("Description").build(),
-            Session.builder().name("Squat").level(Level.ADVANCE).description("Description").build(),
-            Session.builder().name("Plank").level(Level.BEGINNER).description("Description").build(),
-            Session.builder().name("Jump Squat").level(Level.ADVANCE).description("Description").build(),
-            Session.builder().name("One Leg Squat").level(Level.ADVANCE).description("Description").build()
+            Session.builder().name("Push Up").levelEnum(Level.BEGINNER).description("Description").build(),
+            Session.builder().name("Bicep Curl").levelEnum(Level.INTERMEDIATE).description("Description").build(),
+            Session.builder().name("Triceps Dip").levelEnum(Level.INTERMEDIATE).description("Description").build(),
+            Session.builder().name("Squat").levelEnum(Level.ADVANCE).description("Description").build(),
+            Session.builder().name("Plank").levelEnum(Level.BEGINNER).description("Description").build(),
+            Session.builder().name("Jump Squat").levelEnum(Level.ADVANCE).description("Description").build(),
+            Session.builder().name("One Leg Squat").levelEnum(Level.ADVANCE).description("Description").build()
         )));
         //--All of Beginner Level sessions belong to schedule (with just testing data)
-        var sessionsScheduleRelationship = sessions.stream().filter(e -> e.getLevel().equals(Level.BEGINNER)).toList();
+        var sessionsScheduleRelationship = sessions.stream().filter(e -> e.getLevelEnum().equals(Level.BEGINNER)).toList();
         sessionsOfSchedulesRepository.saveAll(sessionsScheduleRelationship.stream().map(exe ->
             SessionsOfSchedules.builder().session(exe).schedule(scheduleRequest).build()).toList());
         var sessionHasMusclesFromDB = new ArrayList<>(musclesOfSessionsRepository.saveAll(
@@ -167,11 +167,11 @@ public class SessionsOfSchedulesRepositoryTest {
                     .sessionId(session.getSessionId())
                     .name(session.getName())
                     .description(session.getDescription())
-                    .level(session.getLevel()) //--All Beginner session belongs to schedule by default.
-                    .withCurrentSchedule(session.getLevel().equals(Level.BEGINNER))
+                    .levelEnum(session.getLevelEnum()) //--All Beginner session belongs to schedule by default.
+                    .withCurrentSchedule(session.getLevelEnum().equals(Level.BEGINNER))
                     .muscleList(new ArrayList<>())
                     //--All of Beginner Level sessions belong to schedule (with just testing data)
-                    .withCurrentSchedule(session.getLevel().equals(Level.BEGINNER)).build()).toList());
+                    .withCurrentSchedule(session.getLevelEnum().equals(Level.BEGINNER)).build()).toList());
         for (MusclesOfSessions exeHasMusDB : sessionHasMusclesFromDB) {
             for (SessionsOfScheduleResponse exeHasMusRes : sessionsHasMusclesRes) {
                 if (exeHasMusRes.getSessionId().equals(exeHasMusDB.getSession().getSessionId()))
@@ -196,7 +196,7 @@ public class SessionsOfSchedulesRepositoryTest {
             var expectExe = sessionsHasMusclesRes.get(index);
 
             assertEquals(expectExe.getName(), actualExe.getName());
-            assertEquals(expectExe.getLevel(), actualExe.getLevel());
+            assertEquals(expectExe.getLevelEnum(), actualExe.getLevelEnum());
             assertEquals(expectExe.getDescription(), actualExe.getDescription());
             assertEquals(expectExe.getMuscleList().size(), actualExe.getMuscleList().size());
             assertTrue(expectExe.getMuscleList().containsAll(actualExe.getMuscleList()));
@@ -214,19 +214,19 @@ public class SessionsOfSchedulesRepositoryTest {
     public void findAllSessionsHasMusclesPrioritizeRelationshipByScheduleId_admin_validWithFilteringAndMuscles() {
         var req = SessionsOfScheduleResponse.builder()
             .muscleList(new ArrayList<>(List.of(Muscle.ABS.toString(), Muscle.BICEPS.toString()))).build();
-        var scheduleRequest = scheduleRepository.save(Schedule.builder().level(Level.BEGINNER).name("Schedule 2: Chest,...")
+        var scheduleRequest = scheduleRepository.save(Schedule.builder().levelEnum(Level.BEGINNER).name("Schedule 2: Chest,...")
             .description("This is Schedule").coins(2000L).build());
         var sessions = new ArrayList<>(sessionRepository.saveAll(List.of(
-            Session.builder().name("Push Up").level(Level.BEGINNER).description("Description").build(),
-            Session.builder().name("Bicep Curl").level(Level.INTERMEDIATE).description("Description").build(),
-            Session.builder().name("Triceps Dip").level(Level.INTERMEDIATE).description("Description").build(),
-            Session.builder().name("Squat").level(Level.ADVANCE).description("Description").build(),
-            Session.builder().name("Plank").level(Level.BEGINNER).description("Description").build(),
-            Session.builder().name("Jump Squat").level(Level.ADVANCE).description("Description").build(),
-            Session.builder().name("One Leg Squat").level(Level.ADVANCE).description("Description").build()
+            Session.builder().name("Push Up").levelEnum(Level.BEGINNER).description("Description").build(),
+            Session.builder().name("Bicep Curl").levelEnum(Level.INTERMEDIATE).description("Description").build(),
+            Session.builder().name("Triceps Dip").levelEnum(Level.INTERMEDIATE).description("Description").build(),
+            Session.builder().name("Squat").levelEnum(Level.ADVANCE).description("Description").build(),
+            Session.builder().name("Plank").levelEnum(Level.BEGINNER).description("Description").build(),
+            Session.builder().name("Jump Squat").levelEnum(Level.ADVANCE).description("Description").build(),
+            Session.builder().name("One Leg Squat").levelEnum(Level.ADVANCE).description("Description").build()
         )));
         //--All of Beginner Level sessions belong to schedule (with just testing data)
-        var sessionsScheduleRelationship = sessions.stream().filter(e -> e.getLevel().equals(Level.BEGINNER)).toList();
+        var sessionsScheduleRelationship = sessions.stream().filter(e -> e.getLevelEnum().equals(Level.BEGINNER)).toList();
         sessionsOfSchedulesRepository.saveAll(sessionsScheduleRelationship.stream().map(exe ->
             SessionsOfSchedules.builder().session(exe).schedule(scheduleRequest).build()).toList());
         var sessionHasMusclesFromDB = new ArrayList<>(musclesOfSessionsRepository.saveAll(
@@ -254,11 +254,11 @@ public class SessionsOfSchedulesRepositoryTest {
                         .sessionId(exeHasMusDB.getSession().getSessionId())
                         .name(exeHasMusDB.getSession().getName())
                         .description(exeHasMusDB.getSession().getDescription())
-                        .level(exeHasMusDB.getSession().getLevel()) //--All Beginner session belongs to schedule by default.
-                        .withCurrentSchedule(exeHasMusDB.getSession().getLevel().equals(Level.BEGINNER))
+                        .levelEnum(exeHasMusDB.getSession().getLevelEnum()) //--All Beginner session belongs to schedule by default.
+                        .withCurrentSchedule(exeHasMusDB.getSession().getLevelEnum().equals(Level.BEGINNER))
                         .muscleList(new ArrayList<>(List.of(exeHasMusDB.getMuscle().toString())))
                         //--All of Beginner Level sessions belong to schedule (with just testing data)
-                        .withCurrentSchedule(exeHasMusDB.getSession().getLevel().equals(Level.BEGINNER)).build()
+                        .withCurrentSchedule(exeHasMusDB.getSession().getLevelEnum().equals(Level.BEGINNER)).build()
                 );
             } else {
                 sessionsHasMusclesRes.get(exeHasMusDB.getSession().getSessionId())
@@ -288,7 +288,7 @@ public class SessionsOfSchedulesRepositoryTest {
             var expectExe = sessionsHasMusclesRes.get(actualExe.getSessionId());
 
             assertEquals(expectExe.getName(), actualExe.getName());
-            assertEquals(expectExe.getLevel(), actualExe.getLevel());
+            assertEquals(expectExe.getLevelEnum(), actualExe.getLevelEnum());
             assertEquals(expectExe.getDescription(), actualExe.getDescription());
             assertEquals(expectExe.getMuscleList().size(), actualExe.getMuscleList().size());
             assertTrue(expectExe.getMuscleList().containsAll(actualExe.getMuscleList()));

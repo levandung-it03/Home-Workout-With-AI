@@ -66,7 +66,7 @@ public class ScheduleService {
         sessionsOfSchedulesRepository.saveAll(request.getSessionIds().stream().map(id -> {
             var foundSession = sessionRepository.findById(id)
                 .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_IDS_COLLECTION));
-            if (!foundSession.getLevel().equals(savedSchedule.getLevel()))
+            if (!foundSession.getLevelEnum().equals(savedSchedule.getLevelEnum()))
                 throw new ApplicationException(ErrorCodes.NOT_SYNC_LEVEL);
 
             return SessionsOfSchedules.builder().schedule(savedSchedule).session(foundSession).build();

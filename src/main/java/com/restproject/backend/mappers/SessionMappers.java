@@ -12,10 +12,10 @@ import java.util.Collection;
 @Mapper(componentModel = "spring")
 public interface SessionMappers {
 
-    @Mapping(target = "level", source = "level", qualifiedByName = "mapLevelField")
+    @Mapping(target = "levelEnum", source = "level", qualifiedByName = "mapLevelField")
     Session insertionToPlain(NewSessionRequest newSessionRequest);
 
-    @Mapping(target = "level", source = "level", qualifiedByName = "mapLevelField")
+    @Mapping(target = "levelEnum", source = "level", qualifiedByName = "mapLevelField")
     void updateTarget(@MappingTarget Session udpatedSession, UpdateSessionRequest updateInfoObject);
 
     @Named("mapLevelField")

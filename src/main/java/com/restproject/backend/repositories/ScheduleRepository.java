@@ -15,7 +15,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     @Query("""
         SELECT s FROM Schedule s
         WHERE (:#{#filterObj.name} IS NULL OR s.name LIKE CONCAT('%',:#{#filterObj.name},'%'))
-        AND (:#{#filterObj.level} IS NULL OR s.level = :#{#filterObj.level})
+        AND (:#{#filterObj.levelEnum} IS NULL OR s.levelEnum = :#{#filterObj.levelEnum})
         AND (:#{#filterObj.coins} IS NULL OR s.coins = :#{#filterObj.coins})
     """)
     Page<Schedule> findAllBySchedule(@Param("filterObj") Schedule filteringInfo, Pageable pageable);
@@ -26,7 +26,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
         SET s.name = :#{#schedule.name},
             s.description = :#{#schedule.description},
             s.coins = :#{#schedule.coins},
-            s.level = :#{#schedule.level}
+            s.levelEnum = :#{#schedule.levelEnum}
         WHERE s.scheduleId = :#{#schedule.scheduleId}
     """)
     void updateScheduleBySchedule(@Param("schedule") Schedule formerSch);

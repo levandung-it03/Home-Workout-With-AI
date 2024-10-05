@@ -1,7 +1,10 @@
 package com.restproject.backend.repositories;
 
+import com.restproject.backend.annotations.dev.Overload;
 import com.restproject.backend.entities.Exercise;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -10,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
+    char GROUP_CONCAT_SEPARATOR = ',';
 
     @Transactional
     @Modifying
@@ -25,7 +29,7 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
     @Query("""
         UPDATE Exercise e
         SET e.name = :#{#exercise.name},
-            e.level = :#{#exercise.level},
+            e.levelEnum = :#{#exercise.levelEnum},
             e.basicReps = :#{#exercise.basicReps}
         WHERE e.exerciseId = :#{#exercise.exerciseId}
     """)
