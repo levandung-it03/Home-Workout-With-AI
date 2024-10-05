@@ -20,4 +20,14 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
         WHERE e.exerciseId = :#{#updatedExercise.exerciseId}
     """)
     void updateImageUrlByExerciseId(@Param("updatedExercise") Exercise exercise);
+
+    @Modifying
+    @Query("""
+        UPDATE Exercise e
+        SET e.name = :#{#exercise.name},
+            e.level = :#{#exercise.level},
+            e.basicReps = :#{#exercise.basicReps}
+        WHERE e.exerciseId = :#{#exercise.exerciseId}
+    """)
+    void updateExerciseByExercise(@Param("exercise") Exercise exercise);
 }

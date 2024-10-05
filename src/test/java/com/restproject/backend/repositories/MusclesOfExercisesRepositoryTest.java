@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -56,7 +57,7 @@ public class MusclesOfExercisesRepositoryTest {
         )));
         var exercisesHasMusclesRes = new ArrayList<>(exercises.stream()
             .map(e -> ExerciseHasMusclesResponse.builder()
-                .exerciseId(e.getExerciseId()).name(e.getName()).basicReps(e.getBasicReps()).level(e.getLevel())
+                .exerciseId(e.getExerciseId()).name(e.getName()).basicReps(e.getBasicReps()).level(e.getLevel().toString())
                 .muscleList(new ArrayList<>())
                 .build()).toList());
         for (MusclesOfExercises exeHasMusDB : exerciseHasMusclesFromDB) {
@@ -94,11 +95,11 @@ public class MusclesOfExercisesRepositoryTest {
             .muscleList(List.of(Muscle.ABS.toString(), Muscle.BACK_LATS.toString()))
             .build();
         var exercises = new ArrayList<>(exerciseRepository.saveAll(List.of(
-            Exercise.builder().level(Level.BEGINNER).name("Test Exercise1").basicReps(14).build(),
-            Exercise.builder().level(Level.INTERMEDIATE).name("Test Exercise02").basicReps(13).build(),
-            Exercise.builder().level(Level.INTERMEDIATE).name("Test Exercise03").basicReps(12).build(),
-            Exercise.builder().level(Level.ADVANCE).name("Test Exercise4").basicReps(10).build(),
-            Exercise.builder().level(Level.BEGINNER).name("Test Exercise5").basicReps(14).build()
+            Exercise.builder().level(Level.BEGINNER).name("Test Exercise1").basicReps(14).imageUrl("hehe").build(),
+            Exercise.builder().level(Level.INTERMEDIATE).name("Test Exercise02").basicReps(13).imageUrl("hehe").build(),
+            Exercise.builder().level(Level.INTERMEDIATE).name("Test Exercise03").basicReps(12).imageUrl("hehe").build(),
+            Exercise.builder().level(Level.ADVANCE).name("Test Exercise4").basicReps(10).imageUrl("hehe").build(),
+            Exercise.builder().level(Level.BEGINNER).name("Test Exercise5").basicReps(14).imageUrl("hehe").build()
         )));
         var exerciseHasMusclesFromDB = new ArrayList<>(musclesOfExercisesRepository.saveAll(List.of(
             MusclesOfExercises.builder().exercise(exercises.get(0)).muscle(Muscle.CHEST).build(),
@@ -126,7 +127,7 @@ public class MusclesOfExercisesRepositoryTest {
                             .exerciseId(sesHasMusDB.getExercise().getExerciseId())
                             .name(sesHasMusDB.getExercise().getName())
                             .basicReps(sesHasMusDB.getExercise().getBasicReps())
-                            .level(sesHasMusDB.getExercise().getLevel())
+                            .level(sesHasMusDB.getExercise().getLevel().toString())
                             .muscleList(new ArrayList<>(List.of(sesHasMusDB.getMuscle().toString()))).build()
                     );
             }
@@ -163,14 +164,15 @@ public class MusclesOfExercisesRepositoryTest {
     public void findAllExercisesHasMuscles_admin_validWithFilteringWithoutMuscleList() {
         var request = ExerciseHasMusclesResponse.builder()
             .name("Exercise0")
+            .level(Level.ADVANCE.toString())
             .muscleList(new ArrayList<>())
             .build();
         var exercises = new ArrayList<>(exerciseRepository.saveAll(List.of(
-            Exercise.builder().level(Level.BEGINNER).name("Test Exercise1").basicReps(14).build(),
-            Exercise.builder().level(Level.INTERMEDIATE).name("Test Exercise02").basicReps(13).build(),
-            Exercise.builder().level(Level.INTERMEDIATE).name("Test Exercise03").basicReps(12).build(),
-            Exercise.builder().level(Level.ADVANCE).name("Test Exercise4").basicReps(10).build(),
-            Exercise.builder().level(Level.BEGINNER).name("Test Exercise5").basicReps(14).build()
+            Exercise.builder().level(Level.BEGINNER).name("Test Exercise1").basicReps(14).imageUrl("hehe").build(),
+            Exercise.builder().level(Level.INTERMEDIATE).name("Test Exercise02").basicReps(13).imageUrl("hehe").build(),
+            Exercise.builder().level(Level.ADVANCE).name("Test Exercise03").basicReps(12).imageUrl("hehe").build(),
+            Exercise.builder().level(Level.ADVANCE).name("Test Exercise4").basicReps(10).imageUrl("hehe").build(),
+            Exercise.builder().level(Level.BEGINNER).name("Test Exercise5").basicReps(14).imageUrl("hehe").build()
         )));
         var exerciseHasMusclesFromDB = new ArrayList<>(musclesOfExercisesRepository.saveAll(List.of(
             MusclesOfExercises.builder().exercise(exercises.get(0)).muscle(Muscle.CHEST).build(),
@@ -195,7 +197,7 @@ public class MusclesOfExercisesRepositoryTest {
                         .put(sesHasMusDB.getExercise().getExerciseId(), ExerciseHasMusclesResponse.builder()
                             .exerciseId(sesHasMusDB.getExercise().getExerciseId())
                             .name(sesHasMusDB.getExercise().getName())
-                            .level(sesHasMusDB.getExercise().getLevel())
+                            .level(sesHasMusDB.getExercise().getLevel().toString())
                             .basicReps(sesHasMusDB.getExercise().getBasicReps())
                             .build());
                 }

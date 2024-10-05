@@ -39,7 +39,6 @@ public class ExerciseService {
         catch (DataIntegrityViolationException e) { throw new ApplicationException(ErrorCodes.DUPLICATED_EXERCISE); }
         musclesOfExercisesRepository.saveAll(request.getMuscleIds().stream().map(id ->
             MusclesOfExercises.builder().exercise(savedExercise).muscle(Muscle.getById(id)).build()).toList());
-
         return savedExercise;
     }
 
@@ -58,23 +57,22 @@ public class ExerciseService {
         //--Mapping new values into "formerEx".
         exerciseMappers.updateTarget(formerEx, request);
         //--Start to save updated data.
-        exerciseRepository.deleteById(formerEx.getExerciseId());
-        var savedExercise = exerciseRepository.save(formerEx);
+        exerciseRepository.updateExerciseByExercise(formerEx);
 
         //--Check if there's changes with Muscles of Updated Exercise.
         if (!formerRls.stream().map(r -> r.getMuscle().getId()).collect(Collectors.toSet())
             .equals(new HashSet<>(request.getMuscleIds()))) {
-            return savedExercise;   //--Nothing updated equal to return immediately.
+            return formerEx;   //--Nothing updated equal to return immediately.
         }
 
         //--Delete the former muscles-exercise relationship.
         musclesOfExercisesRepository.deleteAllByExerciseExerciseId(formerEx.getExerciseId());
         var newMusclesOfEx = request.getMuscleIds().stream().map(id ->
-            MusclesOfExercises.builder().exercise(savedExercise).muscle(Muscle.getById(id)).build()
+            MusclesOfExercises.builder().exercise(formerEx).muscle(Muscle.getById(id)).build()
         ).toList();
         //--Save all new relationship.
         musclesOfExercisesRepository.saveAll(newMusclesOfEx);
-        return savedExercise;
+        return formerEx;
     }
 
     @Transactional(rollbackOn = {RuntimeException.class})
@@ -85,8 +83,8 @@ public class ExerciseService {
         if (exercisesOfSessionsRepository.existsByExerciseExerciseId(request.getId()))
             throw new ApplicationException(ErrorCodes.FORBIDDEN_UPDATING);
 
-        exerciseRepository.deleteById(request.getId());
         musclesOfExercisesRepository.deleteAllByExerciseExerciseId(request.getId());
+        exerciseRepository.deleteById(request.getId());
     }
 
     public Map<String, String> uploadExerciseImg(UpsertExerciseImageRequest request) throws IOException {
@@ -95,7 +93,7 @@ public class ExerciseService {
         if (!Objects.isNull(exercise.getImagePublicId()))
             imgCloudUpload.remove(exercise.getImagePublicId());
 
-        var infoMap = imgCloudUpload.uploadAndReturnInfo(request.getExerciseImage());
+        var infoMap = imgCloudUpload.uploadAndReturnInfo("exercise", request.getExerciseImage());
         exercise.setImagePublicId(infoMap.get("publicId"));
         exercise.setImageUrl(infoMap.get("url"));
         exerciseRepository.updateImageUrlByExerciseId(exercise);

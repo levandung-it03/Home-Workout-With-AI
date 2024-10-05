@@ -15,6 +15,8 @@ public interface ExerciseMappers {
     Exercise insertionToPlain(NewExerciseRequest exerciseRequest);
 
     @Mapping(target = "level", source = "level", qualifiedByName = "mapLevelField")
+    @Mapping(target = "imagePublicId", ignore = true)
+    @Mapping(target = "imageUrl", ignore = true)
     void updateTarget(@MappingTarget Exercise updatedExercise, UpdateExerciseRequest updateInfoObject);
 
     @Named("mapLevelField")

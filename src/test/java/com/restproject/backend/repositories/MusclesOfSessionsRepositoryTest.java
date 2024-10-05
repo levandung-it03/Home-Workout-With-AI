@@ -54,7 +54,7 @@ public class MusclesOfSessionsRepositoryTest {
         )));
         var sessionsHasMusclesRes = new ArrayList<>(sessions.stream()
             .map(e -> SessionHasMusclesResponse.builder()
-                .sessionId(e.getSessionId()).name(e.getName()).description(e.getDescription()).level(e.getLevel())
+                .sessionId(e.getSessionId()).name(e.getName()).description(e.getDescription()).level(e.getLevel().toString())
                 .muscleList(new ArrayList<>())
                 .build()).toList());
         for (MusclesOfSessions exeHasMusDB : sessionHasMusclesFromDB) {
@@ -124,7 +124,7 @@ public class MusclesOfSessionsRepositoryTest {
                             .sessionId(sesHasMusDB.getSession().getSessionId())
                             .name(sesHasMusDB.getSession().getName())
                             .description(sesHasMusDB.getSession().getDescription())
-                            .level(sesHasMusDB.getSession().getLevel())
+                            .level(sesHasMusDB.getSession().getLevel().toString())
                             .muscleList(new ArrayList<>(List.of(sesHasMusDB.getMuscle().toString()))).build()
                     );
             }
@@ -193,7 +193,7 @@ public class MusclesOfSessionsRepositoryTest {
                         .put(sesHasMusDB.getSession().getSessionId(), SessionHasMusclesResponse.builder()
                             .sessionId(sesHasMusDB.getSession().getSessionId())
                             .name(sesHasMusDB.getSession().getName())
-                            .level(sesHasMusDB.getSession().getLevel())
+                            .level(sesHasMusDB.getSession().getLevel().toString())
                             .description(sesHasMusDB.getSession().getDescription())
                             .build());
                 }

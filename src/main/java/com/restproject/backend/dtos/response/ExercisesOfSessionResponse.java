@@ -38,12 +38,15 @@ public class ExercisesOfSessionResponse {
 
     public static ExercisesOfSessionResponse buildFromHashMap(HashMap<String, Object> map)
         throws ApplicationException, IllegalArgumentException, NullPointerException, NoSuchFieldException {
-        for (String key : map.keySet())
-            ExercisesOfSessionResponse.class.getDeclaredField(key); //--Ignored value.
+        for (String key : map.keySet()) {
+            if (key.equals("muscleIds"))    continue;
+            if (Arrays.stream(ExercisesOfSessionResponse.class.getDeclaredFields())
+                .noneMatch(f -> f.getName().equals(key))) throw new NoSuchFieldException(); //--Ignored value.
+        }
 
         var exerciseInfo = new ExercisesOfSessionResponse();
-        exerciseInfo.setMuscleList(!map.containsKey("muscleList") ? new ArrayList<>()   //--May throw IllegalArgExc
-            : Arrays.stream(map.get("muscleList").toString()
+        exerciseInfo.setMuscleList(!map.containsKey("muscleIds") ? new ArrayList<>()   //--May throw IllegalArgExc
+            : Arrays.stream(map.get("muscleIds").toString()
             .replaceAll("[\\[\\]]", "").split(",")
         ).map(id -> Muscle.getById(id).toString()).toList());
         exerciseInfo.setName(!map.containsKey("name") ? null : map.get("name").toString());

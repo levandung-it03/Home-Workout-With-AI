@@ -11,7 +11,7 @@ public enum Gender {
     MALE(1),
     FEMALE(0)
     ;
-    final int genderId;
+    final Integer genderId;
     Gender(int genderId) {
         this.genderId = genderId;
     }

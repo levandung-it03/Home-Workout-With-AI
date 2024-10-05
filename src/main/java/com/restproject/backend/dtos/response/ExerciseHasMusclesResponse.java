@@ -20,37 +20,41 @@ import java.util.List;
 public class ExerciseHasMusclesResponse {
     Long exerciseId;
     String name;
-    Level level;
+    String level;   //--Keep String type to make filter work correctly
     Integer basicReps;
     List<String> muscleList;    //--Keep MuscleEnum as String to make filter works correctly.
+    String imageUrl;
 
     public static ExerciseHasMusclesResponse buildFromNativeQuery(Object[] params) {
         return ExerciseHasMusclesResponse.builder()
             .exerciseId(Long.parseLong(params[0].toString()))
             .name(params[1].toString())
             .basicReps(Integer.parseInt(params[2].toString()))
-            .level(Level.valueOf(params[3].toString()))
+            .level(params[3].toString())
             .muscleList(Arrays.stream(params[4].toString()
                 .replaceAll("[\\[\\]]", "")
                 .split(String.valueOf(MusclesOfExercisesRepository.GROUP_CONCAT_SEPARATOR))
             ).toList())
+            .imageUrl(params[5].toString())
             .build();
     }
 
     public static ExerciseHasMusclesResponse buildFromHashMap(HashMap<String, Object> map)
         throws ApplicationException, IllegalArgumentException, NullPointerException, NoSuchFieldException {
-        for (String key : map.keySet())
+        for (String key : map.keySet()) {
+            if (key.equals("muscleIds"))    continue;
             if (Arrays.stream(ExerciseHasMusclesResponse.class.getDeclaredFields())
                 .noneMatch(f -> f.getName().equals(key))) throw new NoSuchFieldException(); //--Ignored value.
+        }
 
         var exerciseInfo = new ExerciseHasMusclesResponse();
         exerciseInfo.setName(!map.containsKey("name") ? null : map.get("name").toString());
         exerciseInfo.setLevel(!map.containsKey("level") ? null
-            : Level.getByLevel(Integer.parseInt(map.get("level").toString()))); //--May throw AppExc
+            : Level.getByLevel(Integer.parseInt(map.get("level").toString())).toString());
         exerciseInfo.setBasicReps(!map.containsKey("basicReps") ? null
             : Integer.parseInt(map.get("basicReps").toString()));
-        exerciseInfo.setMuscleList(!map.containsKey("muscleList") ? new ArrayList<>()   //--May throw IllegalArgExc
-            : Arrays.stream(map.get("muscleList").toString()
+        exerciseInfo.setMuscleList(!map.containsKey("muscleIds") ? new ArrayList<>()   //--May throw IllegalArgExc
+            : Arrays.stream(map.get("muscleIds").toString()
             .replaceAll("[\\[\\]]", "").split(",")
         ).map(id -> Muscle.getById(id).toString()).toList());
         return exerciseInfo;

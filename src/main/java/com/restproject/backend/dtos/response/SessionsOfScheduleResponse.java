@@ -17,7 +17,7 @@ import java.util.*;
 public class SessionsOfScheduleResponse {
     Long sessionId;
     String name;
-    Level level;
+    String level;
     String description;
     List<String> muscleList;    //--Keep MuscleEnum as String to make filter works correctly.
     boolean withCurrentSchedule;
@@ -27,7 +27,7 @@ public class SessionsOfScheduleResponse {
         return SessionsOfScheduleResponse.builder()
             .sessionId(Long.parseLong(params[0].toString()))
             .name(params[1].toString())
-            .level(Level.valueOf(params[2].toString()))
+            .level(params[2].toString())
             .description(params[3].toString())
             .withCurrentSchedule(!Objects.isNull(params[4]) && params[4].toString().equals("1"))
             .muscleList(Arrays.stream(params[5].toString()
@@ -51,7 +51,7 @@ public class SessionsOfScheduleResponse {
         sessionInfo.setName(!map.containsKey("name") ? null : map.get("name").toString());
         sessionInfo.setDescription(!map.containsKey("description") ? null : map.get("description").toString());
         sessionInfo.setLevel(!map.containsKey("level") ? null
-            : Level.getByLevel(Integer.parseInt(map.get("level").toString()))); //--May throw AppExc
+            : Level.getByLevel(Integer.parseInt(map.get("level").toString())).toString()); //--May throw AppExc
         return sessionInfo;
     }
 }

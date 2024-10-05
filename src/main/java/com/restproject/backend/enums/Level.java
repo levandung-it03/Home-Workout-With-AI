@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 @Getter
@@ -18,7 +19,7 @@ public enum Level {
     ADVANCE(3, "Advance"),
     ;
 
-    int level;
+    Integer level;
     String name;
 
     public static Level getByLevel(int level) throws ApplicationException {

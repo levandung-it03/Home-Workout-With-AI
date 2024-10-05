@@ -26,7 +26,7 @@ public interface MusclesOfExercisesRepository extends JpaRepository<MusclesOfExe
             DISTINCT moeft.muscle_enum
             ORDER BY moeft.muscle_enum ASC
             SEPARATOR '""" + GROUP_CONCAT_SEPARATOR
-        + "')" + """
+        + "'), e.image_url " + """
         FROM (
             SELECT moejid.exercise_id AS exercise_id, moejid.muscle_enum AS muscle_enum
             FROM muscles_of_exercises moejid
@@ -54,7 +54,7 @@ public interface MusclesOfExercisesRepository extends JpaRepository<MusclesOfExe
         SELECT e.exercise_id, e.name, e.basic_reps, e.level_enum, GROUP_CONCAT(
             DISTINCT m.muscle_enum
             ORDER BY m.muscle_enum
-            ASC SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "') AS muscleList" + """
+            ASC SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "'), e.image_url AS muscleList" + """
         FROM muscles_of_exercises m
         INNER JOIN exercise e ON e.exercise_id = m.exercise_id
         GROUP BY m.exercise_id

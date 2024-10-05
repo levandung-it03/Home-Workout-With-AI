@@ -7,7 +7,6 @@ import com.restproject.backend.repositories.MusclesOfSessionsRepository;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,7 +20,7 @@ import java.util.List;
 public class SessionHasMusclesResponse {
     Long sessionId;
     String name;
-    Level level;
+    String level;   //--Keep String type to make filter work correctly
     String description;
     List<String> muscleList;    //--Keep MuscleEnum as String to make filter works correctly.
 
@@ -30,7 +29,7 @@ public class SessionHasMusclesResponse {
             .sessionId(Long.parseLong(params[0].toString()))
             .name(params[1].toString())
             .description(params[2].toString())
-            .level(Level.valueOf(params[3].toString()))
+            .level(params[3].toString())
             .muscleList(Arrays.stream(params[4].toString()
                 .replaceAll("[\\[\\]]", "")
                 .split(String.valueOf(MusclesOfSessionsRepository.GROUP_CONCAT_SEPARATOR))
@@ -40,18 +39,19 @@ public class SessionHasMusclesResponse {
 
     public static SessionHasMusclesResponse buildFromHashMap(HashMap<String, Object> map)
         throws ApplicationException, IllegalArgumentException, NullPointerException, NoSuchFieldException {
-        for (String key : map.keySet())
+        for (String key : map.keySet()) {
+            if (key.equals("muscleIds"))    continue;
             if (Arrays.stream(SessionHasMusclesResponse.class.getDeclaredFields())
-                .noneMatch(f -> f.getName().equals(key)))
-                throw new NoSuchFieldException(); //--Ignored value.
+                .noneMatch(f -> f.getName().equals(key))) throw new NoSuchFieldException(); //--Ignored value.
+        }
 
         var sessionInfo = new SessionHasMusclesResponse();
         sessionInfo.setName(!map.containsKey("name") ? null : map.get("name").toString());
         sessionInfo.setLevel(!map.containsKey("level") ? null
-            : Level.getByLevel(Integer.parseInt(map.get("level").toString()))); //--May throw AppExc
+            : Level.getByLevel(Integer.parseInt(map.get("level").toString())).toString());
         sessionInfo.setDescription(!map.containsKey("description") ? null : map.get("description").toString());
-        sessionInfo.setMuscleList(!map.containsKey("muscleList") ? new ArrayList<>()   //--May throw IllegalArgExc
-            : Arrays.stream(map.get("muscleList").toString()
+        sessionInfo.setMuscleList(!map.containsKey("muscleIds") ? new ArrayList<>()   //--May throw IllegalArgExc
+            : Arrays.stream(map.get("muscleIds").toString()
             .replaceAll("[\\[\\]]", "").split(",")
         ).map(id -> Muscle.getById(id).toString()).toList());
         return sessionInfo;

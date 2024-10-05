@@ -18,13 +18,13 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/public")
+@RequestMapping("/api/private")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ExerciseControllers {
     ExerciseService exerciseServiceOfAdmin;
 
     @ResponseBody
-    @PostMapping("/admin/v1/create-exercise")
+    @PostMapping(value = "/admin/v1/create-exercise")
     public ResponseEntity<ApiResponseObject<Exercise>> createExercise(@Valid @RequestBody NewExerciseRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.CREATE_EXERCISE,
             exerciseServiceOfAdmin.createExercise(request));

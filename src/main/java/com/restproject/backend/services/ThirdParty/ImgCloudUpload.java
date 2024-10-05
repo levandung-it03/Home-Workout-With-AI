@@ -18,8 +18,8 @@ import java.util.UUID;
 public class ImgCloudUpload {
     Cloudinary cloudinary;
 
-    public Map<String, String> uploadAndReturnInfo(MultipartFile multipartFile) throws IOException {
-        var publicId = UUID.randomUUID().toString();
+    public Map<String, String> uploadAndReturnInfo(String folder, MultipartFile multipartFile) throws IOException {
+        var publicId = "home_workout_with_ai/" + folder + "/" + UUID.randomUUID().toString();
         return Map.ofEntries(
             Map.entry("publicId", publicId),
             Map.entry("url", cloudinary.uploader()

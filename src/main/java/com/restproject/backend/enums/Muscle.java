@@ -26,7 +26,7 @@ public enum Muscle {
     CARDIO(7, "Cardio"),
     ;
 
-    int id;
+    Integer id;
     String name;
 
     public static Muscle getById(int id) throws ApplicationException {

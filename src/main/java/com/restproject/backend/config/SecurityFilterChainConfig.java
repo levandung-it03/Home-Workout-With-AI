@@ -63,6 +63,7 @@ public class SecurityFilterChainConfig {
                 .requestMatchers("/api/private/user/**").hasAuthority("ROLE_USER")
                 .requestMatchers("/api/private/auth/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
                 .requestMatchers("/api/public/**").permitAll()
+                .requestMatchers("/api/test/**").permitAll()
                 .anyRequest().denyAll()
             ).exceptionHandling(exception -> exception.accessDeniedHandler(accessDeniedHandler()))  //--Role's denied.
             .oauth2ResourceServer(resourceServerConfigurer -> resourceServerConfigurer

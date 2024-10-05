@@ -78,17 +78,17 @@ public class ScheduleService {
 
     @Transactional(rollbackOn = {RuntimeException.class})
     public Schedule updateSchedule(UpdateScheduleRequest request) throws ApplicationException {
-        var formerEx = scheduleRepository.findById(request.getScheduleId())
+        var formerSch = scheduleRepository.findById(request.getScheduleId())
             .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY));
         //--Check if this Schedule can be updated or not.
-        if (sessionsOfSchedulesRepository.existsByScheduleScheduleId(formerEx.getScheduleId()))
+        if (sessionsOfSchedulesRepository.existsByScheduleScheduleId(formerSch.getScheduleId()))
             throw new ApplicationException(ErrorCodes.FORBIDDEN_UPDATING);
 
-        //--Mapping new values into "formerEx".
-        scheduleMappers.updateTarget(formerEx, request);
+        //--Mapping new values into "formerSch".
+        scheduleMappers.updateTarget(formerSch, request);
         //--Start to save updated data.
-        scheduleRepository.deleteById(formerEx.getScheduleId());
-        return scheduleRepository.save(formerEx);
+        scheduleRepository.updateScheduleBySchedule(formerSch);
+        return formerSch;
     }
 
     @Transactional(rollbackOn = {RuntimeException.class})
