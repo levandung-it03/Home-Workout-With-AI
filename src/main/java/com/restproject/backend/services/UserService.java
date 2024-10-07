@@ -45,7 +45,6 @@ public class UserService {
             .build();
         User savedUser = userRepository.save(newUser);
 
-
         newUserInfo.setUser(savedUser);
         newUserInfo.setCoins((long) defaultCoins);    //--Default coins for new User.
         return userInfoRepository.save(newUserInfo);    //--FetchType.LAZY will ignore User
