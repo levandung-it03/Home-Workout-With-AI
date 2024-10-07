@@ -24,8 +24,8 @@ public class User implements UserDetails {
     @Column(name = "user_id")
     Long userId;
 
-    @Column(name = "username", nullable = false)
-    String username;
+    @Column(name = "email", nullable = false)
+    String email;
 
     @Column(name = "password", nullable = false)
     String password;
@@ -44,6 +44,11 @@ public class User implements UserDetails {
 
     @Column(name = "active", columnDefinition = "BIT", nullable = false)
     boolean active;
+
+    @Override
+    public String getUsername() {
+        return this.getEmail();
+    }
 
     @Override
     public boolean isAccountNonExpired() {

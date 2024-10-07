@@ -53,7 +53,7 @@ public class ExerciseControllersTest {
     }
 
     NewExerciseRequest newValidExercise() {
-        return NewExerciseRequest.builder().name("Push-ups").levelEnum(1).basicReps(14)
+        return NewExerciseRequest.builder().name("Push-ups").level(1).basicReps(14)
             .muscleIds(List.of(0, 1)).build();
     }
 
@@ -269,14 +269,14 @@ public class ExerciseControllersTest {
     }
 
     UpdateExerciseRequest updateExerciseAndMusclesRequest() {
-        return UpdateExerciseRequest.builder().exerciseId(2L).levelEnum(2).name("Push-ups")
+        return UpdateExerciseRequest.builder().exerciseId(2L).level(2).name("Push-ups")
             .basicReps(14).muscleIds(List.of(0, 2)).build();
     }
 
     @Test
     public void updateExerciseAndMuscles_admin_valid() throws Exception {
         var req = updateExerciseAndMusclesRequest();
-        var res = Exercise.builder().exerciseId(req.getExerciseId()).levelEnum(Level.getByLevel(req.getLevelEnum()))
+        var res = Exercise.builder().exerciseId(req.getExerciseId()).levelEnum(Level.getByLevel(req.getLevel()))
             .basicReps(req.getBasicReps()).name(req.getName()).build();
 
         Mockito.when(exerciseServiceOfAdmin.updateExerciseAndMuscles(req)).thenReturn(res);

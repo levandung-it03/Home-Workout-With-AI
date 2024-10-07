@@ -1,4 +1,4 @@
-package com.restproject.backend.services.Admin;
+package com.restproject.backend.services;
 
 import com.restproject.backend.dtos.request.UpdateSessionsOfScheduleRequest;
 import com.restproject.backend.dtos.request.PaginatedRelationshipRequest;
@@ -17,7 +17,6 @@ import com.restproject.backend.mappers.PageMappers;
 import com.restproject.backend.repositories.SessionRepository;
 import com.restproject.backend.repositories.SessionsOfSchedulesRepository;
 import com.restproject.backend.repositories.ScheduleRepository;
-import com.restproject.backend.services.SessionsOfSchedulesService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.junit.jupiter.api.Test;
@@ -60,7 +59,7 @@ public class SessionsOfSchedulesServiceTest {
         var muscleList = List.of(Muscle.CHEST, Muscle.TRICEPS);
         var sessionInfoForFilter = SessionsOfScheduleResponse.builder()
             .name(request.getFilterFields().get("name").toString())
-            .levelEnum(Level.getByLevel(Integer.parseInt(request.getFilterFields().get("level").toString())))
+            .levelEnum(Level.getRawLevelByLevel(request.getFilterFields().get("level")))
             .muscleList(muscleList.stream().map(Muscle::toString).toList()).build();
         var pageObject = PageObject.builder().page(request.getPage()).build();
 

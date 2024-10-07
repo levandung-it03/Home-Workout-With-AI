@@ -47,13 +47,10 @@ public class SessionHasMusclesResponse {
 
         var sessionInfo = new SessionHasMusclesResponse();
         sessionInfo.setName(!map.containsKey("name") ? null : map.get("name").toString());
-        sessionInfo.setLevelEnum(!map.containsKey("level") ? null
-            : Level.getByLevel(Integer.parseInt(map.get("level").toString())).toString());
+        sessionInfo.setLevelEnum(!map.containsKey("level") ? null : Level.getRawLevelByLevel(map.get("level")));
         sessionInfo.setDescription(!map.containsKey("description") ? null : map.get("description").toString());
         sessionInfo.setMuscleList(!map.containsKey("muscleIds") ? new ArrayList<>()   //--May throw IllegalArgExc
-            : Arrays.stream(map.get("muscleIds").toString()
-            .replaceAll("[\\[\\]]", "").split(",")
-        ).map(id -> Muscle.getById(id).toString()).toList());
+            : Muscle.parseAllMuscleIdsArrToRaw(map.get("muscleIds")));
         return sessionInfo;
     }
 

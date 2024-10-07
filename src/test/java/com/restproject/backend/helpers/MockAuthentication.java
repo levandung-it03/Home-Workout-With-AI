@@ -26,7 +26,7 @@ public class MockAuthentication {
 
     public User getUserUser() {
         return User.builder()
-            .username("user")
+            .email("user")
             .password(userPasswordEncoder.encode("useruser"))
             .authorities(List.of(Authority.builder().authorityName("ROLE_USER").build()))
             .createdTime(LocalDateTime.now())
@@ -36,7 +36,7 @@ public class MockAuthentication {
 
     public User getUserAdmin() {
         return User.builder()
-            .username("root")
+            .email("root")
             .password(userPasswordEncoder.encode("rootroot"))
             .authorities(List.of(Authority.builder().authorityName("ROLE_ADMIN").build()))
             .createdTime(LocalDateTime.now())

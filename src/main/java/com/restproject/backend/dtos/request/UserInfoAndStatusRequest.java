@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,6 +31,8 @@ public class UserInfoAndStatusRequest {
     Long coins;
     LocalDate fromDob;
     LocalDate toDob;
+    LocalDateTime fromCreatedTime;
+    LocalDateTime toCreatedTime;
     Boolean isActive;
 
     public static UserInfoAndStatusRequest buildFromHashMap(HashMap<String, Object> map)
@@ -48,6 +51,10 @@ public class UserInfoAndStatusRequest {
             : LocalDate.parse(map.get("toDob").toString().split("T")[0], DateTimeFormatter.ISO_LOCAL_DATE));
         result.setToDob(!map.containsKey("fromDob") ? null
             : LocalDate.parse(map.get("fromDob").toString().split("T")[0], DateTimeFormatter.ISO_LOCAL_DATE));
+        result.setFromCreatedTime(!map.containsKey("fromCreatedTime") ? null
+            : LocalDateTime.parse(map.get("fromCreatedTime").toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        result.setToCreatedTime(!map.containsKey("toCreatedTime") ? null
+            : LocalDateTime.parse(map.get("toCreatedTime").toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         result.setIsActive(map.containsKey("isActive") ? Boolean.parseBoolean(map.get("isActive").toString()) : null);
         return result;
     }

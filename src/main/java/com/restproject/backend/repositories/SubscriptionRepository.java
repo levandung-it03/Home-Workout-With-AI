@@ -13,9 +13,9 @@ import java.util.List;
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
 
     @Query("""
-        SELECT s.schedule FROM Subscription s WHERE s.userInfo.user.username = :username
+        SELECT s.schedule FROM Subscription s WHERE s.userInfo.user.email = :email
         AND ((s.completedTime IS NOT NULL AND :isCompleted = TRUE) OR (s.completedTime IS NULL AND :isCompleted = FALSE))
     """)
     List<Schedule> getAllScheduleByUsernameAndStatus(
-        @Param("username") String username, @Param("isCompleted") Boolean isCompleted);
+        @Param("email") String email, @Param("isCompleted") Boolean isCompleted);
 }

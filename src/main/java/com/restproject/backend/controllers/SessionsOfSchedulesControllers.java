@@ -1,4 +1,4 @@
-package com.restproject.backend.controllers.Private;
+package com.restproject.backend.controllers;
 
 import com.restproject.backend.dtos.request.PaginatedRelationshipRequest;
 import com.restproject.backend.dtos.request.UpdateSessionsOfScheduleRequest;

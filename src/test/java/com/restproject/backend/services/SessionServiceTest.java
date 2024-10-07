@@ -1,4 +1,4 @@
-package com.restproject.backend.services.Admin;
+package com.restproject.backend.services;
 
 import com.restproject.backend.dtos.request.DeleteObjectRequest;
 import com.restproject.backend.dtos.request.NewSessionRequest;
@@ -55,9 +55,9 @@ public class SessionServiceTest {
             .description("Just shoulder's exercises in total under 1 hour")
             .muscleIds(List.of(Muscle.SHOULDERS.getId()))
             .exerciseIds(foundExercises.stream().map(Exercise::getExerciseId).toList())
-            .levelEnum(Level.INTERMEDIATE.getLevelEnum()).build();
+            .level(Level.INTERMEDIATE.getLevel()).build();
         var savedSession = Session.builder().name(req.getName()).description(req.getDescription())
-            .levelEnum(Level.getByLevel(req.getLevelEnum())).exercisesOfSession(foundExercises).build();
+            .levelEnum(Level.getByLevel(req.getLevel())).exercisesOfSession(foundExercises).build();
         var musclesOfSessions = req.getMuscleIds().stream().map(id ->
             MusclesOfSessions.builder().muscle(Muscle.getById(id)).session(savedSession).build()).toList();
         var exercisesSessions = foundExercises.stream().map(e ->
@@ -94,7 +94,7 @@ public class SessionServiceTest {
             .description("Just shoulder's exercises in total under 1 hour")
             .muscleIds(List.of(Muscle.SHOULDERS.getId()))
             .exerciseIds(List.of(foundExercises.getFirst().getExerciseId(), 9_999L))
-            .levelEnum(foundExercises.getFirst().getLevelEnum().getLevelEnum()).build();
+            .level(foundExercises.getFirst().getLevelEnum().getLevel()).build();
         var savedSession = Session.builder().name(req.getName()).description(req.getDescription())
             .levelEnum(foundExercises.getFirst().getLevelEnum()).build();
 
@@ -118,7 +118,7 @@ public class SessionServiceTest {
             .description("Just shoulder's exercises in total under 1 hour")
             .muscleIds(List.of(Muscle.SHOULDERS.getId()))
             .exerciseIds(List.of(foundExercises.getFirst().getExerciseId(), invalidId))
-            .levelEnum(foundExercises.getFirst().getLevelEnum().getLevelEnum()).build();
+            .level(foundExercises.getFirst().getLevelEnum().getLevel()).build();
         var savedSession = Session.builder().name(req.getName()).description(req.getDescription())
             .levelEnum(foundExercises.getFirst().getLevelEnum()).build();
         var musclesOfSessions = req.getMuscleIds().stream().map(id ->
@@ -153,7 +153,7 @@ public class SessionServiceTest {
             .description("Just shoulder's exercises in total under 1 hour")
             .muscleIds(List.of(Muscle.SHOULDERS.getId()))
             .exerciseIds(foundExercises.stream().map(Exercise::getExerciseId).toList())
-            .levelEnum(Level.INTERMEDIATE.getLevelEnum()).build();
+            .level(Level.INTERMEDIATE.getLevel()).build();
         var savedSession = Session.builder().name(req.getName()).description(req.getDescription())
             .levelEnum(Level.INTERMEDIATE).build();
         var musclesOfSessions = req.getMuscleIds().stream().map(id ->
@@ -180,7 +180,7 @@ public class SessionServiceTest {
     }
     
     UpdateSessionRequest updateSessionAndMusclesRequest() {
-        return UpdateSessionRequest.builder().sessionId(1L).name("Push-ups").levelEnum(2).description("Hello")
+        return UpdateSessionRequest.builder().sessionId(1L).name("Push-ups").level(2).description("Hello")
             .muscleIds(List.of(0, 2)).build();
     }
 
@@ -188,7 +188,7 @@ public class SessionServiceTest {
     public void updateSessionAndMuscles_admin_validWithoutUpdatingMuscles() {
         var sesReq = this.updateSessionAndMusclesRequest();
         var sesRes = Session.builder().sessionId(sesReq.getSessionId()).name(sesReq.getName())
-            .description("Hello").levelEnum(Level.getByLevel(sesReq.getLevelEnum())).build();
+            .description("Hello").levelEnum(Level.getByLevel(sesReq.getLevel())).build();
         var msByEx = sesReq.getMuscleIds().stream().map(id ->
             MusclesOfSessions.builder().session(sesRes).muscle(Muscle.getById(id)).build()
         ).toList();
@@ -219,7 +219,7 @@ public class SessionServiceTest {
     public void updateSessionAndMuscles_admin_validWithUpdatingMuscles() {
         var sesReq = this.updateSessionAndMusclesRequest();
         var sesRes = Session.builder().sessionId(sesReq.getSessionId()).name(sesReq.getName())
-            .description("Hello").levelEnum(Level.getByLevel(sesReq.getLevelEnum())).build();
+            .description("Hello").levelEnum(Level.getByLevel(sesReq.getLevel())).build();
         var msByEx = sesReq.getMuscleIds().stream().map(id ->
             MusclesOfSessions.builder().session(sesRes).muscle(Muscle.getById(id)).build()
         ).toList();
@@ -275,7 +275,7 @@ public class SessionServiceTest {
     public void updateSessionAndMuscles_admin_sessionIdRelatedToSession() {
         var sesReq = this.updateSessionAndMusclesRequest();
         var sesRes = Session.builder().sessionId(sesReq.getSessionId()).name(sesReq.getName())
-            .description("Hello").levelEnum(Level.getByLevel(sesReq.getLevelEnum())).build();
+            .description("Hello").levelEnum(Level.getByLevel(sesReq.getLevel())).build();
 
         Mockito.when(sessionRepository.findById(sesReq.getSessionId())).thenReturn(Optional.of(sesRes));
         Mockito.when(sessionsOfSchedulesRepository.existsBySessionSessionId(sesReq.getSessionId()))
@@ -292,7 +292,7 @@ public class SessionServiceTest {
     public void updateSessionAndMuscles_admin_emptyFormerMuscleIds() {
         var sesReq = this.updateSessionAndMusclesRequest();
         var sesRes = Session.builder().sessionId(sesReq.getSessionId()).name(sesReq.getName())
-            .description("Hello").levelEnum(Level.getByLevel(sesReq.getLevelEnum())).build();
+            .description("Hello").levelEnum(Level.getByLevel(sesReq.getLevel())).build();
 
         Mockito.when(sessionRepository.findById(sesReq.getSessionId())).thenReturn(Optional.of(sesRes));
         Mockito.when(sessionsOfSchedulesRepository.existsBySessionSessionId(sesReq.getSessionId()))

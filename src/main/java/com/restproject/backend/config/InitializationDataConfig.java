@@ -37,14 +37,14 @@ public class InitializationDataConfig implements CommandLineRunner {
             List<Authority> authorities = authorityRepository.findAll();
             userRepository.saveAll(List.of(
                 User.builder()
-                    .username("root")
+                    .email("root@gmail.com")
                     .password(userPasswordEncoder.encode("rootroot"))
                     .authorities(List.of(authorities.getFirst()))
                     .createdTime(LocalDateTime.now())
                     .active(true)
                     .build(),
                 User.builder()
-                    .username("user")
+                    .email("user@gmail.com")
                     .password(userPasswordEncoder.encode("useruser"))
                     .authorities(List.of(authorities.getLast()))
                     .createdTime(LocalDateTime.now())

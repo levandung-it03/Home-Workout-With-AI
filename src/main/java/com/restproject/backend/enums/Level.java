@@ -1,5 +1,6 @@
 package com.restproject.backend.enums;
 
+import com.restproject.backend.annotations.dev.Overload;
 import com.restproject.backend.exceptions.ApplicationException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,15 @@ public enum Level {
             if (levelEnum.getLevel() == level)
                 return levelEnum;
         throw new ApplicationException(ErrorCodes.INVALID_LEVEL);
+    }
+
+    @Overload
+    public static Level getByLevel(Object level) {
+        return Level.getByLevel(Integer.parseInt(level.toString()));
+    }
+
+    public static String getRawLevelByLevel(Object level) {
+        return Level.getByLevel(Integer.parseInt(level.toString())).toString();
     }
 
     public static List<Level> getAllLevels() {

@@ -1,10 +1,8 @@
 package com.restproject.backend.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.restproject.backend.dtos.response.ExerciseHasMusclesResponse;
 import com.restproject.backend.enums.Level;
 import com.restproject.backend.exceptions.ApplicationException;
-import com.restproject.backend.repositories.MusclesOfExercisesRepository;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
@@ -29,6 +27,8 @@ import java.util.stream.Collectors;
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Schedule {
+    public static Set<String> INSTANCE_FIELDS = Arrays.stream(Schedule.class.getDeclaredFields()).map(Field::getName)
+        .collect(Collectors.toSet());
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -68,8 +68,7 @@ public class Schedule {
 
         var result = new Schedule();
         result.setName(!map.containsKey("name") ? null : map.get("name").toString());
-        result.setLevelEnum(!map.containsKey("level") ? null :
-            Level.getByLevel(Integer.parseInt(map.get("level").toString())));
+        result.setLevelEnum(!map.containsKey("level") ? null : Level.getByLevel(map.get("level")));
         result.setDescription(!map.containsKey("description") ? null : map.get("description").toString());
         result.setCoins(!map.containsKey("coins") ? null : Long.parseLong(map.get("coins").toString()));
         return result;

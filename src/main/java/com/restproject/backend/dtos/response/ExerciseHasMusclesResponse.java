@@ -41,22 +41,17 @@ public class ExerciseHasMusclesResponse {
 
     public static ExerciseHasMusclesResponse buildFromHashMap(HashMap<String, Object> map)
         throws ApplicationException, IllegalArgumentException, NullPointerException, NoSuchFieldException {
-        for (String key : map.keySet()) {
-            if (key.equals("muscleIds"))    continue;
-            if (Arrays.stream(ExerciseHasMusclesResponse.class.getDeclaredFields())
+        for (String key : map.keySet())
+            if (!key.equals("muscleIds") && Arrays.stream(ExerciseHasMusclesResponse.class.getDeclaredFields())
                 .noneMatch(f -> f.getName().equals(key))) throw new NoSuchFieldException(); //--Ignored value.
-        }
 
         var exerciseInfo = new ExerciseHasMusclesResponse();
         exerciseInfo.setName(!map.containsKey("name") ? null : map.get("name").toString());
-        exerciseInfo.setLevelEnum(!map.containsKey("level") ? null
-            : Level.getByLevel(Integer.parseInt(map.get("level").toString())).toString());
+        exerciseInfo.setLevelEnum(!map.containsKey("level") ? null : Level.getRawLevelByLevel(map.get("level")));
         exerciseInfo.setBasicReps(!map.containsKey("basicReps") ? null
             : Integer.parseInt(map.get("basicReps").toString()));
         exerciseInfo.setMuscleList(!map.containsKey("muscleIds") ? new ArrayList<>()   //--May throw IllegalArgExc
-            : Arrays.stream(map.get("muscleIds").toString()
-            .replaceAll("[\\[\\]]", "").split(",")
-        ).map(id -> Muscle.getById(id).toString()).toList());
+            : Muscle.parseAllMuscleIdsArrToRaw(map.get("muscleIds")));
         return exerciseInfo;
     }
 

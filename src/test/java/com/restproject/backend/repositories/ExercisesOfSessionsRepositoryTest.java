@@ -81,7 +81,7 @@ public class ExercisesOfSessionsRepositoryTest {
                 .exerciseId(exercise.getExerciseId())
                 .name(exercise.getName())
                 .basicReps(exercise.getBasicReps())
-                .levelEnum(exercise.getLevelEnum()) //--All Beginner exercise belongs to session by default.
+                .levelEnum(exercise.getLevelEnum().toString()) //--All Beginner exercise belongs to session by default.
                 .withCurrentSession(exercise.getLevelEnum().equals(Level.BEGINNER))
                 .muscleList(new ArrayList<>())
                 //--All of Beginner Level exercises belong to session (with just testing data)
@@ -165,7 +165,7 @@ public class ExercisesOfSessionsRepositoryTest {
                     .exerciseId(exercise.getExerciseId())
                     .name(exercise.getName())
                     .basicReps(exercise.getBasicReps())
-                    .levelEnum(exercise.getLevelEnum()) //--All Beginner exercise belongs to session by default.
+                    .levelEnum(exercise.getLevelEnum().toString()) //--All Beginner exercise belongs to session by default.
                     .withCurrentSession(exercise.getLevelEnum().equals(Level.BEGINNER))
                     .muscleList(new ArrayList<>())
                 //--All of Beginner Level exercises belong to session (with just testing data)
@@ -252,7 +252,7 @@ public class ExercisesOfSessionsRepositoryTest {
                         .exerciseId(exeHasMusDB.getExercise().getExerciseId())
                         .name(exeHasMusDB.getExercise().getName())
                         .basicReps(exeHasMusDB.getExercise().getBasicReps())
-                        .levelEnum(exeHasMusDB.getExercise().getLevelEnum()) //--All Beginner exercise belongs to session by default.
+                        .levelEnum(exeHasMusDB.getExercise().getLevelEnum().toString()) //--All Beginner exercise belongs to session by default.
                         .withCurrentSession(exeHasMusDB.getExercise().getLevelEnum().equals(Level.BEGINNER))
                         .muscleList(new ArrayList<>(List.of(exeHasMusDB.getMuscle().toString())))
                         //--All of Beginner Level exercises belong to session (with just testing data)
@@ -281,8 +281,7 @@ public class ExercisesOfSessionsRepositoryTest {
 
         assertNotNull(actual);
         actual.sort(Comparator.comparing(ExercisesOfSessionResponse::getExerciseId));
-        for (int index = 0; index < actual.size(); index++) {
-            var actualExe = actual.get(index);
+        for (ExercisesOfSessionResponse actualExe : actual) {
             var expectExe = exercisesHasMusclesRes.get(actualExe.getExerciseId());
 
             assertEquals(expectExe.getName(), actualExe.getName());

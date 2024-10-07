@@ -1,4 +1,4 @@
-package com.restproject.backend.services.Admin;
+package com.restproject.backend.services;
 
 import com.restproject.backend.dtos.request.DeleteObjectRequest;
 import com.restproject.backend.dtos.request.NewScheduleRequest;
@@ -53,9 +53,9 @@ public class ScheduleServiceTest {
         var req = NewScheduleRequest.builder().name("Shoulders - immediate")
             .description("Just shoulder's sessions in total under 1 hour")
             .sessionIds(foundSessions.stream().map(Session::getSessionId).toList())
-            .coins(2000L).levelEnum(Level.INTERMEDIATE.getLevelEnum()).build();
+            .coins(2000L).level(Level.INTERMEDIATE.getLevel()).build();
         var savedSchedule = Schedule.builder().name(req.getName()).description(req.getDescription())
-            .levelEnum(Level.getByLevel(req.getLevelEnum())).sessionsOfSchedule(foundSessions).build();
+            .levelEnum(Level.getByLevel(req.getLevel())).sessionsOfSchedule(foundSessions).build();
         var sessionsSchedules = foundSessions.stream().map(e ->
             SessionsOfSchedules.builder().session(e).schedule(savedSchedule).build()).toList();
 
@@ -87,7 +87,7 @@ public class ScheduleServiceTest {
         var req = NewScheduleRequest.builder().name("Shoulders - immediate")
             .description("Just shoulder's sessions in total under 1 hour")
             .sessionIds(List.of(foundSessions.getFirst().getSessionId(), 9_999L))
-            .coins(2000L).levelEnum(foundSessions.getFirst().getLevelEnum().getLevelEnum()).build();
+            .coins(2000L).level(foundSessions.getFirst().getLevelEnum().getLevel()).build();
         var savedSchedule = Schedule.builder().name(req.getName()).description(req.getDescription())
             .levelEnum(foundSessions.getFirst().getLevelEnum()).build();
 
@@ -110,7 +110,7 @@ public class ScheduleServiceTest {
         var req = NewScheduleRequest.builder().name("Shoulders - immediate")
             .description("Just shoulder's sessions in total under 1 hour")
             .sessionIds(List.of(foundSessions.getFirst().getSessionId(), invalidId))
-            .coins(2000L).levelEnum(foundSessions.getFirst().getLevelEnum().getLevelEnum()).build();
+            .coins(2000L).level(foundSessions.getFirst().getLevelEnum().getLevel()).build();
         var savedSchedule = Schedule.builder().name(req.getName()).description(req.getDescription())
             .levelEnum(foundSessions.getFirst().getLevelEnum()).build();
 
@@ -140,7 +140,7 @@ public class ScheduleServiceTest {
         var req = NewScheduleRequest.builder().name("Shoulders - immediate")
             .description("Just shoulder's sessions in total under 1 hour")
             .sessionIds(foundSessions.stream().map(Session::getSessionId).toList())
-            .levelEnum(Level.INTERMEDIATE.getLevelEnum()).build();
+            .level(Level.INTERMEDIATE.getLevel()).build();
         var savedSchedule = Schedule.builder().name(req.getName()).description(req.getDescription())
             .levelEnum(Level.INTERMEDIATE).build();
 
@@ -161,9 +161,9 @@ public class ScheduleServiceTest {
             .findById(foundSessions.getLast().getSessionId());
         assertNotEquals(foundSessions.getLast().getLevelEnum(), savedSchedule.getLevelEnum());
     }
-    
+
     UpdateScheduleRequest updateMuscle() {
-        return UpdateScheduleRequest.builder().scheduleId(1L).name("Push-ups").levelEnum(2).description("Hello")
+        return UpdateScheduleRequest.builder().scheduleId(1L).name("Push-ups").level(2).description("Hello")
             .coins(2000L).build();
     }
 
@@ -171,7 +171,7 @@ public class ScheduleServiceTest {
     public void updateScheduleAndMuscles_admin_validWithoutUpdatingMuscles() {
         var sesReq = this.updateMuscle();
         var sesRes = Schedule.builder().scheduleId(sesReq.getScheduleId()).name(sesReq.getName())
-            .description("Hello").levelEnum(Level.getByLevel(sesReq.getLevelEnum())).coins(sesReq.getCoins()).build();
+            .description("Hello").levelEnum(Level.getByLevel(sesReq.getLevel())).coins(sesReq.getCoins()).build();
 
         Mockito.when(scheduleRepository.findById(sesReq.getScheduleId())).thenReturn(Optional.of(sesRes));
         Mockito.when(sessionsOfSchedulesRepository.existsByScheduleScheduleId(sesRes.getScheduleId()))
@@ -196,7 +196,7 @@ public class ScheduleServiceTest {
     public void updateScheduleAndMuscles_admin_validWithUpdatingMuscles() {
         var sesReq = this.updateMuscle();
         var sesRes = Schedule.builder().scheduleId(sesReq.getScheduleId()).name(sesReq.getName())
-            .description("Hello").levelEnum(Level.getByLevel(sesReq.getLevelEnum())).coins(sesReq.getCoins()).build();
+            .description("Hello").levelEnum(Level.getByLevel(sesReq.getLevel())).coins(sesReq.getCoins()).build();
 
         Mockito.when(scheduleRepository.findById(sesReq.getScheduleId())).thenReturn(Optional.of(sesRes));
         Mockito.when(sessionsOfSchedulesRepository.existsByScheduleScheduleId(sesRes.getScheduleId()))

@@ -83,7 +83,7 @@ public class SessionsOfSchedulesRepositoryTest {
                 .sessionId(session.getSessionId())
                 .name(session.getName())
                 .description(session.getDescription())
-                .levelEnum(session.getLevelEnum()) //--All Beginner session belongs to schedule by default.
+                .levelEnum(session.getLevelEnum().toString()) //--All Beginner session belongs to schedule by default.
                 .withCurrentSchedule(session.getLevelEnum().equals(Level.BEGINNER))
                 .muscleList(new ArrayList<>())
                 //--All of Beginner Level sessions belong to schedule (with just testing data)
@@ -167,7 +167,7 @@ public class SessionsOfSchedulesRepositoryTest {
                     .sessionId(session.getSessionId())
                     .name(session.getName())
                     .description(session.getDescription())
-                    .levelEnum(session.getLevelEnum()) //--All Beginner session belongs to schedule by default.
+                    .levelEnum(session.getLevelEnum().toString()) //--All Beginner session belongs to schedule by default.
                     .withCurrentSchedule(session.getLevelEnum().equals(Level.BEGINNER))
                     .muscleList(new ArrayList<>())
                     //--All of Beginner Level sessions belong to schedule (with just testing data)
@@ -254,7 +254,7 @@ public class SessionsOfSchedulesRepositoryTest {
                         .sessionId(exeHasMusDB.getSession().getSessionId())
                         .name(exeHasMusDB.getSession().getName())
                         .description(exeHasMusDB.getSession().getDescription())
-                        .levelEnum(exeHasMusDB.getSession().getLevelEnum()) //--All Beginner session belongs to schedule by default.
+                        .levelEnum(exeHasMusDB.getSession().getLevelEnum().toString()) //--All Beginner session belongs to schedule by default.
                         .withCurrentSchedule(exeHasMusDB.getSession().getLevelEnum().equals(Level.BEGINNER))
                         .muscleList(new ArrayList<>(List.of(exeHasMusDB.getMuscle().toString())))
                         //--All of Beginner Level sessions belong to schedule (with just testing data)
@@ -283,8 +283,7 @@ public class SessionsOfSchedulesRepositoryTest {
 
         assertNotNull(actual);
         actual.sort(Comparator.comparing(SessionsOfScheduleResponse::getSessionId));
-        for (int index = 0; index < actual.size(); index++) {
-            var actualExe = actual.get(index);
+        for (SessionsOfScheduleResponse actualExe : actual) {
             var expectExe = sessionsHasMusclesRes.get(actualExe.getSessionId());
 
             assertEquals(expectExe.getName(), actualExe.getName());

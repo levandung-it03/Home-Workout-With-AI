@@ -71,7 +71,7 @@ public class AuthenticationService {
         //--Verify expired Access Token to symbolize for a valid refreshing token request.
         var jwtClaimsSet = jwtService.verifyTokenOrElseThrow(tokenObject.getToken(), true);
         //--Get User to check if he/she's in in-activated or not.
-        var user = userRepository.findByUsername(jwtClaimsSet.getSubject()).orElseThrow(() ->
+        var user = userRepository.findByEmail(jwtClaimsSet.getSubject()).orElseThrow(() ->
             new ApplicationException(ErrorCodes.INVALID_TOKEN));
         if (!user.isActive())
             throw new ApplicationException(ErrorCodes.FORBIDDEN_USER);

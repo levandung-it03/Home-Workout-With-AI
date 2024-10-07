@@ -38,8 +38,8 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return (username) -> userRepository
-            .findByUsername(username)
-            .orElseThrow(() -> new UsernameNotFoundException("Invalid username"));
+        return (emailAsUsername) -> userRepository
+            .findByEmail(emailAsUsername)
+            .orElseThrow(() -> new UsernameNotFoundException("Invalid email"));
     }
 }

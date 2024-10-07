@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -21,4 +22,5 @@ public class UserInfoAndStatusResponse {
     LocalDate dob;
     Long userId;
     boolean isActive;
+    LocalDateTime createdTime;
 }

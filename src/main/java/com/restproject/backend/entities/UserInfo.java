@@ -42,9 +42,6 @@ public class UserInfo {
     @Column(name = "dob", nullable = false, columnDefinition = "DATE")
     LocalDate dob;
 
-    @Column(name = "email", nullable = false)
-    String email;
-
     @Column(name = "coins", nullable = false)
     @Min(0)
     Long coins;

@@ -1,6 +1,6 @@
 package com.restproject.backend.mappers;
 
-import com.restproject.backend.dtos.request.NewUserInfoRequest;
+import com.restproject.backend.dtos.request.NewUserRequest;
 import com.restproject.backend.dtos.request.UpdateUserInfoRequest;
 import com.restproject.backend.entities.UserInfo;
 import com.restproject.backend.enums.Gender;
@@ -14,7 +14,7 @@ public interface UserInfoMappers {
 
     @Mapping(target = "gender", source = "genderId", qualifiedByName = "mapGenderField")
     @Mapping(target = "coins", ignore = true)
-    UserInfo insertionToPlain(NewUserInfoRequest request);
+    UserInfo insertionToPlain(NewUserRequest request);
 
     @Mapping(target = "gender", source = "genderId", qualifiedByName = "mapGenderField")
     @Mapping(target = "user", ignore = true)

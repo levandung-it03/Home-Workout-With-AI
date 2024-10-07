@@ -1,6 +1,5 @@
-package com.restproject.backend.controllers.Private;
+package com.restproject.backend.controllers;
 
-import com.restproject.backend.dtos.request.NewUserInfoRequest;
 import com.restproject.backend.dtos.request.PaginatedTableRequest;
 import com.restproject.backend.dtos.request.UpdateUserInfoRequest;
 import com.restproject.backend.dtos.response.ApiResponseObject;
@@ -22,15 +21,6 @@ import org.springframework.web.bind.annotation.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserInfoControllers {
     UserInfoService userInfoService;
-
-    @ResponseBody
-    @PostMapping("/user/v1/register-user-info")
-    public ResponseEntity<ApiResponseObject<UserInfo>> registerUserInfo(
-        @RequestHeader("Authorization") String accessToken,
-        @Valid @RequestBody NewUserInfoRequest request) {
-        return ApiResponseObject.buildSuccessResponse(SucceedCodes.CREATE_USER_INFO,
-            userInfoService.registerUserInfo(request, accessToken));
-    }
 
     @ResponseBody
     @GetMapping("/admin/v1/get-user-info-and-status-pages")

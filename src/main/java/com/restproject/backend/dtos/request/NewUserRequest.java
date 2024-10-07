@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDate;
 
@@ -16,7 +17,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class NewUserInfoRequest {
+public class NewUserRequest {
 
     @NotNull
     @Pattern(regexp = "^[A-Za-zÀ-ỹ]{1,50}$")
@@ -37,4 +38,8 @@ public class NewUserInfoRequest {
     @NotBlank
     @Email
     String email;
+
+    @NotBlank
+    @Length(min = 6)
+    String password;
 }

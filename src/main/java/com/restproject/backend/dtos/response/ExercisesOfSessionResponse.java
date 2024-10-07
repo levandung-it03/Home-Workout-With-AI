@@ -17,7 +17,7 @@ import java.util.*;
 public class ExercisesOfSessionResponse {
     Long exerciseId;
     String name;
-    Level levelEnum;
+    String levelEnum;
     Integer basicReps;
     List<String> muscleList;    //--Keep MuscleEnum as String to make filter works correctly.
     boolean withCurrentSession;
@@ -27,7 +27,7 @@ public class ExercisesOfSessionResponse {
             .exerciseId(Long.parseLong(params[0].toString()))
             .name(params[1].toString())
             .basicReps(Integer.parseInt(params[2].toString()))
-            .levelEnum(Level.valueOf(params[3].toString()))
+            .levelEnum(params[3].toString())
             .withCurrentSession(!Objects.isNull(params[4]) && params[4].toString().equals("1"))
             .muscleList(Arrays.stream(params[5].toString()
                 .replaceAll("[\\[\\]]", "")
@@ -46,14 +46,11 @@ public class ExercisesOfSessionResponse {
 
         var exerciseInfo = new ExercisesOfSessionResponse();
         exerciseInfo.setMuscleList(!map.containsKey("muscleIds") ? new ArrayList<>()   //--May throw IllegalArgExc
-            : Arrays.stream(map.get("muscleIds").toString()
-            .replaceAll("[\\[\\]]", "").split(",")
-        ).map(id -> Muscle.getById(id).toString()).toList());
+            : Muscle.parseAllMuscleIdsArrToRaw(map.get("muscleIds")));
         exerciseInfo.setName(!map.containsKey("name") ? null : map.get("name").toString());
         exerciseInfo.setBasicReps(!map.containsKey("basicReps") ? null
             : Integer.parseInt(map.get("basicReps").toString()));
-        exerciseInfo.setLevelEnum(!map.containsKey("level") ? null
-            : Level.getByLevel(Integer.parseInt(map.get("level").toString()))); //--May throw AppExc
+        exerciseInfo.setLevelEnum(!map.containsKey("level") ? null : Level.getRawLevelByLevel(map.get("level")));
         return exerciseInfo;
     }
 }

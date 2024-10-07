@@ -1,4 +1,4 @@
-package com.restproject.backend.controllers.Private;
+package com.restproject.backend.controllers;
 
 import com.restproject.backend.dtos.request.ScheduleByStatusRequest;
 import com.restproject.backend.dtos.response.ApiResponseObject;

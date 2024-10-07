@@ -4,6 +4,7 @@ import com.restproject.backend.dtos.request.PaginatedRelationshipRequest;
 import com.restproject.backend.dtos.request.UpdateSessionsOfScheduleRequest;
 import com.restproject.backend.dtos.response.SessionsOfScheduleResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
+import com.restproject.backend.entities.MusclesOfSessions;
 import com.restproject.backend.entities.Session;
 import com.restproject.backend.entities.SessionsOfSchedules;
 import com.restproject.backend.enums.ErrorCodes;
@@ -35,7 +36,7 @@ public class SessionsOfSchedulesService {
     public TablePagesResponse<SessionsOfScheduleResponse> getSessionsHasMusclesOfSchedulePagesPrioritizeRelationship(
         PaginatedRelationshipRequest request) {
         if (!Objects.isNull(request.getSortedField())
-        && !Session.INSTANCE_FIELDS.contains(request.getSortedField()))
+        && !MusclesOfSessions.INSTANCE_FIELDS.contains(request.getSortedField()))
             throw new ApplicationException(ErrorCodes.INVALID_SORTING_FIELD_OR_VALUE);
         Pageable pageableCf = pageMappers.relationshipPageRequestToPageable(request).toPageable();
 
