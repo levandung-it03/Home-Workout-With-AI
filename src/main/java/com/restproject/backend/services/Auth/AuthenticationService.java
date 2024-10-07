@@ -39,7 +39,7 @@ public class AuthenticationService {
     public AuthenticationResponse authenticate(AuthenticationRequest authObject)
         throws AuthenticationException, ApplicationException {
         //--Authenticate User's credentials.
-        var authToken = new UsernamePasswordAuthenticationToken(authObject.getUsername(), authObject.getPassword());
+        var authToken = new UsernamePasswordAuthenticationToken(authObject.getEmail(), authObject.getPassword());
         var authUser = (User) authenticationManager.authenticate(authToken).getPrincipal();
         //--Check if this User is in blacklist or not.
         if (!authUser.isActive())

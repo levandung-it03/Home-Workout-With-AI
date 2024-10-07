@@ -26,6 +26,7 @@ public class InitializationDataConfig implements CommandLineRunner {
     PasswordEncoder userPasswordEncoder;
     InvalidTokenCrud invalidTokenCrud;
     RefreshTokenCrud refreshTokenCrud;
+    UserInfoRepository userInfoRepository;
 
     @Override
     public void run(String... args) {
@@ -35,7 +36,7 @@ public class InitializationDataConfig implements CommandLineRunner {
         ));
         if (userRepository.count() == 0) {
             List<Authority> authorities = authorityRepository.findAll();
-            userRepository.saveAll(List.of(
+            List<User> users = userRepository.saveAll(List.of(
                 User.builder()
                     .email("root@gmail.com")
                     .password(userPasswordEncoder.encode("rootroot"))
@@ -51,6 +52,9 @@ public class InitializationDataConfig implements CommandLineRunner {
                     .active(true)
                     .build()
             ));
+            userInfoRepository.save(UserInfo.builder()
+                .firstName("Dung").lastName("Le Van").coins(2000L).dob(LocalDate.of(2003, 12, 11))
+                .gender(Gender.MALE).user(users.getLast()).build());
         }
         invalidTokenCrud.deleteAll();
         refreshTokenCrud.deleteAll();

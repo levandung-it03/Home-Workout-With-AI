@@ -12,7 +12,7 @@ import lombok.experimental.FieldDefaults;
 public class AuthenticationRequest {
 
     @NotBlank
-    String username;
+    String email;
 
     @NotBlank
     String password;
