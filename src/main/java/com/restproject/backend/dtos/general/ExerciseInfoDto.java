@@ -30,4 +30,7 @@ public class ExerciseInfoDto {
     @NotNull
     @Min(1)
     Integer iteration;
+
+    @NotNull
+    Boolean needSwitchExerciseDelay;
 }

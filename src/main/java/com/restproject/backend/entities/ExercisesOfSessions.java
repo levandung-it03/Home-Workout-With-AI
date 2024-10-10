@@ -2,14 +2,10 @@ package com.restproject.backend.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -52,4 +48,9 @@ public class ExercisesOfSessions {
     @Column(name = "iteration", nullable = false)
     @Min(1)
     Integer iteration;
+
+    @Column(name = "need_switch_exercise_delay", columnDefinition = "BIT")
+    @Min(0)
+    @Max(1)
+    boolean needSwitchExerciseDelay;
 }

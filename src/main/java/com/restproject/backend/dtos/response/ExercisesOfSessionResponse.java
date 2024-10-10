@@ -26,6 +26,7 @@ public class ExercisesOfSessionResponse {
     Integer slackInSecond;
     Integer raiseSlackInSecond;
     Integer iteration;
+    Boolean needSwitchExerciseDelay;
 
     public static ExercisesOfSessionResponse buildFromNativeQuery(Object[] params) {
         return ExercisesOfSessionResponse.builder()
@@ -38,6 +39,12 @@ public class ExercisesOfSessionResponse {
                 .replaceAll("[\\[\\]]", "")
                 .split(String.valueOf(MusclesOfExercisesRepository.GROUP_CONCAT_SEPARATOR))
             ).toList())
+            .ordinal(Integer.parseInt(params[6].toString()))
+            .downRepsRatio(Float.parseFloat(params[7].toString()))
+            .slackInSecond(Integer.parseInt(params[8].toString()))
+            .raiseSlackInSecond(Integer.parseInt(params[9].toString()))
+            .iteration(Integer.parseInt(params[10].toString()))
+            .needSwitchExerciseDelay(Boolean.parseBoolean(params[11].toString()))
             .build();
     }
 
@@ -66,6 +73,8 @@ public class ExercisesOfSessionResponse {
             : Integer.parseInt(map.get("raiseSlackInSecond").toString()));
         exerciseInfo.setIteration(!map.containsKey("iteration") ? null
             : Integer.parseInt(map.get("iteration").toString()));
+        exerciseInfo.setNeedSwitchExerciseDelay(!map.containsKey("needSwitchExerciseDelay") ? null
+            : Boolean.parseBoolean(map.get("needSwitchExerciseDelay").toString()));
         return exerciseInfo;
     }
 }

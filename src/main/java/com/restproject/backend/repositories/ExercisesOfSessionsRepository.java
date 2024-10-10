@@ -27,7 +27,8 @@ public interface ExercisesOfSessionsRepository extends JpaRepository<ExercisesOf
             DISTINCT moeft.muscle_enum
             ORDER BY moeft.muscle_enum ASC
             SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "'" + """
-        ) AS muscle_list, e.image_url, eos.ordinal, eos.down_reps_ratio, eos.slack_in_second, eos.raise_slack_in_second, eos.iteration
+        ) AS muscle_list, e.image_url, eos.ordinal, eos.down_reps_ratio, eos.slack_in_second, eos.raise_slack_in_second,
+        eos.iteration, eos.need_switch_exercise_delay
         FROM exercise e INNER JOIN (
             SELECT moejid.exercise_id AS exercise_id, moejid.muscle_enum AS muscle_enum
             FROM muscles_of_exercises moejid
@@ -65,7 +66,8 @@ public interface ExercisesOfSessionsRepository extends JpaRepository<ExercisesOf
             DISTINCT moe.muscle_enum
             ORDER BY moe.muscle_enum ASC
             SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "'" + """
-        ) AS muscle_list, e.image_url, eos.ordinal, eos.down_reps_ratio, eos.slack_in_second, eos.raise_slack_in_second, eos.iteration
+        ) AS muscle_list, e.image_url, eos.ordinal, eos.down_reps_ratio, eos.slack_in_second, eos.raise_slack_in_second,
+        eos.iteration, eos.need_switch_exercise_delay
         FROM exercise e
         INNER JOIN muscles_of_exercises moe ON e.exercise_id = moe.exercise_id
         LEFT OUTER JOIN exercises_of_sessions eos ON eos.exercise_id = e.exercise_id
