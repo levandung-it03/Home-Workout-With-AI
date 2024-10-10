@@ -32,6 +32,8 @@ public class ExercisesOfSessionsControllers {
             exercisesOfSessionsServiceOfAdmin.getExercisesHasMusclesOfSessionPagesPrioritizeRelationship(request));
     }
 
+
+    //--Missing Test
     @ResponseBody
     @PutMapping("/admin/v1/update-exercises-of-session")
     public ResponseEntity<ApiResponseObject<List<Exercise>>> updateExercisesOfSession(

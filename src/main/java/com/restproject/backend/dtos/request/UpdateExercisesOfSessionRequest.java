@@ -1,6 +1,7 @@
 package com.restproject.backend.dtos.request;
 
 import com.restproject.backend.annotations.constraint.ListTypeConstraint;
+import com.restproject.backend.dtos.general.ExerciseInfoDto;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -20,6 +21,5 @@ public class UpdateExercisesOfSessionRequest {
 
     @NotEmpty
     @NotNull
-    @ListTypeConstraint(type = Long.class)
-    Collection<Long> exerciseIds;
+    Collection<ExerciseInfoDto> exercisesInfo;
 }

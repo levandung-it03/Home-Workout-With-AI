@@ -27,7 +27,7 @@ public interface ExercisesOfSessionsRepository extends JpaRepository<ExercisesOf
             DISTINCT moeft.muscle_enum
             ORDER BY moeft.muscle_enum ASC
             SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "'" + """
-        ) AS muscle_list, e.image_url
+        ) AS muscle_list, e.image_url, eos.ordinal, eos.down_reps_ratio, eos.slack_in_second, eos.raise_slack_in_second, eos.iteration
         FROM exercise e INNER JOIN (
             SELECT moejid.exercise_id AS exercise_id, moejid.muscle_enum AS muscle_enum
             FROM muscles_of_exercises moejid
@@ -39,6 +39,10 @@ public interface ExercisesOfSessionsRepository extends JpaRepository<ExercisesOf
         LEFT OUTER JOIN exercises_of_sessions eos ON eos.exercise_id = e.exercise_id
         WHERE (:#{#filterObj.levelEnum} IS NULL OR :#{#filterObj.levelEnum} = e.level_enum)
         AND (:#{#filterObj.basicReps} IS NULL OR :#{#filterObj.basicReps} = e.basic_reps)
+        AND (:#{#filterObj.ordinal} IS NULL OR :#{#filterObj.ordinal} = eos.ordinal)
+        AND (:#{#filterObj.slackInSecond} IS NULL OR :#{#filterObj.slackInSecond} = eos.slack_in_second)
+        AND (:#{#filterObj.raiseSlackInSecond} IS NULL OR :#{#filterObj.raiseSlackInSecond} = eos.raise_slack_in_second)
+        AND (:#{#filterObj.iteration} IS NULL OR :#{#filterObj.iteration} = eos.iteration)
         AND (:#{#filterObj.name} IS NULL    OR e.name LIKE CONCAT('%',:#{#filterObj.name},'%'))
         GROUP BY e.exercise_id, withSession
         ORDER BY withSession DESC
@@ -61,7 +65,7 @@ public interface ExercisesOfSessionsRepository extends JpaRepository<ExercisesOf
             DISTINCT moe.muscle_enum
             ORDER BY moe.muscle_enum ASC
             SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "'" + """
-        ) AS muscle_list, e.image_url
+        ) AS muscle_list, e.image_url, eos.ordinal, eos.down_reps_ratio, eos.slack_in_second, eos.raise_slack_in_second, eos.iteration
         FROM exercise e
         INNER JOIN muscles_of_exercises moe ON e.exercise_id = moe.exercise_id
         LEFT OUTER JOIN exercises_of_sessions eos ON eos.exercise_id = e.exercise_id

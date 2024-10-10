@@ -28,6 +28,7 @@ public class SessionService {
     ExercisesOfSessionsRepository exercisesOfSessionsRepository;
     SessionsOfSchedulesRepository sessionsOfSchedulesRepository;
 
+    //--Missing Test
     @Transactional(rollbackOn = {RuntimeException.class})
     public Session createSession(NewSessionRequest request) throws ApplicationException {
         Session savedSession;
@@ -35,13 +36,21 @@ public class SessionService {
         catch (DataIntegrityViolationException e) { throw new ApplicationException(ErrorCodes.DUPLICATED_SESSION); }
         musclesOfSessionsRepository.saveAll(request.getMuscleIds().stream().map(id ->
             MusclesOfSessions.builder().muscle(Muscle.getById(id)).session(savedSession).build()).toList());
-        exercisesOfSessionsRepository.saveAll(request.getExerciseIds().stream().map(id -> {
-            var foundExercise = exerciseRepository.findById(id)
+        exercisesOfSessionsRepository.saveAll(request.getExercisesInfo().stream().map(exerciseInfo -> {
+            var foundExercise = exerciseRepository.findById(exerciseInfo.getExerciseId())
                 .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY));
             if (foundExercise.getLevelEnum() != savedSession.getLevelEnum())
                 throw new ApplicationException(ErrorCodes.NOT_SYNC_LEVEL);
 
-            return ExercisesOfSessions.builder().session(savedSession).exercise(foundExercise).build();
+            return ExercisesOfSessions.builder()
+                .session(savedSession)
+                .exercise(foundExercise)
+                .ordinal(exerciseInfo.getOrdinal())
+                .iteration(exerciseInfo.getIteration())
+                .slackInSecond(exerciseInfo.getSlackInSecond())
+                .raiseSlackInSecond(exerciseInfo.getRaiseSlackInSecond())
+                .downRepsRatio(exerciseInfo.getDownRepsRatio())
+                .build();
         }).toList());
         return savedSession;
     }

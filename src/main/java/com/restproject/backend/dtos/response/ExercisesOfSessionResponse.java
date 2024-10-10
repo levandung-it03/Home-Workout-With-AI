@@ -19,8 +19,13 @@ public class ExercisesOfSessionResponse {
     String name;
     String levelEnum;
     Integer basicReps;
-    List<String> muscleList;    //--Keep MuscleEnum as String to make filter works correctly.
     boolean withCurrentSession;
+    List<String> muscleList;    //--Keep MuscleEnum as String to make filter works correctly.
+    Integer ordinal;
+    Float downRepsRatio;
+    Integer slackInSecond;
+    Integer raiseSlackInSecond;
+    Integer iteration;
 
     public static ExercisesOfSessionResponse buildFromNativeQuery(Object[] params) {
         return ExercisesOfSessionResponse.builder()
@@ -51,6 +56,16 @@ public class ExercisesOfSessionResponse {
         exerciseInfo.setBasicReps(!map.containsKey("basicReps") ? null
             : Integer.parseInt(map.get("basicReps").toString()));
         exerciseInfo.setLevelEnum(!map.containsKey("level") ? null : Level.getRawLevelByLevel(map.get("level")));
+        exerciseInfo.setOrdinal(!map.containsKey("ordinal") ? null
+            : Integer.parseInt(map.get("ordinal").toString()));
+        exerciseInfo.setDownRepsRatio(!map.containsKey("downRepsRatio") ? null
+            : Float.parseFloat(map.get("downRepsRatio").toString()));
+        exerciseInfo.setSlackInSecond(!map.containsKey("slackInSecond") ? null
+            : Integer.parseInt(map.get("slackInSecond").toString()));
+        exerciseInfo.setRaiseSlackInSecond(!map.containsKey("raiseSlackInSecond") ? null
+            : Integer.parseInt(map.get("raiseSlackInSecond").toString()));
+        exerciseInfo.setIteration(!map.containsKey("iteration") ? null
+            : Integer.parseInt(map.get("iteration").toString()));
         return exerciseInfo;
     }
 }

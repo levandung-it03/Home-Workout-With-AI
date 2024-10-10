@@ -151,7 +151,7 @@ public class ExercisesOfSessionsControllersTest {
     }
 
     UpdateExercisesOfSessionRequest updateExercisesOfSessionRequest() {
-        return UpdateExercisesOfSessionRequest.builder().sessionId(1L).exerciseIds(List.of(1L, 3L)).build();
+        return UpdateExercisesOfSessionRequest.builder().sessionId(1L).build();
     }
 
     @Test
@@ -166,10 +166,6 @@ public class ExercisesOfSessionsControllersTest {
             .andExpect(result -> {
                 var response = jsonService.parseResJsonByDataList(result.getResponse().getContentAsString(),
                     Exercise.class);
-
-                assertEquals(
-                    response.getData().stream().map(Exercise::getExerciseId).sorted().toList(),
-                    req.getExerciseIds().stream().sorted().toList());
             });
     }
 
@@ -199,45 +195,5 @@ public class ExercisesOfSessionsControllersTest {
                 .replaceFieldOfContent("sessionId", "abc")
                 .buildAdminRequestWithContent(PUT, "/v1/update-exercises-of-session"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.PARSE_JSON_ERR.getCode()));
-    }
-
-    @Test
-    public void updateExercisesOfSession_admin_emptyExerciseIds() throws Exception {
-        mockMvc
-            .perform(mockAuthRequestBuilders
-                .setContent(this.updateExercisesOfSessionRequest())
-                .replaceFieldOfContent("exerciseIds", List.of())
-                .buildAdminRequestWithContent(PUT, "/v1/update-exercises-of-session"))
-            .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
-    }
-
-    @Test
-    public void updateExercisesOfSession_admin_nullExerciseIds() throws Exception {
-        mockMvc
-            .perform(mockAuthRequestBuilders
-                .setContent(this.updateExercisesOfSessionRequest())
-                .replaceFieldOfContent("exerciseIds", null)
-                .buildAdminRequestWithContent(PUT, "/v1/update-exercises-of-session"))
-            .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
-    }
-
-    @Test
-    public void updateExercisesOfSession_admin_invalidTypeExerciseIds() throws Exception {
-        mockMvc
-            .perform(mockAuthRequestBuilders
-                .setContent(this.updateExercisesOfSessionRequest())
-                .replaceFieldOfContent("exerciseIds", List.of("a", "b", "c"))
-                .buildAdminRequestWithContent(PUT, "/v1/update-exercises-of-session"))
-            .andExpect(jsonPath("applicationCode").value(ErrorCodes.PARSE_JSON_ERR.getCode()));
-    }
-
-    @Test
-    public void updateExercisesOfSession_admin_violateListTypeConstraintExerciseIds() throws Exception {
-        mockMvc
-            .perform(mockAuthRequestBuilders
-                .setContent(this.updateExercisesOfSessionRequest())
-                .replaceFieldOfContent("exerciseIds", Arrays.stream(new Integer[] {null, null}).toList())
-                .buildAdminRequestWithContent(PUT, "/v1/update-exercises-of-session"))
-            .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
     }
 }

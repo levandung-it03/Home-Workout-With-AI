@@ -2,6 +2,7 @@ package com.restproject.backend.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -35,4 +36,20 @@ public class ExercisesOfSessions {
     @JoinColumn(name = "session_id", referencedColumnName = "session_id", updatable = false)
     @JsonIgnore
     Session session;
+
+    @Column(name = "ordinal", nullable = false)
+    Integer ordinal;
+
+    @Column(name = "down_reps_ratio", nullable = false)
+    Float downRepsRatio;
+
+    @Column(name = "slack_in_second", nullable = false)
+    Integer slackInSecond;
+
+    @Column(name = "raise_slack_in_second", nullable = false)
+    Integer raiseSlackInSecond;
+
+    @Column(name = "iteration", nullable = false)
+    @Min(1)
+    Integer iteration;
 }

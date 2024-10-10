@@ -9,7 +9,7 @@ import org.springframework.data.redis.core.RedisHash;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@RedisHash(value = "refresh_token")
+@RedisHash(value = "RefreshToken")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RefreshToken {
     @Id

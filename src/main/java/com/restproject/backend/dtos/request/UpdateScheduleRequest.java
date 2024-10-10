@@ -19,11 +19,11 @@ public class UpdateScheduleRequest {
     Long scheduleId;
 
     @NotBlank
-    @Length(max = 50)
+    @Length(max = 100)
     String name;
 
     @NotBlank
-    @Length(max = 100)
+    @Length(max = 200)
     String description;
 
     @NotNull
@@ -32,4 +32,7 @@ public class UpdateScheduleRequest {
 
     @NotNull
     Long coins;
+
+    @NotNull
+    Integer switchExerciseDelay;
 }

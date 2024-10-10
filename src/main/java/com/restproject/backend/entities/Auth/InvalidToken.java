@@ -10,7 +10,7 @@ import java.time.Instant;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RedisHash(value = "invalid_token")
+@RedisHash(value = "InvalidToken")
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class InvalidToken {

@@ -2,6 +2,7 @@ package com.restproject.backend.dtos.request;
 
 import com.restproject.backend.annotations.constraint.LevelEnumConstraint;
 import com.restproject.backend.annotations.constraint.ListTypeConstraint;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -19,11 +20,11 @@ import java.util.Collection;
 public class NewScheduleRequest {
 
     @NotBlank
-    @Length(max = 50)
+    @Length(max = 100)
     String name;
 
     @NotBlank
-    @Length(max = 100)
+    @Length(max = 200)
     String description;
 
     @NotNull
@@ -32,6 +33,9 @@ public class NewScheduleRequest {
 
     @NotNull
     Long coins;
+
+    @NotNull
+    Integer switchExerciseDelay;
 
     @NotNull
     @NotEmpty

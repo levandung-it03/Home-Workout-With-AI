@@ -3,12 +3,10 @@ package com.restproject.backend.dtos.request;
 import com.restproject.backend.annotations.constraint.LevelEnumConstraint;
 import com.restproject.backend.annotations.constraint.ListTypeConstraint;
 import com.restproject.backend.annotations.constraint.MuscleIdsEnumConstraint;
-import com.restproject.backend.enums.Muscle;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collection;
 
@@ -20,7 +18,7 @@ import java.util.Collection;
 public class NewExerciseRequest {
 
     @NotBlank
-    @Length(max = 30)
+    @Length(max = 100)
     String name;
 
     @NotNull

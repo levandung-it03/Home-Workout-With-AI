@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 public class SessionControllers {
     SessionService sessionServiceOfAdmin;
 
+
+    //--Missing Test
     @ResponseBody
     @PostMapping("/admin/v1/create-session")
     public ResponseEntity<ApiResponseObject<Session>> createSession(@Valid @RequestBody NewSessionRequest request) {
@@ -26,6 +28,8 @@ public class SessionControllers {
             sessionServiceOfAdmin.createSession(request));
     }
 
+
+    //--Missing Test
     @ResponseBody
     @PutMapping("/admin/v1/update-session-and-muscles")
     public ResponseEntity<ApiResponseObject<Session>> updateSessionAndMuscles(

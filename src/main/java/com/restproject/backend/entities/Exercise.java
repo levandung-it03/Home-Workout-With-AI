@@ -35,7 +35,7 @@ public class Exercise {
     Long exerciseId;
 
     @Column(name = "name", nullable = false)
-    @Length(max = 30)
+    @Length(max = 100)
     String name;
 
     @Enumerated(EnumType.STRING)

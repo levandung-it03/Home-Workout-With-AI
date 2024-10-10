@@ -36,11 +36,11 @@ public class Schedule {
     Long scheduleId;
 
     @Column(name = "name", nullable = false)
-    @Length(max = 50)
+    @Length(max = 100)
     String name;
 
     @Column(name = "description", nullable = false)
-    @Length(max = 100)
+    @Length(max = 200)
     String description;
 
     @Enumerated(EnumType.STRING)

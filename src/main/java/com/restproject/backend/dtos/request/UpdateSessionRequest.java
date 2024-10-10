@@ -23,11 +23,11 @@ public class UpdateSessionRequest {
     Long sessionId;
 
     @NotBlank
-    @Length(max = 50)
+    @Length(max = 100)
     String name;
 
     @NotBlank
-    @Length(max = 100)
+    @Length(max = 200)
     String description;
 
     @NotEmpty
@@ -39,4 +39,7 @@ public class UpdateSessionRequest {
     @NotNull
     @LevelEnumConstraint
     Integer level;
+
+    @NotNull
+    Integer switchExerciseDelay;
 }

@@ -32,7 +32,7 @@ public class Session {
     Long sessionId;
 
     @Column(name = "name", nullable = false)
-    @Length(max = 50)
+    @Length(max = 100)
     String name;
 
     @Enumerated(EnumType.STRING)
@@ -40,8 +40,11 @@ public class Session {
     Level levelEnum;
 
     @Column(name = "description", nullable = false)
-    @Length(max = 100)
+    @Length(max = 200)
     String description;
+
+    @Column(name = "switch_exercise_delay", nullable = false)
+    Integer switchExerciseDelay;
 
     @ManyToMany(targetEntity = Exercise.class, fetch = FetchType.LAZY)
     @JoinTable(

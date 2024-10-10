@@ -3,6 +3,9 @@ package com.restproject.backend.dtos.request;
 import com.restproject.backend.annotations.constraint.LevelEnumConstraint;
 import com.restproject.backend.annotations.constraint.MuscleIdsEnumConstraint;
 import com.restproject.backend.annotations.constraint.ListTypeConstraint;
+import com.restproject.backend.dtos.general.ExerciseInfoDto;
+import jakarta.persistence.Column;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -20,11 +23,11 @@ import java.util.Collection;
 public class NewSessionRequest {
 
     @NotBlank
-    @Length(max = 50)
+    @Length(max = 100)
     String name;
 
     @NotBlank
-    @Length(max = 100)
+    @Length(max = 200)
     String description;
 
     @NotEmpty
@@ -37,8 +40,10 @@ public class NewSessionRequest {
     @LevelEnumConstraint
     Integer level;
 
+    @NotNull
+    Integer switchExerciseDelay;
+
     @NotEmpty
     @NotNull
-    @ListTypeConstraint(type = Long.class)
-    Collection<Long> exerciseIds;
+    Collection<ExerciseInfoDto> exercisesInfo;
 }

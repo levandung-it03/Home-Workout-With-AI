@@ -58,7 +58,7 @@ public class SessionControllersTest {
     private NewSessionRequest newValidSession() {
         return NewSessionRequest.builder().name("Shoulders exercises for beginner").level(Level.INTERMEDIATE.getLevel())
             .muscleIds(List.of(Muscle.ABS.getId(), Muscle.TRICEPS.getId())).description("Just shoulders in about 1 hour")
-            .exerciseIds(List.of(1L, 3L)).build();
+            .build();
     }
 
     @CoreEngines
@@ -218,42 +218,6 @@ public class SessionControllersTest {
         mockMvc.perform(mockAuthRequestBuilders
                 .setContent(this.newValidSession())
                 .replaceFieldOfContent("muscleIds", List.of("a", "b", "c"))
-                .buildAdminRequestWithContent(POST, "/v1/create-session"))
-            .andExpect(jsonPath("applicationCode").value(ErrorCodes.PARSE_JSON_ERR.getCode()));
-    }
-
-    @Test
-    public void createSession_admin_emptyExerciseIds() throws Exception {
-        mockMvc.perform(mockAuthRequestBuilders
-                .setContent(this.newValidSession())
-                .replaceFieldOfContent("exerciseIds", List.of())
-                .buildAdminRequestWithContent(POST, "/v1/create-session"))
-            .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
-    }
-
-    @Test
-    public void createSession_admin_nullExerciseIds() throws Exception {
-        mockMvc.perform(mockAuthRequestBuilders
-                .setContent(this.newValidSession())
-                .replaceFieldOfContent("exerciseIds", null)
-                .buildAdminRequestWithContent(POST, "/v1/create-session"))
-            .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
-    }
-
-    @Test
-    public void createSession_admin_nullListAsExerciseIds() throws Exception {
-        mockMvc.perform(mockAuthRequestBuilders
-                .setContent(this.newValidSession())
-                .replaceFieldOfContent("exerciseIds", Arrays.stream(new Long[]{null, null}).toList())
-                .buildAdminRequestWithContent(POST, "/v1/create-session"))
-            .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
-    }
-
-    @Test
-    public void createSession_admin_invalidTypeExerciseIds() throws Exception {
-        mockMvc.perform(mockAuthRequestBuilders
-                .setContent(this.newValidSession())
-                .replaceFieldOfContent("exerciseIds", List.of("a", "b", "c"))
                 .buildAdminRequestWithContent(POST, "/v1/create-session"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.PARSE_JSON_ERR.getCode()));
     }
