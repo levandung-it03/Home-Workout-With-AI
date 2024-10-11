@@ -21,9 +21,10 @@ public enum ErrorCodes {
     FORBIDDEN_UPDATING(10006, "Can not update or delete a depended object", BAD_REQUEST),
     NOT_SYNC_LEVEL(10007, "Level between relationships don't synchronize to each other", BAD_REQUEST),
     INVALID_FILTERING_FIELD_OR_VALUE(10008, "Invalid filtering field or value", BAD_REQUEST),
-    INVALID_SORTING_FIELD_OR_VALUE(1000, "Invalid sorting field or value", BAD_REQUEST),
+    INVALID_SORTING_FIELD_OR_VALUE(10009, "Invalid sorting field or value", BAD_REQUEST),
+    VERIFY_OTP(10010, "Invalid Otp", BAD_REQUEST),
     //--Auth(11)
-    INVALID_CREDENTIALS(11001, "Username or Password is invalid", UNAUTHORIZED),
+    INVALID_CREDENTIALS(11001, "Email or Password is invalid", UNAUTHORIZED),
     INVALID_TOKEN(11002, "Token or its claims are invalid", UNAUTHORIZED),
     EXPIRED_TOKEN(11003, "Token is expired", FORBIDDEN),
     FORBIDDEN_USER(11004, "User not found or access denied", BAD_REQUEST),

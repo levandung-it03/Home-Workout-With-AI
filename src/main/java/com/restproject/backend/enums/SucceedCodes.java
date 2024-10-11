@@ -13,6 +13,8 @@ public enum SucceedCodes {
     AUTHENTICATION(21001, "Authenticate successfully"),
     REFRESHING_TOKEN(21002, "Refresh Token successfully"),
     LOGOUT(21003, "Logout successfully"),
+    GET_OTP(21004, "Get OTP successfully"),
+    VERIFY_OTP(21005, "Verify OTP successfully"),
     //--Enums(22)
     GET_ALL_LEVEL_ENUMS(22001, "Get all Levels successfully"),
     GET_ALL_MUSCLE_ENUMS(22002, "Get all Muscles successfully"),
