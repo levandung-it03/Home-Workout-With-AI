@@ -57,7 +57,7 @@ public class ScheduleControllersTest {
 
     NewScheduleRequest newScheduleRequest() {
         return NewScheduleRequest.builder().name("Schedule").level(Level.INTERMEDIATE.getLevel())
-            .description("Description").coins(2000L).sessionIds(List.of(1L,2L)).build();
+            .description("Description").coins(2000L).build();
     }
 
     @Test

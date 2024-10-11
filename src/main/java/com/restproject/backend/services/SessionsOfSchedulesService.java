@@ -1,5 +1,6 @@
 package com.restproject.backend.services;
 
+import com.restproject.backend.dtos.general.SessionInfoDto;
 import com.restproject.backend.dtos.request.PaginatedRelationshipRequest;
 import com.restproject.backend.dtos.request.UpdateSessionsOfScheduleRequest;
 import com.restproject.backend.dtos.response.SessionsOfScheduleResponse;
@@ -21,6 +22,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -62,18 +65,28 @@ public class SessionsOfSchedulesService {
             .currentPage(request.getPage()).totalPages(repoRes.getTotalPages()).build();
     }
 
+    //--Missing Test
     @Transactional(rollbackOn = {RuntimeException.class})
     public List<Session> updateSessionsOfSchedule(UpdateSessionsOfScheduleRequest request) {
         var updatedSchedule = scheduleRepository.findById(request.getScheduleId())
             .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY));
-        var sessionsFromDB = sessionRepository.findAllById(request.getSessionIds());
-        if (sessionsFromDB.size() != request.getSessionIds().size())
+        var sessionsFromDB = sessionRepository.findAllByIdIn(request.getSessionsInfo()
+            .stream().map(SessionInfoDto::getSessionId).toList());
+        if (sessionsFromDB.size() != request.getSessionsInfo().size())
             throw new ApplicationException(ErrorCodes.INVALID_IDS_COLLECTION);
 
         sessionsOfSchedulesRepository.deleteAllByScheduleScheduleId(updatedSchedule.getScheduleId());
-        var repoResponse = sessionsOfSchedulesRepository.saveAll(sessionsFromDB.stream().map(session ->
-            SessionsOfSchedules.builder().session(session).schedule(updatedSchedule).build()
-        ).toList());
-        return repoResponse.stream().map(SessionsOfSchedules::getSession).toList();
+        List<SessionInfoDto> sessionsInfo = request.getSessionsInfo()
+            .stream().sorted(Comparator.comparing(SessionInfoDto::getSessionId)).toList();
+        ArrayList<SessionsOfSchedules> savedRelationships = new ArrayList<>();
+        for (var index = 0; index < request.getSessionsInfo().size(); index++) {
+            savedRelationships.add(SessionsOfSchedules.builder()
+                .schedule(updatedSchedule)
+                .session(sessionsFromDB.get(index))
+                .ordinal(sessionsInfo.get(index).getOrdinal())
+                .build());
+        }
+        sessionsOfSchedulesRepository.saveAll(savedRelationships);
+        return sessionsFromDB;
     }
 }

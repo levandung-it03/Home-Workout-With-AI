@@ -7,10 +7,7 @@ import com.restproject.backend.repositories.MusclesOfExercisesRepository;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Data
 @NoArgsConstructor
@@ -35,7 +32,7 @@ public class ExerciseHasMusclesResponse {
                 .replaceAll("[\\[\\]]", "")
                 .split(String.valueOf(MusclesOfExercisesRepository.GROUP_CONCAT_SEPARATOR))
             ).toList())
-            .imageUrl(params[5].toString())
+            .imageUrl(Objects.isNull(params[5]) ? null : params[5].toString())
             .build();
     }
 

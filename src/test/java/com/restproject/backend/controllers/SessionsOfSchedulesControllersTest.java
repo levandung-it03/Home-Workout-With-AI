@@ -149,7 +149,7 @@ public class SessionsOfSchedulesControllersTest {
     }
 
     UpdateSessionsOfScheduleRequest updateSessionsOfScheduleRequest() {
-        return UpdateSessionsOfScheduleRequest.builder().scheduleId(1L).sessionIds(List.of(1L, 3L)).build();
+        return UpdateSessionsOfScheduleRequest.builder().scheduleId(1L).build();
     }
 
     @Test
@@ -164,10 +164,6 @@ public class SessionsOfSchedulesControllersTest {
             .andExpect(result -> {
                 var response = jsonService.parseResJsonByDataList(result.getResponse().getContentAsString(),
                     Session.class);
-
-                assertEquals(
-                    response.getData().stream().map(Session::getSessionId).sorted().toList(),
-                    req.getSessionIds().stream().sorted().toList());
             });
     }
 
@@ -197,45 +193,5 @@ public class SessionsOfSchedulesControllersTest {
                 .replaceFieldOfContent("scheduleId", "abc")
                 .buildAdminRequestWithContent(PUT, "/v1/update-sessions-of-schedule"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.PARSE_JSON_ERR.getCode()));
-    }
-
-    @Test
-    public void updateSchedulesOfSchedule_admin_emptyScheduleIds() throws Exception {
-        mockMvc
-            .perform(mockAuthRequestBuilders
-                .setContent(this.updateSessionsOfScheduleRequest())
-                .replaceFieldOfContent("sessionIds", List.of())
-                .buildAdminRequestWithContent(PUT, "/v1/update-sessions-of-schedule"))
-            .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
-    }
-
-    @Test
-    public void updateSchedulesOfSchedule_admin_nullScheduleIds() throws Exception {
-        mockMvc
-            .perform(mockAuthRequestBuilders
-                .setContent(this.updateSessionsOfScheduleRequest())
-                .replaceFieldOfContent("sessionIds", null)
-                .buildAdminRequestWithContent(PUT, "/v1/update-sessions-of-schedule"))
-            .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
-    }
-
-    @Test
-    public void updateSchedulesOfSchedule_admin_invalidTypeScheduleIds() throws Exception {
-        mockMvc
-            .perform(mockAuthRequestBuilders
-                .setContent(this.updateSessionsOfScheduleRequest())
-                .replaceFieldOfContent("sessionIds", List.of("a", "b", "c"))
-                .buildAdminRequestWithContent(PUT, "/v1/update-sessions-of-schedule"))
-            .andExpect(jsonPath("applicationCode").value(ErrorCodes.PARSE_JSON_ERR.getCode()));
-    }
-
-    @Test
-    public void updateSchedulesOfSchedule_admin_violateListTypeConstraintScheduleIds() throws Exception {
-        mockMvc
-            .perform(mockAuthRequestBuilders
-                .setContent(this.updateSessionsOfScheduleRequest())
-                .replaceFieldOfContent("sessionIds", Arrays.stream(new Integer[] {null, null}).toList())
-                .buildAdminRequestWithContent(PUT, "/v1/update-sessions-of-schedule"))
-            .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
     }
 }

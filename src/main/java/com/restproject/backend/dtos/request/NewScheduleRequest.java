@@ -1,8 +1,7 @@
 package com.restproject.backend.dtos.request;
 
 import com.restproject.backend.annotations.constraint.LevelEnumConstraint;
-import com.restproject.backend.annotations.constraint.ListTypeConstraint;
-import jakarta.persistence.Column;
+import com.restproject.backend.dtos.general.SessionInfoDto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -39,6 +38,5 @@ public class NewScheduleRequest {
 
     @NotNull
     @NotEmpty
-    @ListTypeConstraint(type = Long.class)
-    Collection<Long> sessionIds;
+    Collection<SessionInfoDto> sessionsInfo;
 }

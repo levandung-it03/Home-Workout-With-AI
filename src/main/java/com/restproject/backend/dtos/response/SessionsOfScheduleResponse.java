@@ -19,8 +19,9 @@ public class SessionsOfScheduleResponse {
     String name;
     String levelEnum;
     String description;
-    List<String> muscleList;    //--Keep MuscleEnum as String to make filter works correctly.
     boolean withCurrentSchedule;
+    List<String> muscleList;    //--Keep MuscleEnum as String to make filter works correctly.
+    Integer ordinal;
 
 
     public static SessionsOfScheduleResponse buildFromNativeQuery(Object[] params) {
@@ -34,6 +35,7 @@ public class SessionsOfScheduleResponse {
                 .replaceAll("[\\[\\]]", "")
                 .split(String.valueOf(MusclesOfExercisesRepository.GROUP_CONCAT_SEPARATOR))
             ).toList())
+            .ordinal(Integer.parseInt(params[6].toString()))
             .build();
     }
 
@@ -43,15 +45,13 @@ public class SessionsOfScheduleResponse {
             SessionsOfScheduleResponse.class.getDeclaredField(key); //--Ignored value.
 
         var sessionInfo = new SessionsOfScheduleResponse();
-        sessionInfo.setMuscleList(
-            !map.containsKey("muscleList") ? new ArrayList<>()   //--May throw IllegalArgExc
-            : Arrays.stream(map.get("muscleList").toString()
-            .replaceAll("[\\[\\]]", "").split(",")
-        ).map(id -> Muscle.getById(id).toString()).toList());
+        sessionInfo.setMuscleList(!map.containsKey("muscleIds") ? new ArrayList<>()   //--May throw IllegalArgExc
+            : Muscle.parseAllMuscleIdsArrToRaw(map.get("muscleIds")));
         sessionInfo.setName(!map.containsKey("name") ? null : map.get("name").toString());
         sessionInfo.setDescription(!map.containsKey("description") ? null : map.get("description").toString());
         sessionInfo.setLevelEnum(!map.containsKey("level") ? null
             : Level.getByLevel(Integer.parseInt(map.get("level").toString())).toString()); //--May throw AppExc
+        sessionInfo.setOrdinal(!map.containsKey("ordinal") ? null : Integer.parseInt(map.get("ordinal").toString()));
         return sessionInfo;
     }
 }

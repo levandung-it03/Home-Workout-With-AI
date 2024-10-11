@@ -31,7 +31,7 @@ public interface SessionsOfSchedulesRepository extends JpaRepository<SessionsOfS
             DISTINCT mosft.muscle_enum
             ORDER BY mosft.muscle_enum ASC
             SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "'" + """
-        ) AS muscleList
+        ) AS muscleList, sos.ordinal
         FROM (
             SELECT mosjid.session_id AS session_id, mosjid.muscle_enum AS muscle_enum
             FROM muscles_of_sessions mosjid
@@ -42,6 +42,7 @@ public interface SessionsOfSchedulesRepository extends JpaRepository<SessionsOfS
         ) AS mosft INNER JOIN session s ON s.session_id = mosft.session_id
         LEFT OUTER JOIN sessions_of_schedules sos ON sos.session_id = s.session_id
         WHERE (:#{#filterObj.levelEnum} IS NULL OR :#{#filterObj.levelEnum} = s.level_enum)
+        AND (:#{#filterObj.ordinal} IS NULL OR :#{#filterObj.ordinal} = sos.ordinal)
         AND (:#{#filterObj.name} IS NULL OR s.name LIKE CONCAT('%',:#{#filterObj.name},'%'))
         GROUP BY s.session_id, withSchedule
         ORDER BY withSchedule DESC
@@ -64,7 +65,7 @@ public interface SessionsOfSchedulesRepository extends JpaRepository<SessionsOfS
             DISTINCT mos.muscle_enum
             ORDER BY mos.muscle_enum ASC
             SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "'" + """
-        ) AS muscleList
+        ) AS muscleList, sos.ordinal
         FROM muscles_of_sessions mos INNER JOIN session s ON s.session_id = mos.session_id
         LEFT OUTER JOIN sessions_of_schedules sos ON sos.session_id = s.session_id
         GROUP BY s.session_id, withSchedule

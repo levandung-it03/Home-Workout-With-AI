@@ -57,24 +57,29 @@ public class ScheduleService {
         return TablePagesResponse.<Schedule>builder().data(repoRes.stream().toList())
             .totalPages(repoRes.getTotalPages()).currentPage(request.getPage()).build();
     }
+
+    //--Missing Test
     @Transactional(rollbackOn = {RuntimeException.class})
     public Schedule createSchedule(NewScheduleRequest request) throws ApplicationException {
         Schedule savedSchedule;
         try { savedSchedule = scheduleRepository.save(scheduleMappers.insertionToPlain(request)); }
         catch (DataIntegrityViolationException e) { throw new ApplicationException(ErrorCodes.DUPLICATED_SCHEDULE); }
 
-        sessionsOfSchedulesRepository.saveAll(request.getSessionIds().stream().map(id -> {
-            var foundSession = sessionRepository.findById(id)
+        sessionsOfSchedulesRepository.saveAll(request.getSessionsInfo().stream().map(sessionInfo -> {
+            var foundSession = sessionRepository.findById(sessionInfo.getSessionId())
                 .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_IDS_COLLECTION));
             if (!foundSession.getLevelEnum().equals(savedSchedule.getLevelEnum()))
                 throw new ApplicationException(ErrorCodes.NOT_SYNC_LEVEL);
 
-            return SessionsOfSchedules.builder().schedule(savedSchedule).session(foundSession).build();
+            return SessionsOfSchedules.builder()
+                .schedule(savedSchedule)
+                .session(foundSession)
+                .ordinal(sessionInfo.getOrdinal())
+                .build();
         }).toList());
 
         return savedSchedule;
     }
-
 
     @Transactional(rollbackOn = {RuntimeException.class})
     public Schedule updateSchedule(UpdateScheduleRequest request) throws ApplicationException {

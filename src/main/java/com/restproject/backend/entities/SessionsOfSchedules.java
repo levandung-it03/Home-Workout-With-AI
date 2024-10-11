@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @Table(
     name = "sessions_of_schedules",
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"session_id", "schedule_id"})}
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"session_id", "schedule_id", "ordinal"})}
 )
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -29,4 +29,7 @@ public class SessionsOfSchedules {
     @JoinColumn(name = "schedule_id", referencedColumnName = "schedule_id", updatable = false)
     @JsonIgnore
     Schedule schedule;
+
+    @Column(name = "ordinal", nullable = false)
+    Long ordinal;
 }
