@@ -35,7 +35,7 @@ public class EnumsService {
     public List<Map<String, String>> getAllGenders() {
         return Gender.getAllGenders().stream().map(gender -> Map.of(
             "raw", gender.toString(),
-            "genderId", gender.getGenderId().toString()
+            "id", gender.getGenderId().toString()
         )).toList();
     }
 }

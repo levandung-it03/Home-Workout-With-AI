@@ -47,7 +47,7 @@ public class SessionHasMusclesResponse {
 
         var sessionInfo = new SessionHasMusclesResponse();
         sessionInfo.setName(!map.containsKey("name") ? null : map.get("name").toString());
-        sessionInfo.setLevelEnum(!map.containsKey("level") ? null : Level.getRawLevelByLevel(map.get("level")));
+        sessionInfo.setLevelEnum(!map.containsKey("levelEnum") ? null : Level.getRawLevelByLevel(map.get("levelEnum")));
         sessionInfo.setDescription(!map.containsKey("description") ? null : map.get("description").toString());
         sessionInfo.setMuscleList(!map.containsKey("muscleIds") ? new ArrayList<>()   //--May throw IllegalArgExc
             : Muscle.parseAllMuscleIdsArrToRaw(map.get("muscleIds")));

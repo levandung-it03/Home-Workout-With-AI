@@ -62,7 +62,7 @@ public class ExercisesOfSessionResponse {
         exerciseInfo.setName(!map.containsKey("name") ? null : map.get("name").toString());
         exerciseInfo.setBasicReps(!map.containsKey("basicReps") ? null
             : Integer.parseInt(map.get("basicReps").toString()));
-        exerciseInfo.setLevelEnum(!map.containsKey("level") ? null : Level.getRawLevelByLevel(map.get("level")));
+        exerciseInfo.setLevelEnum(!map.containsKey("levelEnum") ? null : Level.getRawLevelByLevel(map.get("levelEnum")));
         exerciseInfo.setOrdinal(!map.containsKey("ordinal") ? null
             : Integer.parseInt(map.get("ordinal").toString()));
         exerciseInfo.setDownRepsRatio(!map.containsKey("downRepsRatio") ? null

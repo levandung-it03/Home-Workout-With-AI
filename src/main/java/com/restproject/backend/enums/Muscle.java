@@ -19,7 +19,7 @@ public enum Muscle {
     CHEST(0, "Chest"),
     BICEPS(1, "Biceps"),
     TRICEPS(2, "Triceps"),
-    BACK_LATS(3, "Back&Lats"),
+    BACK_LATS(3, "Back_Lats"),
     LEG(4, "Leg"),
     ABS(5, "Abs"),
     SHOULDERS(6, "Shoulders"),

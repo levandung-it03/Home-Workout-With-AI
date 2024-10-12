@@ -25,7 +25,7 @@ public class UserInfoControllers {
     @ResponseBody
     @GetMapping("/admin/v1/get-user-info-and-status-pages")
     public ResponseEntity<ApiResponseObject<TablePagesResponse<UserInfoAndStatusResponse>>> getUserInfoAndStatusPages(
-        @Valid @RequestBody PaginatedTableRequest request) {
+        @Valid PaginatedTableRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_USER_INFO_PAGES,
             userInfoService.getUserInfoAndStatusPages(request));
     }

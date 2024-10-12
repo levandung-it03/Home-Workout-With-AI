@@ -35,10 +35,10 @@ public interface MusclesOfExercisesRepository extends JpaRepository<MusclesOfExe
                 WHERE m.muscle_enum IN :#{#filterObj.muscleList}
             )
         ) AS moeft ON e.exercise_id = moeft.exercise_id
-        WHERE  (:#{#filterObj.exerciseId} IS NULL  OR :#{#filterObj.exerciseId} = e.exercise_id)
-            AND (:#{#filterObj.levelEnum} IS NULL      OR :#{#filterObj.levelEnum} = e.level_enum)
-            AND (:#{#filterObj.basicReps} IS NULL  OR :#{#filterObj.basicReps} = e.basic_reps)
-            AND (:#{#filterObj.name} IS NULL       OR e.name LIKE CONCAT('%',:#{#filterObj.name},'%'))
+        WHERE  (:#{#filterObj.exerciseId} IS NULL   OR :#{#filterObj.exerciseId} = e.exercise_id)
+            AND (:#{#filterObj.levelEnum} IS NULL   OR :#{#filterObj.levelEnum} = e.level_enum)
+            AND (:#{#filterObj.basicReps} IS NULL   OR :#{#filterObj.basicReps} = e.basic_reps)
+            AND (:#{#filterObj.name} IS NULL        OR e.name LIKE CONCAT('%',:#{#filterObj.name},'%'))
         GROUP BY e.exercise_id
     """)
     Page<Object[]> findAllExercisesHasMuscles(
