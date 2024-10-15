@@ -20,10 +20,6 @@ import java.util.stream.Collectors;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserInfoAndStatusRequest {
-    public static Set<String> INSTANCE_FIELDS = Arrays.stream(UserInfoAndStatusRequest.class.getDeclaredFields())
-        .map(Field::getName)
-        .collect(Collectors.toSet());
-
     String firstName;
     String lastName;
     Gender gender;
@@ -33,7 +29,7 @@ public class UserInfoAndStatusRequest {
     LocalDate toDob;
     LocalDateTime fromCreatedTime;
     LocalDateTime toCreatedTime;
-    Boolean isActive;
+    Boolean active;
 
     public static UserInfoAndStatusRequest buildFromHashMap(HashMap<String, Object> map)
         throws ApplicationException, NoSuchFieldException, IllegalArgumentException, NullPointerException {
@@ -45,7 +41,9 @@ public class UserInfoAndStatusRequest {
         result.setLastName(map.containsKey("lastName") ? map.get("lastName").toString() : null);
         result.setCoins(map.containsKey("coins") ? Long.parseLong(map.get("coins").toString()) : null);
         result.setEmail(map.containsKey("email") ? map.get("email").toString() : null);
-        result.setGender(map.containsKey("gender") ? null
+        result.setActive(map.containsKey("active") ? Boolean.parseBoolean(map.get("active").toString()) : null);
+
+        result.setGender(!map.containsKey("genderId") ? null
             : Gender.getByGenderId(Integer.parseInt(map.get("genderId").toString())));
         result.setToDob(!map.containsKey("toDob") ? null
             : LocalDate.parse(map.get("toDob").toString().split("T")[0], DateTimeFormatter.ISO_LOCAL_DATE));
@@ -55,7 +53,6 @@ public class UserInfoAndStatusRequest {
             : LocalDateTime.parse(map.get("fromCreatedTime").toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         result.setToCreatedTime(!map.containsKey("toCreatedTime") ? null
             : LocalDateTime.parse(map.get("toCreatedTime").toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-        result.setIsActive(map.containsKey("isActive") ? Boolean.parseBoolean(map.get("isActive").toString()) : null);
         return result;
     }
 }

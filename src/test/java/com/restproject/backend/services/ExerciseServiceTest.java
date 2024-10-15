@@ -56,7 +56,7 @@ public class ExerciseServiceTest {
             .levelEnum(Level.getByLevel(newExerciseRequest.getLevel()))
             .build();
         List<MusclesOfExercises> responseExAndMuscleRelationship = muscleList.stream().map(muscle ->
-            MusclesOfExercises.builder().exercise(expectedExercise).muscle(muscle).build()).toList();
+            MusclesOfExercises.builder().exercise(expectedExercise).muscleEnum(muscle).build()).toList();
 
         //--Declare testing tree.
         Mockito.when(exerciseMappers.insertionToPlain(newExerciseRequest)).thenReturn(expectedExercise);
@@ -118,7 +118,7 @@ public class ExerciseServiceTest {
         var exeRes = Exercise.builder().exerciseId(exeReq.getExerciseId()).name(exeReq.getName())
             .basicReps(exeReq.getBasicReps()).levelEnum(Level.getByLevel(exeReq.getLevel())).build();
         var msByEx = exeReq.getMuscleIds().stream().map(id ->
-            MusclesOfExercises.builder().exercise(exeRes).muscle(Muscle.getById(id)).build()
+            MusclesOfExercises.builder().exercise(exeRes).muscleEnum(Muscle.getById(id)).build()
         ).toList();
 
         Mockito.when(exerciseRepository.findById(exeReq.getExerciseId())).thenReturn(Optional.of(exeRes));
@@ -149,11 +149,11 @@ public class ExerciseServiceTest {
         var exeRes = Exercise.builder().exerciseId(exeReq.getExerciseId()).name(exeReq.getName())
             .basicReps(exeReq.getBasicReps()).levelEnum(Level.getByLevel(exeReq.getLevel())).build();
         var msByEx = exeReq.getMuscleIds().stream().map(id ->
-            MusclesOfExercises.builder().exercise(exeRes).muscle(Muscle.getById(id)).build()
+            MusclesOfExercises.builder().exercise(exeRes).muscleEnum(Muscle.getById(id)).build()
         ).toList();
         exeReq.setMuscleIds(List.of(5, 6)); //--Actual new muscle-ids of updated exercise.
         var newMsByEx = exeReq.getMuscleIds().stream().map(id ->
-            MusclesOfExercises.builder().exercise(exeRes).muscle(Muscle.getById(id)).build()
+            MusclesOfExercises.builder().exercise(exeRes).muscleEnum(Muscle.getById(id)).build()
         ).toList();
 
         Mockito.when(exerciseRepository.findById(exeReq.getExerciseId())).thenReturn(Optional.of(exeRes));

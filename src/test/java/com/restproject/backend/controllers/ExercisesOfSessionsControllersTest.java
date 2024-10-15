@@ -67,8 +67,7 @@ public class ExercisesOfSessionsControllersTest {
         var req = this.paginatedExercisesOfSessionRequest();
         var res = TablePagesResponse.<ExercisesOfSessionResponse>builder()
             .data(List.of(
-                ExercisesOfSessionResponse.builder().exerciseId(2L)
-                    .muscleList(List.of(Muscle.CHEST.toString())).withCurrentSession(true).build()
+                ExercisesOfSessionResponse.builder().exerciseId(2L).withCurrentSession(true).build()
             ))
             .currentPage(req.getPage())
             .totalPages(10).build();

@@ -65,8 +65,7 @@ public class SessionsOfSchedulesControllersTest {
         var req = this.paginatedSchedulesOfScheduleRequest();
         var res = TablePagesResponse.<SessionsOfScheduleResponse>builder()
             .data(List.of(
-                SessionsOfScheduleResponse.builder().sessionId(2L)
-                    .muscleList(List.of(Muscle.CHEST.toString())).withCurrentSchedule(true).build()
+                SessionsOfScheduleResponse.builder().sessionId(2L).withCurrentSchedule(true).build()
             ))
             .currentPage(req.getPage())
             .totalPages(10).build();

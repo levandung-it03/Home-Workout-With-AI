@@ -36,10 +36,7 @@ public class ScheduleService {
     ScheduleMappers scheduleMappers;
 
     public TablePagesResponse<Schedule> getSchedulesPages(PaginatedTableRequest request) {
-        if (!Objects.isNull(request.getSortedField())   //--If sortedField is null, it means client doesn't want to sort
-            &&  !Schedule.INSTANCE_FIELDS.contains(request.getSortedField()))
-            throw new ApplicationException(ErrorCodes.INVALID_SORTING_FIELD_OR_VALUE);
-        Pageable pageableCf = pageMappers.tablePageRequestToPageable(request).toPageable();
+        Pageable pageableCf = pageMappers.tablePageRequestToPageable(request).toPageable(Schedule.class);
 
         if (Objects.isNull(request.getFilterFields()) || request.getFilterFields().isEmpty()) {
             Page<Schedule> repoRes = scheduleRepository.findAll(pageableCf);

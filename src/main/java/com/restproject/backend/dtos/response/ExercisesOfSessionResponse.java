@@ -17,10 +17,9 @@ import java.util.*;
 public class ExercisesOfSessionResponse {
     Long exerciseId;
     String name;
-    String levelEnum;
     Integer basicReps;
+    Level levelEnum;
     boolean withCurrentSession;
-    List<String> muscleList;    //--Keep MuscleEnum as String to make filter works correctly.
     Integer ordinal;
     Float downRepsRatio;
     Integer slackInSecond;
@@ -33,36 +32,30 @@ public class ExercisesOfSessionResponse {
             .exerciseId(Long.parseLong(params[0].toString()))
             .name(params[1].toString())
             .basicReps(Integer.parseInt(params[2].toString()))
-            .levelEnum(params[3].toString())
+            .levelEnum(Level.valueOf(params[3].toString()))
             .withCurrentSession(!Objects.isNull(params[4]) && params[4].toString().equals("1"))
-            .muscleList(Arrays.stream(params[5].toString()
-                .replaceAll("[\\[\\]]", "")
-                .split(String.valueOf(MusclesOfExercisesRepository.GROUP_CONCAT_SEPARATOR))
-            ).toList())
-            .ordinal(Integer.parseInt(params[6].toString()))
-            .downRepsRatio(Float.parseFloat(params[7].toString()))
-            .slackInSecond(Integer.parseInt(params[8].toString()))
-            .raiseSlackInSecond(Integer.parseInt(params[9].toString()))
-            .iteration(Integer.parseInt(params[10].toString()))
-            .needSwitchExerciseDelay(Boolean.parseBoolean(params[11].toString()))
+            .ordinal(Integer.parseInt(params[5].toString()))
+            .downRepsRatio(Float.parseFloat(params[6].toString()))
+            .slackInSecond(Integer.parseInt(params[7].toString()))
+            .raiseSlackInSecond(Integer.parseInt(params[8].toString()))
+            .iteration(Integer.parseInt(params[9].toString()))
+            .needSwitchExerciseDelay(Boolean.parseBoolean(params[10].toString()))
             .build();
     }
 
     public static ExercisesOfSessionResponse buildFromHashMap(HashMap<String, Object> map)
         throws ApplicationException, IllegalArgumentException, NullPointerException, NoSuchFieldException {
         for (String key : map.keySet()) {
-            if (key.equals("muscleIds"))    continue;
+            if (key.equals("level"))    continue;
             if (Arrays.stream(ExercisesOfSessionResponse.class.getDeclaredFields())
-                .noneMatch(f -> f.getName().equals(key))) throw new NoSuchFieldException(); //--Ignored value.
+                .noneMatch(f -> f.getName().equals(key))) throw new NoSuchFieldException();
         }
 
         var exerciseInfo = new ExercisesOfSessionResponse();
-        exerciseInfo.setMuscleList(!map.containsKey("muscleIds") ? new ArrayList<>()   //--May throw IllegalArgExc
-            : Muscle.parseAllMuscleIdsArrToRaw(map.get("muscleIds")));
         exerciseInfo.setName(!map.containsKey("name") ? null : map.get("name").toString());
         exerciseInfo.setBasicReps(!map.containsKey("basicReps") ? null
             : Integer.parseInt(map.get("basicReps").toString()));
-        exerciseInfo.setLevelEnum(!map.containsKey("levelEnum") ? null : Level.getRawLevelByLevel(map.get("levelEnum")));
+        exerciseInfo.setLevelEnum(!map.containsKey("level") ? null : Level.getByLevel(map.get("level")));
         exerciseInfo.setOrdinal(!map.containsKey("ordinal") ? null
             : Integer.parseInt(map.get("ordinal").toString()));
         exerciseInfo.setDownRepsRatio(!map.containsKey("downRepsRatio") ? null

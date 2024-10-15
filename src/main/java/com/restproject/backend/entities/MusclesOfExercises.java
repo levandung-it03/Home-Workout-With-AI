@@ -26,13 +26,6 @@ import java.util.stream.Collectors;
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class MusclesOfExercises {
-    public static final Set<String> INSTANCE_FIELDS;
-    static {    //--Initializing when static field is called
-        INSTANCE_FIELDS = Arrays.stream(Exercise.class.getDeclaredFields())
-            .map(Field::getName)
-            .collect(Collectors.toSet());
-        INSTANCE_FIELDS.add("muscleList"); // Directly add the field name
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,7 +33,7 @@ public class MusclesOfExercises {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "muscle_enum", nullable = false, updatable = false)
-    Muscle muscle;
+    Muscle muscleEnum;
 
     @ManyToOne(targetEntity = Exercise.class)
     @JoinColumn(name = "exercise_id", referencedColumnName = "exercise_id", updatable = false)

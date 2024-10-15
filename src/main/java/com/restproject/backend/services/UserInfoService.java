@@ -32,10 +32,7 @@ public class UserInfoService {
     PageMappers pageMappers;
 
     public TablePagesResponse<UserInfoAndStatusResponse> getUserInfoAndStatusPages(PaginatedTableRequest request) {
-        if (!Objects.isNull(request.getSortedField())   //--If it's null, it means client doesn't want to sort.
-        && !UserInfoAndStatusRequest.INSTANCE_FIELDS.contains(request.getSortedField()))
-            throw new ApplicationException(ErrorCodes.INVALID_SORTING_FIELD_OR_VALUE);
-        Pageable pageableCof = pageMappers.tablePageRequestToPageable(request).toPageable();
+        Pageable pageableCof = pageMappers.tablePageRequestToPageable(request).toPageable(UserInfo.class);
 
         if (Objects.isNull(request.getFilterFields()) || request.getFilterFields().isEmpty()) {
             var repoRes = userInfoRepository.findAllUserInfoAndStatus(pageableCof);

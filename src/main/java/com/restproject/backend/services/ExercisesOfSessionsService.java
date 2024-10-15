@@ -38,10 +38,8 @@ public class ExercisesOfSessionsService {
 
     public TablePagesResponse<ExercisesOfSessionResponse> getExercisesHasMusclesOfSessionPagesPrioritizeRelationship(
         PaginatedRelationshipRequest request) {
-        if (!Objects.isNull(request.getSortedField())   //--If it's null, it means client doesn't want to sort.
-        &&  !MusclesOfExercises.INSTANCE_FIELDS.contains(request.getSortedField()))
-            throw new ApplicationException(ErrorCodes.INVALID_SORTING_FIELD_OR_VALUE);
-        Pageable pageableCfg = pageMappers.relationshipPageRequestToPageable(request).toPageable();
+        Pageable pageableCfg = pageMappers.relationshipPageRequestToPageable(request)
+            .toPageable(ExercisesOfSessions.class);
 
         if (Objects.isNull(request.getFilterFields()) || request.getFilterFields().isEmpty()) {
             Page<Object[]> repoRes = exercisesOfSessionsRepository

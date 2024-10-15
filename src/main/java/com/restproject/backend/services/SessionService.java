@@ -35,7 +35,7 @@ public class SessionService {
         try { savedSession = sessionRepository.save(sessionMappers.insertionToPlain(request)); }
         catch (DataIntegrityViolationException e) { throw new ApplicationException(ErrorCodes.DUPLICATED_SESSION); }
         musclesOfSessionsRepository.saveAll(request.getMuscleIds().stream().map(id ->
-            MusclesOfSessions.builder().muscle(Muscle.getById(id)).session(savedSession).build()).toList());
+            MusclesOfSessions.builder().muscleEnum(Muscle.getById(id)).session(savedSession).build()).toList());
         exercisesOfSessionsRepository.saveAll(request.getExercisesInfo().stream().map(exerciseInfo -> {
             var foundExercise = exerciseRepository.findById(exerciseInfo.getExerciseId())
                 .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY));
@@ -73,7 +73,7 @@ public class SessionService {
         sessionRepository.updateSessionBySession(formerSes);
 
         //--Check if there's changes with Muscles of Updated Session.
-        if (formerRls.stream().map(relationship -> relationship.getMuscle().getId()).sorted().toList()
+        if (formerRls.stream().map(relationship -> relationship.getMuscleEnum().getId()).sorted().toList()
             .equals(request.getMuscleIds().stream().sorted().toList())) {
             return formerSes;   //--Nothing updated equal to return immediately.
         }
@@ -81,7 +81,7 @@ public class SessionService {
         //--Delete the former muscles-session relationship.
         musclesOfSessionsRepository.deleteAllBySessionSessionId(formerSes.getSessionId());
         var newMusclesOfEx = request.getMuscleIds().stream().map(id ->
-            MusclesOfSessions.builder().session(formerSes).muscle(Muscle.getById(id)).build()
+            MusclesOfSessions.builder().session(formerSes).muscleEnum(Muscle.getById(id)).build()
         ).toList();
         //--Save all new relationship.
         musclesOfSessionsRepository.saveAll(newMusclesOfEx);

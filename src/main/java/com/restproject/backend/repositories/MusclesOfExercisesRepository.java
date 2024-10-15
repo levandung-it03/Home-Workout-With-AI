@@ -16,48 +16,28 @@ import java.util.List;
 public interface MusclesOfExercisesRepository extends JpaRepository<MusclesOfExercises, Long> {
     char GROUP_CONCAT_SEPARATOR = ',';
 
-    /**
-     * Required-initialization: ExerciseHasMusclesResponse(new Exercise(), Collections.emptyList())
-     *
-     * @return Object[] {Exercise.exerciseId, Exercise.name, Exercise.basicReps, Exercise.levelEnum, muscleList}
-     */
-    @Query(name = "findAllExercisesHasMusclesWithFiltering", nativeQuery = true, value = """
-        SELECT e.exercise_id, e.name, e.basic_reps, e.level_enum, GROUP_CONCAT(
-            DISTINCT moeft.muscle_enum
-            ORDER BY moeft.muscle_enum ASC
-            SEPARATOR '""" + GROUP_CONCAT_SEPARATOR
-        + "') AS muscle_list, e.image_url " + """
-        FROM exercise e INNER JOIN (
-            SELECT moejid.exercise_id AS exercise_id, moejid.muscle_enum AS muscle_enum
-            FROM muscles_of_exercises moejid
-            WHERE :#{#filterObj.muscleList.isEmpty()} OR moejid.exercise_id IN (
-                SELECT DISTINCT m.exercise_id FROM muscles_of_exercises m
-                WHERE m.muscle_enum IN :#{#filterObj.muscleList}
-            )
-        ) AS moeft ON e.exercise_id = moeft.exercise_id
-        WHERE  (:#{#filterObj.exerciseId} IS NULL   OR :#{#filterObj.exerciseId} = e.exercise_id)
-            AND (:#{#filterObj.levelEnum} IS NULL   OR :#{#filterObj.levelEnum} = e.level_enum)
-            AND (:#{#filterObj.basicReps} IS NULL   OR :#{#filterObj.basicReps} = e.basic_reps)
-            AND (:#{#filterObj.name} IS NULL        OR e.name LIKE CONCAT('%',:#{#filterObj.name},'%'))
-        GROUP BY e.exercise_id
+    @Query("""
+        SELECT m.exercise.exerciseId, m.exercise.name, m.exercise.basicReps, m.exercise.levelEnum,
+            GROUP_CONCAT(m.muscleEnum), m.exercise.imageUrl
+        FROM MusclesOfExercises m
+        WHERE (:#{#filterObj.muscleList} IS NULL OR m.exercise.exerciseId IN (
+            SELECT DISTINCT m.exercise.exerciseId AS exerciseId FROM MusclesOfExercises m
+            WHERE m.muscleEnum IN :#{#filterObj.muscleList}
+        ))
+        AND (:#{#filterObj.levelEnum} IS NULL   OR :#{#filterObj.levelEnum} = m.exercise.levelEnum)
+        AND (:#{#filterObj.basicReps} IS NULL   OR :#{#filterObj.basicReps} = m.exercise.basicReps)
+        AND (:#{#filterObj.name} IS NULL        OR m.exercise.name LIKE CONCAT('%',:#{#filterObj.name},'%'))
+        GROUP BY m.exercise.exerciseId
     """)
     Page<Object[]> findAllExercisesHasMuscles(
         @Param("filterObj") ExerciseHasMusclesResponse expectedExercise,
         Pageable pageable
     );
 
-    /**
-     * @return Object[] {Exercise.exerciseId, Exercise.name, Exercise.basicReps, Exercise.levelEnum, muscleList}
-     */
     @Overload
-    @Query(name = "findAllExercisesHasMuscles", nativeQuery = true, value = """
-        SELECT e.exercise_id, e.name, e.basic_reps, e.level_enum, GROUP_CONCAT(
-            DISTINCT m.muscle_enum
-            ORDER BY m.muscle_enum
-            ASC SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "') AS muscle_list, e.image_url" + """
-        FROM exercise e
-        INNER JOIN muscles_of_exercises m ON e.exercise_id = m.exercise_id
-        GROUP BY m.exercise_id
+    @Query("""
+        SELECT m.exercise.exerciseId, m.exercise.name, m.exercise.basicReps, m.exercise.levelEnum,
+        GROUP_CONCAT(m.muscleEnum), m.exercise.imageUrl FROM MusclesOfExercises m GROUP BY m.exercise.exerciseId
     """)
     Page<Object[]> findAllExercisesHasMuscles(Pageable pageable);
 

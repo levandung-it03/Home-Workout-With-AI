@@ -1,6 +1,5 @@
-package com.restproject.backend.dtos.request;
+package com.restproject.backend.dtos.general;
 
-import com.restproject.backend.annotations.constraint.LevelEnumConstraint;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -10,8 +9,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SessionsByLevelRequest {
+public class ByIdDto {
     @NotNull
-    @LevelEnumConstraint
-    int level;
+    Long id;
 }

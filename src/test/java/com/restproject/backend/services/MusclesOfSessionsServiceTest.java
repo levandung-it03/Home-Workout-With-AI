@@ -3,6 +3,7 @@ package com.restproject.backend.services;
 import com.restproject.backend.dtos.request.PaginatedTableRequest;
 import com.restproject.backend.dtos.response.SessionHasMusclesResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
+import com.restproject.backend.entities.MusclesOfSessions;
 import com.restproject.backend.entities.PageObject;
 import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.enums.Level;
@@ -64,8 +65,12 @@ public class MusclesOfSessionsServiceTest {
         //--Mocking Bean's actions.
         Mockito.when(pageMappers.tablePageRequestToPageable(request)).thenReturn(pageObject);
         Mockito
-            .when(musclesOfSessionsRepository.findAllSessionsHasMuscles(sessionInfoForFilter, pageObject.toPageable()))
-            .thenReturn(new PageImpl<>(repoResponse, pageObject.toPageable(), PageEnum.SIZE.getSize()));
+            .when(musclesOfSessionsRepository.findAllSessionsHasMuscles(sessionInfoForFilter,
+                pageObject.toPageable(MusclesOfSessions.class)))
+            .thenReturn(new PageImpl<>(
+                repoResponse, pageObject.toPageable(MusclesOfSessions.class),
+                PageEnum.SIZE.getSize()
+            ));
 
         TablePagesResponse<SessionHasMusclesResponse> actual = musclesOfSessionsServiceOfAdmin
             .getSessionsHasMusclesPages(request);
@@ -73,7 +78,7 @@ public class MusclesOfSessionsServiceTest {
         assertNotNull(actual);
         Mockito.verify(pageMappers, Mockito.times(1)).tablePageRequestToPageable(request);
         Mockito.verify(musclesOfSessionsRepository, Mockito.times(1))
-            .findAllSessionsHasMuscles(sessionInfoForFilter, pageObject.toPageable());
+            .findAllSessionsHasMuscles(sessionInfoForFilter, pageObject.toPageable(MusclesOfSessions.class));
         assertEquals(
             String.join(",", res.getFirst().getMuscleList()),
             String.join(",", actual.getData().getFirst().getMuscleList())

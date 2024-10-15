@@ -71,7 +71,8 @@ public class ExercisesOfSessionsServiceTest {
         Mockito
             .when(exercisesOfSessionsRepository.findAllExercisesHasMusclesPrioritizeRelationshipBySessionId(
                 Mockito.eq(request.getId()), Mockito.any(ExercisesOfSessionResponse.class), Mockito.any(Pageable.class)))
-            .thenReturn(new PageImpl<>(repoResponse, pageObject.toPageable(), PageEnum.SIZE.getSize()));
+            .thenReturn(new PageImpl<>(repoResponse, pageObject.toPageable(ExercisesOfSessions.class),
+                PageEnum.SIZE.getSize()));
 
         TablePagesResponse<ExercisesOfSessionResponse> actual = exercisesOfSessionsServiceOfAdmin
             .getExercisesHasMusclesOfSessionPagesPrioritizeRelationship(request);

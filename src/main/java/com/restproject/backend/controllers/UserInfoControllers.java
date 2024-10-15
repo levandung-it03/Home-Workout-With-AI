@@ -31,7 +31,7 @@ public class UserInfoControllers {
     }
 
     @ResponseBody
-    @PostMapping("/user/v1/update-user-info")
+    @PutMapping("/user/v1/update-user-info")
     public ResponseEntity<ApiResponseObject<UserInfo>> updateUserInfo(
         @RequestHeader("Authorization") String accessToken,
         @Valid @RequestBody UpdateUserInfoRequest request) {

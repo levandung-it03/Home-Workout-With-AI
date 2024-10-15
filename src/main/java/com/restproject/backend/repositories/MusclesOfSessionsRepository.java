@@ -16,28 +16,18 @@ import java.util.List;
 public interface MusclesOfSessionsRepository extends JpaRepository<MusclesOfSessions, Long> {
     char GROUP_CONCAT_SEPARATOR = ',';
 
-    /**
-     * Required-initialization: SessionHasMusclesResponse(new Session(), Collections.emptyList())
-     *
-     * @return Object[] {Session.sessionId, Session.name, Session.basicReps, Session.levelEnum, muscleList}
-     */
-    @Query(name = "findAllSessionsHasMusclesWithFiltering", nativeQuery = true, value = """
-        SELECT s.session_id, s.name, s.description, s.level_enum, GROUP_CONCAT(
-            DISTINCT mosft.muscle_enum
-            ORDER BY mosft.muscle_enum ASC
-            SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "') AS muscleList" + """
-        FROM session s INNER JOIN (
-            SELECT mosjid.session_id AS session_id, mosjid.muscle_enum AS muscle_enum
-            FROM muscles_of_sessions mosjid
-            WHERE :#{#filterObj.muscleList.isEmpty()} OR mosjid.session_id IN (
-                SELECT DISTINCT m.session_id FROM muscles_of_sessions m
-                WHERE m.muscle_enum IN :#{#filterObj.muscleList}
-            )
-        ) AS mosft ON s.session_id = mosft.session_id
-        WHERE  (:#{#filterObj.sessionId} IS NULL OR :#{#filterObj.sessionId} = s.session_id)
-            AND (:#{#filterObj.levelEnum} IS NULL   OR :#{#filterObj.levelEnum} = s.level_enum)
-            AND (:#{#filterObj.name} IS NULL    OR s.name LIKE CONCAT('%',:#{#filterObj.name},'%'))
-        GROUP BY s.session_id
+    @Query("""
+        SELECT m.session.sessionId, m.session.name, m.session.levelEnum, m.session.description,
+            GROUP_CONCAT(m.muscleEnum), m.session.switchExerciseDelay
+        FROM MusclesOfSessions m
+        WHERE (:#{#filterObj.muscleList} IS NULL OR m.session.sessionId IN (
+            SELECT DISTINCT m.session.sessionId AS exerciseId FROM MusclesOfSessions m
+            WHERE m.muscleEnum IN :#{#filterObj.muscleList}
+        ))
+        AND (:#{#filterObj.levelEnum} IS NULL   OR :#{#filterObj.levelEnum} = m.session.levelEnum)
+        AND (:#{#filterObj.switchExerciseDelay} IS NULL OR :#{#filterObj.switchExerciseDelay} = m.session.switchExerciseDelay)
+        AND (:#{#filterObj.name} IS NULL        OR m.session.name LIKE CONCAT('%',:#{#filterObj.name},'%'))
+        GROUP BY m.session.sessionId
     """)
     Page<Object[]> findAllSessionsHasMuscles(
         @Param("filterObj") SessionHasMusclesResponse expectedSession,
@@ -48,15 +38,9 @@ public interface MusclesOfSessionsRepository extends JpaRepository<MusclesOfSess
      * @return Object[] {Session.sessionId, Session.name, Session.basicReps, Session.levelEnum, muscleList}
      */
     @Overload
-    @Query(name = "findAllSessionsHasMuscles", nativeQuery = true, value = """
-        SELECT s.session_id, s.name, s.description, s.level_enum, GROUP_CONCAT(
-            DISTINCT m.muscle_enum
-            ORDER BY m.muscle_enum
-            ASC SEPARATOR '""" + GROUP_CONCAT_SEPARATOR
-        + "') " + """
-        FROM session s
-        INNER JOIN muscles_of_sessions m ON s.session_id = m.session_id
-        GROUP BY m.session_id
+    @Query("""
+        SELECT m.session.sessionId, m.session.name, m.session.levelEnum, m.session.description,
+        GROUP_CONCAT(m.muscleEnum), m.session.switchExerciseDelay FROM MusclesOfSessions m GROUP BY m.session.sessionId
     """)
     Page<Object[]> findAllSessionsHasMuscles(Pageable pageable);
 

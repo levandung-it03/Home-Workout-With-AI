@@ -20,42 +20,41 @@ import java.util.List;
 public class SessionHasMusclesResponse {
     Long sessionId;
     String name;
-    String levelEnum;   //--Keep String type to make filter work correctly
+    Level levelEnum;   //--Keep String type to make filter work correctly
     String description;
-    List<String> muscleList;    //--Keep MuscleEnum as String to make filter works correctly.
+    List<Muscle> muscleList;    //--Keep MuscleEnum as String to make filter works correctly.
+    Integer switchExerciseDelay;
 
     public static SessionHasMusclesResponse buildFromNativeQuery(Object[] params) {
         return SessionHasMusclesResponse.builder()
             .sessionId(Long.parseLong(params[0].toString()))
             .name(params[1].toString())
             .description(params[2].toString())
-            .levelEnum(params[3].toString())
+            .levelEnum(Level.valueOf(params[3].toString()))
             .muscleList(Arrays.stream(params[4].toString()
                 .replaceAll("[\\[\\]]", "")
                 .split(String.valueOf(MusclesOfSessionsRepository.GROUP_CONCAT_SEPARATOR))
-            ).toList())
+            ).map(Muscle::valueOf).toList())
+            .switchExerciseDelay(Integer.parseInt(params[5].toString()))
             .build();
     }
 
     public static SessionHasMusclesResponse buildFromHashMap(HashMap<String, Object> map)
         throws ApplicationException, IllegalArgumentException, NullPointerException, NoSuchFieldException {
         for (String key : map.keySet()) {
-            if (key.equals("muscleIds"))    continue;
+            if (key.equals("muscleIds") || key.equals("level"))    continue;
             if (Arrays.stream(SessionHasMusclesResponse.class.getDeclaredFields())
-                .noneMatch(f -> f.getName().equals(key))) throw new NoSuchFieldException(); //--Ignored value.
+                .noneMatch(f -> f.getName().equals(key))) throw new NoSuchFieldException();
         }
 
         var sessionInfo = new SessionHasMusclesResponse();
         sessionInfo.setName(!map.containsKey("name") ? null : map.get("name").toString());
-        sessionInfo.setLevelEnum(!map.containsKey("levelEnum") ? null : Level.getRawLevelByLevel(map.get("levelEnum")));
+        sessionInfo.setLevelEnum(!map.containsKey("level") ? null : Level.getByLevel(map.get("level")));
         sessionInfo.setDescription(!map.containsKey("description") ? null : map.get("description").toString());
         sessionInfo.setMuscleList(!map.containsKey("muscleIds") ? new ArrayList<>()   //--May throw IllegalArgExc
-            : Muscle.parseAllMuscleIdsArrToRaw(map.get("muscleIds")));
+            : Muscle.parseAllMuscleIdsArrToRaw(map.get("muscleIds").toString()));
+        sessionInfo.setSwitchExerciseDelay(!map.containsKey("switchExerciseDelay") ? null
+            : Integer.parseInt(map.get("switchExerciseDelay").toString()));
         return sessionInfo;
-    }
-
-    public SessionHasMusclesResponse injectMuscleList(List<String> muscleList) {
-        this.muscleList = muscleList;
-        return this;
     }
 }

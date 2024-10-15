@@ -18,28 +18,28 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
 
     @Query("""
         SELECT new com.restproject.backend.dtos.response.UserInfoAndStatusResponse(
-            u.userInfoId, u.firstName, u.lastName, u.gender, us.email, u.coins, u.dob, u.user.userId, u.user.active,
-            us.createdTime
-        ) FROM UserInfo u INNER JOIN User us ON u.user.userId = us.userId
+            u.userInfoId, u.firstName, u.lastName, u.gender, u.user.email, u.coins, u.dob, u.user.userId, u.user.active,
+            u.user.createdTime
+        ) FROM UserInfo u
     """)
     Page<UserInfoAndStatusResponse> findAllUserInfoAndStatus(Pageable pageableCof);
 
     @Overload
     @Query("""
         SELECT new com.restproject.backend.dtos.response.UserInfoAndStatusResponse(
-            u.userInfoId, u.firstName, u.lastName, u.gender, us.email, u.coins, u.dob, u.user.userId, u.user.active,
-            us.createdTime
-        ) FROM UserInfo u INNER JOIN User us ON u.user.userId = us.userId
+            u.userInfoId, u.firstName, u.lastName, u.gender, u.user.email, u.coins, u.dob, u.user.userId, u.user.active,
+            u.user.createdTime
+        ) FROM UserInfo u
         WHERE (:#{#filterObj.firstName} IS NULL OR u.firstName LIKE CONCAT('%',:#{#filterObj.firstName},'%'))
-        AND (:#{#filterObj.isActive} IS NULL OR u.user.active = :#{#filterObj.isActive})
+        AND (:#{#filterObj.active} IS NULL OR u.user.active = :#{#filterObj.active})
         AND (:#{#filterObj.lastName} IS NULL OR u.lastName LIKE CONCAT('%',:#{#filterObj.lastName},'%'))
-        AND (:#{#filterObj.email} IS NULL   OR us.email LIKE CONCAT('%',:#{#filterObj.email},'%'))
+        AND (:#{#filterObj.email} IS NULL   OR u.user.email LIKE CONCAT('%',:#{#filterObj.email},'%'))
         AND (:#{#filterObj.gender} IS NULL  OR u.gender = :#{#filterObj.gender})
         AND (:#{#filterObj.coins} IS NULL   OR u.coins = :#{#filterObj.coins})
         AND (:#{#filterObj.fromDob} IS NULL OR :#{#filterObj.fromDob} <= u.dob)
         AND (:#{#filterObj.toDob} IS NULL   OR u.dob <= :#{#filterObj.toDob})
-        AND (:#{#filterObj.fromCreatedTime} IS NULL OR :#{#filterObj.fromCreatedTime} <= us.createdTime)
-        AND (:#{#filterObj.toCreatedTime} IS NULL   OR us.createdTime <= :#{#filterObj.toCreatedTime})
+        AND (:#{#filterObj.fromCreatedTime} IS NULL OR :#{#filterObj.fromCreatedTime} <= u.user.createdTime)
+        AND (:#{#filterObj.toCreatedTime} IS NULL   OR u.user.createdTime <= :#{#filterObj.toCreatedTime})
     """)
     Page<UserInfoAndStatusResponse> findAllUserInfoAndStatus(
         @Param("filterObj") UserInfoAndStatusRequest request, Pageable pageableCof);

@@ -38,10 +38,8 @@ public class SessionsOfSchedulesService {
 
     public TablePagesResponse<SessionsOfScheduleResponse> getSessionsHasMusclesOfSchedulePagesPrioritizeRelationship(
         PaginatedRelationshipRequest request) {
-        if (!Objects.isNull(request.getSortedField())
-        && !MusclesOfSessions.INSTANCE_FIELDS.contains(request.getSortedField()))
-            throw new ApplicationException(ErrorCodes.INVALID_SORTING_FIELD_OR_VALUE);
-        Pageable pageableCf = pageMappers.relationshipPageRequestToPageable(request).toPageable();
+        Pageable pageableCf = pageMappers.relationshipPageRequestToPageable(request)
+            .toPageable(SessionsOfSchedules.class);
 
         if (Objects.isNull(request.getFilterFields()) || request.getFilterFields().isEmpty()) {
             Page<Object[]> repoRes = sessionsOfSchedulesRepository

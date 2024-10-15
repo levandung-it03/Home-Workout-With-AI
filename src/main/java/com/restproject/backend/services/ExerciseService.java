@@ -38,7 +38,7 @@ public class ExerciseService {
         try { savedExercise = exerciseRepository.save(exerciseMappers.insertionToPlain(request)); }
         catch (DataIntegrityViolationException e) { throw new ApplicationException(ErrorCodes.DUPLICATED_EXERCISE); }
         musclesOfExercisesRepository.saveAll(request.getMuscleIds().stream().map(id ->
-            MusclesOfExercises.builder().exercise(savedExercise).muscle(Muscle.getById(id)).build()).toList());
+            MusclesOfExercises.builder().exercise(savedExercise).muscleEnum(Muscle.getById(id)).build()).toList());
         return savedExercise;
     }
 
@@ -60,7 +60,7 @@ public class ExerciseService {
         exerciseRepository.updateExerciseByExercise(formerEx);
 
         //--Check if there's changes with Muscles of Updated Exercise.
-        if (!formerRls.stream().map(r -> r.getMuscle().getId()).collect(Collectors.toSet())
+        if (!formerRls.stream().map(r -> r.getMuscleEnum().getId()).collect(Collectors.toSet())
             .equals(new HashSet<>(request.getMuscleIds()))) {
             return formerEx;   //--Nothing updated equal to return immediately.
         }
@@ -68,7 +68,7 @@ public class ExerciseService {
         //--Delete the former muscles-exercise relationship.
         musclesOfExercisesRepository.deleteAllByExerciseExerciseId(formerEx.getExerciseId());
         var newMusclesOfEx = request.getMuscleIds().stream().map(id ->
-            MusclesOfExercises.builder().exercise(formerEx).muscle(Muscle.getById(id)).build()
+            MusclesOfExercises.builder().exercise(formerEx).muscleEnum(Muscle.getById(id)).build()
         ).toList();
         //--Save all new relationship.
         musclesOfExercisesRepository.saveAll(newMusclesOfEx);

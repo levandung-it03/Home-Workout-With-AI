@@ -19,58 +19,30 @@ public interface SessionsOfSchedulesRepository extends JpaRepository<SessionsOfS
 
     boolean existsByScheduleScheduleId(Long scheduleId);
 
-    /**
-     * Required-initialization: SessionsOfScheduleResponse(new Session(), Collections.emptyList())
-     *
-     * @return Object[] {Session.sessionId, Session.name, Session.level, Session.description, boolean::withSchedule, muscleList}
-     */
-    @Query(name = "findAllExercisesHasMusclesWithFilteringOfSession", nativeQuery = true, value = """
-        SELECT s.session_id, s.name, s.level_enum, s.description,
-        (sos.schedule_id IS NOT NULL AND sos.schedule_id = :scheduleId) AS withSchedule,
-        GROUP_CONCAT(
-            DISTINCT mosft.muscle_enum
-            ORDER BY mosft.muscle_enum ASC
-            SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "'" + """
-        ) AS muscleList, sos.ordinal
-        FROM (
-            SELECT mosjid.session_id AS session_id, mosjid.muscle_enum AS muscle_enum
-            FROM muscles_of_sessions mosjid
-            WHERE :#{#filterObj.muscleList.isEmpty()} OR mosjid.session_id IN (
-                SELECT DISTINCT m.session_id FROM muscles_of_sessions m
-                WHERE m.muscle_enum IN :#{#filterObj.muscleList}
-            )
-        ) AS mosft INNER JOIN session s ON s.session_id = mosft.session_id
-        LEFT OUTER JOIN sessions_of_schedules sos ON sos.session_id = s.session_id
-        WHERE (:#{#filterObj.levelEnum} IS NULL OR :#{#filterObj.levelEnum} = s.level_enum)
+    @Query("""
+        SELECT s.sessionId, s.name, s.levelEnum,
+            CASE WHEN sos.schedule.scheduleId = :scheduleId THEN 1 ELSE 0 END, s.switchExerciseDelay, sos.ordinal
+        FROM SessionsOfSchedules sos RIGHT OUTER JOIN Session s ON sos.session.sessionId = s.sessionId
+        WHERE (:#{#filterObj.withCurrentSchedule} IS NULL
+            OR :#{#filterObj.withCurrentSchedule} = CASE WHEN sos.schedule.scheduleId = :scheduleId THEN 1 ELSE 0 END)
+        AND (:#{#filterObj.levelEnum} IS NULL OR :#{#filterObj.levelEnum} = s.levelEnum)
         AND (:#{#filterObj.ordinal} IS NULL OR :#{#filterObj.ordinal} = sos.ordinal)
+        AND (:#{#filterObj.switchExerciseDelay} IS NULL OR :#{#filterObj.switchExerciseDelay} = s.switchExerciseDelay)
         AND (:#{#filterObj.name} IS NULL OR s.name LIKE CONCAT('%',:#{#filterObj.name},'%'))
-        GROUP BY s.session_id, withSchedule
-        ORDER BY withSchedule DESC
-        """)
+        ORDER BY CASE WHEN sos.schedule.scheduleId = :scheduleId THEN 1 ELSE 0 END DESC
+    """)
     Page<Object[]> findAllSessionsHasMusclesPrioritizeRelationshipByScheduleId(
         @Param("scheduleId") Long id,
         @Param("filterObj") SessionsOfScheduleResponse filteringInfo,
         Pageable pageableCf
     );
 
-    /**
-     * Required-initialization: SessionsOfScheduleResponse(new Session(), Collections.emptyList())
-     *
-     * @return Object[] {Session.sessionId, Session.name, Session.description, Session.level, muscleList}
-     */
-    @Query(name = "findAllSessionsHasMusclesOfSchedule", nativeQuery = true, value = """
-        SELECT s.session_id, s.name, s.level_enum, s.description,
-        (sos.schedule_id IS NOT NULL AND sos.schedule_id = :scheduleId) AS withSchedule,
-        GROUP_CONCAT(
-            DISTINCT mos.muscle_enum
-            ORDER BY mos.muscle_enum ASC
-            SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "'" + """
-        ) AS muscleList, sos.ordinal
-        FROM muscles_of_sessions mos INNER JOIN session s ON s.session_id = mos.session_id
-        LEFT OUTER JOIN sessions_of_schedules sos ON sos.session_id = s.session_id
-        GROUP BY s.session_id, withSchedule
-        ORDER BY withSchedule DESC
-        """)
+    @Query("""
+        SELECT s.sessionId, s.name, s.levelEnum,
+            CASE WHEN sos.schedule.scheduleId = :scheduleId THEN 1 ELSE 0 END, sos.ordinal
+        FROM SessionsOfSchedules sos RIGHT OUTER JOIN Session s ON sos.session.sessionId = s.sessionId
+        ORDER BY CASE WHEN sos.schedule.scheduleId = :scheduleId THEN 1 ELSE 0 END DESC
+    """)
     Page<Object[]> findAllSessionsHasMusclesPrioritizeRelationshipByScheduleId(
         @Param("scheduleId") Long id,
         Pageable pageableCf

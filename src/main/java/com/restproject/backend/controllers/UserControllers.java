@@ -13,6 +13,8 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -28,10 +30,10 @@ public class UserControllers {
     }
 
     @ResponseBody
-    @PostMapping("/api/private/admin/v1/update-user-status")
-    public ResponseEntity<ApiResponseObject<Void>> updateUserStatus(
+    @PutMapping("/api/private/admin/v1/update-user-status")
+    public ResponseEntity<ApiResponseObject<HashMap<String, Object>>> updateUserStatus(
         @Valid @RequestBody UpdateUserStatusRequest request) {
-        userService.updateUserStatus(request);
-        return ApiResponseObject.buildSuccessResponse(SucceedCodes.UPDATE_USER_STATUS);
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.UPDATE_USER_STATUS,
+            userService.updateUserStatus(request));
     }
 }

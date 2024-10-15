@@ -42,16 +42,10 @@ public enum Muscle {
         throw new ApplicationException(ErrorCodes.INVALID_MUSCLE_ID);
     }
 
-    public static List<String> parseAllMuscleIdsArrToRaw(String muscleIdsArrAsStr) {
+    public static List<Muscle> parseAllMuscleIdsArrToRaw(String muscleIdsArrAsStr) {
         return Arrays
             .stream(muscleIdsArrAsStr.replaceAll("[\\[\\]]", "").split(","))
-            .map(id -> Muscle.getById(Integer.parseInt(id.trim())).toString())
-            .toList();
-    }
-
-    @Overload
-    public static List<String> parseAllMuscleIdsArrToRaw(Object muscleIdsArr) {
-        return parseAllMuscleIdsArrToRaw(muscleIdsArr.toString());
+            .map(id -> Muscle.getById(Integer.parseInt(id.trim()))).toList();
     }
 
     public static List<Muscle> getAllMuscles() {

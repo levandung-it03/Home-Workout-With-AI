@@ -75,8 +75,9 @@
 //        Mockito.when(pageMappers.relationshipPageRequestToPageable(request)).thenReturn(pageObject);
 //        Mockito
 //            .when(sessionsOfSchedulesRepository.findAllSessionsHasMusclesPrioritizeRelationshipByScheduleId(
-//                request.getId(), sessionInfoForFilter, pageObject.toPageable()))
-//            .thenReturn(new PageImpl<>(repoResponse, pageObject.toPageable(), PageEnum.SIZE.getSize()));
+//                request.getId(), sessionInfoForFilter, pageObject.toPageable(SessionsOfSchedules.class)))
+//            .thenReturn(new PageImpl<>(repoResponse, pageObject.toPageable(SessionsOfSchedules.class),
+//                PageEnum.SIZE.getSize()));
 //
 //        TablePagesResponse<SessionsOfScheduleResponse> actual = sessionsOfSchedulesServiceOfAdmin
 //            .getSessionsHasMusclesOfSchedulePagesPrioritizeRelationship(request);
@@ -85,7 +86,7 @@
 //        Mockito.verify(pageMappers, Mockito.times(1)).relationshipPageRequestToPageable(request);
 //        Mockito.verify(sessionsOfSchedulesRepository, Mockito.times(1))
 //            .findAllSessionsHasMusclesPrioritizeRelationshipByScheduleId(
-//                request.getId(), sessionInfoForFilter, pageObject.toPageable());
+//                request.getId(), sessionInfoForFilter, pageObject.toPageable(SessionsOfSchedules.class));
 //        assertEquals(
 //            new HashSet<>(res.getFirst().getMuscleList()),
 //            new HashSet<>(actual.getData().getFirst().getMuscleList())

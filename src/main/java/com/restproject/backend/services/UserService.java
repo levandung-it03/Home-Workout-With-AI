@@ -17,7 +17,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -50,10 +52,14 @@ public class UserService {
         return userInfoRepository.save(newUserInfo);    //--FetchType.LAZY will ignore User
     }
 
-    public void updateUserStatus(UpdateUserStatusRequest request) {
+    public HashMap<String, Object> updateUserStatus(UpdateUserStatusRequest request) {
         if (!userRepository.existsById(request.getUserId()))
             throw new ApplicationException(ErrorCodes.INVALID_PRIMARY);
 
         userRepository.updateStatusByUserId(request.getUserId(), request.getNewStatus());
+        return new HashMap<>(Map.ofEntries(
+            Map.entry("userId", request.getUserId()),
+            Map.entry("newStatus", request.getNewStatus())
+        ));
     }
 }

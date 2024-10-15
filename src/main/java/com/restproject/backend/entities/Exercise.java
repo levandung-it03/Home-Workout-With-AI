@@ -26,8 +26,6 @@ import java.util.stream.Collectors;
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Exercise {
-    public static Set<String> INSTANCE_FIELDS = Arrays.stream(Exercise.class.getDeclaredFields()).map(Field::getName)
-        .collect(Collectors.toSet());
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

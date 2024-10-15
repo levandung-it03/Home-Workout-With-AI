@@ -42,7 +42,8 @@ public enum SucceedCodes {
     UPDATE_USER_INFO(26003, "Update User Info successfully"),
     //--User(27)
     UPDATE_USER_STATUS(27001, "Update User status"),
-    ;
+    //--Subscription(28)
+    GET_SUBSCRIPTIONS_OF_USER_INFO_PAGES(28001, "Get Subscriptions successfully!");
 
     int code;
     String message;

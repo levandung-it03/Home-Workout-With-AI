@@ -15,38 +15,23 @@ public interface ExercisesOfSessionsRepository extends JpaRepository<ExercisesOf
 
     boolean existsByExerciseExerciseId(Long id);
 
-    /**
-     * Required-initialization: ExerciseHasMusclesResponse(new Exercise(), Collections.emptyList())
-     *
-     * @return Object[] {Exercise.exerciseId, Exercise.name, Exercise.basicReps, Exercise.level, boolean::withSession, muscleList}
-     */
-    @Query(name = "findAllExercisesHasMusclesWithFilteringOfSession", nativeQuery = true, value = """
-        SELECT e.exercise_id, e.name, e.basic_reps, e.level_enum,
-        (eos.session_id IS NOT NULL AND eos.session_id = :sessionId) AS withSession,
-        GROUP_CONCAT(
-            DISTINCT moeft.muscle_enum
-            ORDER BY moeft.muscle_enum ASC
-            SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "'" + """
-        ) AS muscle_list, e.image_url, eos.ordinal, eos.down_reps_ratio, eos.slack_in_second, eos.raise_slack_in_second,
-        eos.iteration, eos.need_switch_exercise_delay
-        FROM exercise e INNER JOIN (
-            SELECT moejid.exercise_id AS exercise_id, moejid.muscle_enum AS muscle_enum
-            FROM muscles_of_exercises moejid
-            WHERE :#{#filterObj.muscleList.isEmpty()} OR moejid.exercise_id IN (
-                SELECT DISTINCT m.exercise_id FROM muscles_of_exercises m
-                WHERE m.muscle_enum IN :#{#filterObj.muscleList}
-            )
-        ) AS moeft ON e.exercise_id = moeft.exercise_id
-        LEFT OUTER JOIN exercises_of_sessions eos ON eos.exercise_id = e.exercise_id
-        WHERE (:#{#filterObj.levelEnum} IS NULL OR :#{#filterObj.levelEnum} = e.level_enum)
-        AND (:#{#filterObj.basicReps} IS NULL OR :#{#filterObj.basicReps} = e.basic_reps)
+    @Query("""
+        SELECT e.exerciseId, e.name, e.basicReps, e.levelEnum,
+            CASE WHEN eos.session.sessionId = :sessionId THEN 1 ELSE 0 END, eos.ordinal, eos.downRepsRatio,
+            eos.slackInSecond, eos.raiseSlackInSecond, eos.iteration, eos.needSwitchExerciseDelay
+        FROM ExercisesOfSessions eos RIGHT OUTER JOIN Exercise e ON e.exerciseId = eos.exercise.exerciseId
+        WHERE (:#{#filterObj.withCurrentSession} IS NULL
+            OR :#{#filterObj.withCurrentSession} = CASE WHEN eos.session.sessionId = :sessionId THEN 1 ELSE 0 END)
+        AND (:#{#filterObj.name} IS NULL OR e.name LIKE CONCAT('%',:#{#filterObj.name},'%'))
+        AND (:#{#filterObj.basicReps} IS NULL OR :#{#filterObj.basicReps} = e.basicReps)
+        AND (:#{#filterObj.levelEnum} IS NULL OR :#{#filterObj.levelEnum} = e.levelEnum)
         AND (:#{#filterObj.ordinal} IS NULL OR :#{#filterObj.ordinal} = eos.ordinal)
-        AND (:#{#filterObj.slackInSecond} IS NULL OR :#{#filterObj.slackInSecond} = eos.slack_in_second)
-        AND (:#{#filterObj.raiseSlackInSecond} IS NULL OR :#{#filterObj.raiseSlackInSecond} = eos.raise_slack_in_second)
+        AND (:#{#filterObj.downRepsRatio} IS NULL OR :#{#filterObj.downRepsRatio} = eos.downRepsRatio)
+        AND (:#{#filterObj.slackInSecond} IS NULL OR :#{#filterObj.slackInSecond} = eos.slackInSecond)
+        AND (:#{#filterObj.raiseSlackInSecond} IS NULL OR :#{#filterObj.raiseSlackInSecond} = eos.raiseSlackInSecond)
         AND (:#{#filterObj.iteration} IS NULL OR :#{#filterObj.iteration} = eos.iteration)
-        AND (:#{#filterObj.name} IS NULL    OR e.name LIKE CONCAT('%',:#{#filterObj.name},'%'))
-        GROUP BY e.exercise_id, withSession
-        ORDER BY withSession DESC
+        AND (:#{#filterObj.needSwitchExerciseDelay} IS NULL OR :#{#filterObj.needSwitchExerciseDelay} = eos.needSwitchExerciseDelay)
+        ORDER BY CASE WHEN eos.session.sessionId = :sessionId THEN 1 ELSE 0 END DESC
         """)
     Page<Object[]> findAllExercisesHasMusclesPrioritizeRelationshipBySessionId(
         @Param("sessionId") Long sessionId,
@@ -54,25 +39,13 @@ public interface ExercisesOfSessionsRepository extends JpaRepository<ExercisesOf
         Pageable pageable
     );
 
-    /**
-     * Required-initialization: ExerciseHasMusclesResponse(new Exercise(), Collections.emptyList())
-     *
-     * @return Object[] {Exercise.exerciseId, Exercise.name, Exercise.basicReps, Exercise.level, boolean::withSession, muscleList}
-     */
-    @Query(name = "findAllExercisesHasMusclesOfSession", nativeQuery = true, value = """
-        SELECT e.exercise_id, e.name, e.basic_reps, e.level_enum,
-        (eos.session_id IS NOT NULL AND eos.session_id = :sessionId) AS withSession,
-        GROUP_CONCAT(
-            DISTINCT moe.muscle_enum
-            ORDER BY moe.muscle_enum ASC
-            SEPARATOR '""" + GROUP_CONCAT_SEPARATOR + "'" + """
-        ) AS muscle_list, e.image_url, eos.ordinal, eos.down_reps_ratio, eos.slack_in_second, eos.raise_slack_in_second,
-        eos.iteration, eos.need_switch_exercise_delay
-        FROM exercise e
-        INNER JOIN muscles_of_exercises moe ON e.exercise_id = moe.exercise_id
-        LEFT OUTER JOIN exercises_of_sessions eos ON eos.exercise_id = e.exercise_id
-        GROUP BY e.exercise_id, withSession ORDER BY withSession DESC
-        """)
+    @Query(value = """
+        SELECT e.exerciseId, e.name, e.basicReps, e.levelEnum,
+            CASE WHEN eos.session.sessionId = :sessionId THEN 1 ELSE 0 END, e.imageUrl,
+        eos.ordinal, eos.downRepsRatio, eos.slackInSecond, eos.raiseSlackInSecond
+        FROM ExercisesOfSessions eos RIGHT OUTER JOIN Exercise e ON e.exerciseId = eos.exercise.exerciseId
+        ORDER BY CASE WHEN eos.session.sessionId = :sessionId THEN 1 ELSE 0 END DESC
+    """)
     Page<Object[]> findAllExercisesHasMusclesPrioritizeRelationshipBySessionId(
         @Param("sessionId") Long sessionId,
         Pageable pageable
