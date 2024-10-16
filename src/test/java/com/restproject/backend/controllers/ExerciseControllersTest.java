@@ -54,7 +54,7 @@ public class ExerciseControllersTest {
 
     NewExerciseRequest newValidExercise() {
         return NewExerciseRequest.builder().name("Push-ups").level(1).basicReps(14)
-            .muscleIds(List.of(0, 1)).build();
+            .muscleIds(List.of(0L, 1L)).build();
     }
 
     @Test
@@ -235,19 +235,7 @@ public class ExerciseControllersTest {
     @Test
     public void createExercise_admin_nullListAsMuscleIds() throws Exception {
         var request = this.newValidExercise();
-        request.setMuscleIds(Arrays.stream(new Integer[]{null, null}).toList());
-        Mockito.when(exerciseServiceOfAdmin.createExercise(request)).thenReturn(null);
-
-        mockMvc.perform(mockAuthRequestBuilders
-                .setContent(request)
-                .buildAdminRequestWithContent(POST, "/v1/create-exercise"))
-            .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
-    }
-
-    @Test
-    public void createExercise_admin_outOfMuscleIdsRange() throws Exception {
-        var request = this.newValidExercise();
-        request.setMuscleIds(List.of(1, 99));
+        request.setMuscleIds(Arrays.stream(new Long[]{null, null}).toList());
         Mockito.when(exerciseServiceOfAdmin.createExercise(request)).thenReturn(null);
 
         mockMvc.perform(mockAuthRequestBuilders
@@ -270,7 +258,7 @@ public class ExerciseControllersTest {
 
     UpdateExerciseRequest updateExerciseAndMusclesRequest() {
         return UpdateExerciseRequest.builder().exerciseId(2L).level(2).name("Push-ups")
-            .basicReps(14).muscleIds(List.of(0, 2)).build();
+            .basicReps(14).muscleIds(List.of(0L, 2L)).build();
     }
 
     @Test
@@ -456,16 +444,6 @@ public class ExerciseControllersTest {
             .perform(mockAuthRequestBuilders
                 .setContent(updateExerciseAndMusclesRequest())
                 .replaceFieldOfContent("muscleIds", Arrays.stream(new Integer[]{null, null}).toList())
-                .buildAdminRequestWithContent(PUT, "/v1/update-exercise-and-muscles"))
-            .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
-    }
-
-    @Test
-    public void updateExerciseAndMuscles_admin_outOfMuscleIdsRange() throws Exception {
-        mockMvc
-            .perform(mockAuthRequestBuilders
-                .setContent(updateExerciseAndMusclesRequest())
-                .replaceFieldOfContent("muscleIds", List.of(1, 99))
                 .buildAdminRequestWithContent(PUT, "/v1/update-exercise-and-muscles"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
     }

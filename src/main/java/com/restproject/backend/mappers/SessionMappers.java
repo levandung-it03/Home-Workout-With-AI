@@ -4,10 +4,7 @@ import com.restproject.backend.dtos.request.NewSessionRequest;
 import com.restproject.backend.dtos.request.UpdateSessionRequest;
 import com.restproject.backend.entities.Session;
 import com.restproject.backend.enums.Level;
-import com.restproject.backend.enums.Muscle;
 import org.mapstruct.*;
-
-import java.util.Collection;
 
 @Mapper(componentModel = "spring")
 public interface SessionMappers {

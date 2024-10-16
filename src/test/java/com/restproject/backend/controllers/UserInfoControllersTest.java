@@ -3,7 +3,6 @@ package com.restproject.backend.controllers;
 import com.restproject.backend.dtos.request.PaginatedTableRequest;
 import com.restproject.backend.dtos.request.UpdateUserInfoRequest;
 import com.restproject.backend.dtos.response.ApiResponseObject;
-import com.restproject.backend.dtos.response.ExerciseHasMusclesResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.dtos.response.UserInfoAndStatusResponse;
 import com.restproject.backend.entities.UserInfo;
@@ -83,7 +82,7 @@ public class UserInfoControllersTest {
                 ApiResponseObject<TablePagesResponse> apiRes = jsonService
                     .parseResponseJson(response.getResponse().getContentAsString(), TablePagesResponse.class);
 
-                TablePagesResponse<ExerciseHasMusclesResponse> dataFromApiRes = apiRes.getData();
+                TablePagesResponse<UserInfoAndStatusResponse> dataFromApiRes = apiRes.getData();
 
                 assertNotNull(apiRes);
                 assertEquals(SucceedCodes.GET_USER_INFO_PAGES.getCode(), apiRes.getApplicationCode());

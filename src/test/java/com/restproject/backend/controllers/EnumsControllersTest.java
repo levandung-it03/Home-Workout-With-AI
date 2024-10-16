@@ -2,7 +2,6 @@ package com.restproject.backend.controllers;
 
 import com.restproject.backend.enums.Gender;
 import com.restproject.backend.enums.Level;
-import com.restproject.backend.enums.Muscle;
 import com.restproject.backend.enums.SucceedCodes;
 import com.restproject.backend.helpers.MockAuthRequestBuilders;
 import com.restproject.backend.helpers.MockAuthentication;
@@ -75,25 +74,25 @@ public class EnumsControllersTest {
             .andExpect(status().isUnauthorized());
     }
 
-    @Test
-    public void getAllMuscles_admin_valid() throws Exception {
-        var mockRequest = mockAuthRequestBuilders.buildAdminRequestNonContent(HttpMethod.GET, "/v1/get-all-muscles");
-        var expectedValue = Muscle.getAllMuscles().stream().map(Muscle::toString).toArray();    //--enums list
-
-        mockMvc.perform(mockRequest)
-            .andExpect(jsonPath("applicationCode").value(SucceedCodes.GET_ALL_MUSCLE_ENUMS.getCode()))
-            .andExpect(jsonPath("data[*]", Matchers.contains(expectedValue)));
-    }
-
-    @Test
-    public void getAllMuscles_user_valid() throws Exception {
-        var mockRequest = mockAuthRequestBuilders.buildUserRequestNonContent(HttpMethod.GET, "/v1/get-all-muscles");
-        var expectedValue = Muscle.getAllMuscles().stream().map(Muscle::toString).toArray();
-
-        mockMvc.perform(mockRequest)
-            .andExpect(jsonPath("applicationCode").value(SucceedCodes.GET_ALL_MUSCLE_ENUMS.getCode()))
-            .andExpect(jsonPath("data[*]", Matchers.contains(expectedValue)));
-    }
+//    @Test
+//    public void getAllMuscles_admin_valid() throws Exception {
+//        var mockRequest = mockAuthRequestBuilders.buildAdminRequestNonContent(HttpMethod.GET, "/v1/get-all-muscles");
+//        var expectedValue = Muscle.getAllMuscles().stream().map(Muscle::toString).toArray();    //--enums list
+//
+//        mockMvc.perform(mockRequest)
+//            .andExpect(jsonPath("applicationCode").value(SucceedCodes.GET_ALL_MUSCLE_ENUMS.getCode()))
+//            .andExpect(jsonPath("data[*]", Matchers.contains(expectedValue)));
+//    }
+//
+//    @Test
+//    public void getAllMuscles_user_valid() throws Exception {
+//        var mockRequest = mockAuthRequestBuilders.buildUserRequestNonContent(HttpMethod.GET, "/v1/get-all-muscles");
+//        var expectedValue = Muscle.getAllMuscles().stream().map(Muscle::toString).toArray();
+//
+//        mockMvc.perform(mockRequest)
+//            .andExpect(jsonPath("applicationCode").value(SucceedCodes.GET_ALL_MUSCLE_ENUMS.getCode()))
+//            .andExpect(jsonPath("data[*]", Matchers.contains(expectedValue)));
+//    }
 
     @Test
     public void getAllGenders_admin_valid() throws Exception {

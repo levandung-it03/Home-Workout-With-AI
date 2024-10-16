@@ -3,10 +3,7 @@ package com.restproject.backend.repositories;
 import com.restproject.backend.annotations.dev.CoreEngines;
 import com.restproject.backend.config.RedisConfig;
 import com.restproject.backend.entities.Exercise;
-import com.restproject.backend.entities.MusclesOfExercises;
 import com.restproject.backend.enums.Level;
-import com.restproject.backend.enums.Muscle;
-import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,8 +14,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.TestPropertySource;
-
-import java.util.List;
 
 @DataJpaTest
 @Import(RedisConfig.class)

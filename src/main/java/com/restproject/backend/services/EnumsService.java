@@ -2,7 +2,6 @@ package com.restproject.backend.services;
 
 import com.restproject.backend.enums.Gender;
 import com.restproject.backend.enums.Level;
-import com.restproject.backend.enums.Muscle;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,14 +20,6 @@ public class EnumsService {
             "raw", level.toString(),
             "level", level.getLevel().toString(),
             "name", level.getName()
-        )).toList();
-    }
-
-    public List<Map<String, String>> getAllMuscles() {
-        return Muscle.getAllMuscles().stream().map(muscle -> Map.of(
-            "raw", muscle.toString(),
-            "id", muscle.getId().toString(),
-            "name", muscle.getName()
         )).toList();
     }
 

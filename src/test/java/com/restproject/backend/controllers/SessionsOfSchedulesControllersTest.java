@@ -7,7 +7,6 @@ import com.restproject.backend.dtos.response.SessionsOfScheduleResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.entities.Session;
 import com.restproject.backend.enums.ErrorCodes;
-import com.restproject.backend.enums.Muscle;
 import com.restproject.backend.enums.SucceedCodes;
 import com.restproject.backend.helpers.JsonService;
 import com.restproject.backend.helpers.MockAuthRequestBuilders;
@@ -25,7 +24,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 

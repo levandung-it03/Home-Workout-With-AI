@@ -37,13 +37,13 @@ public class ExercisesOfSessions {
     Integer ordinal;
 
     @Column(name = "down_reps_ratio", nullable = false)
-    Float downRepsRatio;
+    Float downRepsRatio;    //--Each time exercise's iterated
 
     @Column(name = "slack_in_second", nullable = false)
-    Integer slackInSecond;
+    Integer slackInSecond;  //--Each time exercise's iterates
 
     @Column(name = "raise_slack_in_second", nullable = false)
-    Integer raiseSlackInSecond;
+    Integer raiseSlackInSecond; //--Each time exercise's iterates
 
     @Column(name = "iteration", nullable = false)
     @Min(1)
@@ -52,5 +52,5 @@ public class ExercisesOfSessions {
     @Column(name = "need_switch_exercise_delay", columnDefinition = "BIT")
     @Min(0)
     @Max(1)
-    boolean needSwitchExerciseDelay;
+    boolean needSwitchExerciseDelay;    //--Each time exercise's ending
 }

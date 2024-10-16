@@ -2,10 +2,10 @@ package com.restproject.backend.services;
 
 import com.restproject.backend.dtos.general.SessionInfoDto;
 import com.restproject.backend.dtos.request.PaginatedRelationshipRequest;
+import com.restproject.backend.dtos.request.SessionsOfScheduleRequest;
 import com.restproject.backend.dtos.request.UpdateSessionsOfScheduleRequest;
 import com.restproject.backend.dtos.response.SessionsOfScheduleResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
-import com.restproject.backend.entities.MusclesOfSessions;
 import com.restproject.backend.entities.Session;
 import com.restproject.backend.entities.SessionsOfSchedules;
 import com.restproject.backend.enums.ErrorCodes;
@@ -45,13 +45,13 @@ public class SessionsOfSchedulesService {
             Page<Object[]> repoRes = sessionsOfSchedulesRepository
                 .findAllSessionsHasMusclesPrioritizeRelationshipByScheduleId(request.getId(), pageableCf);
             return TablePagesResponse.<SessionsOfScheduleResponse>builder()
-                .data(repoRes.stream().map(SessionsOfScheduleResponse::buildFromNativeQuery).toList())
+                .data(repoRes.stream().map(SessionsOfScheduleResponse::buildFromQuery).toList())
                 .currentPage(request.getPage()).totalPages(repoRes.getTotalPages()).build();
         }
 
-        SessionsOfScheduleResponse sessionInfo;
+        SessionsOfScheduleRequest sessionInfo;
         try {
-            sessionInfo = SessionsOfScheduleResponse.buildFromHashMap(request.getFilterFields());
+            sessionInfo = SessionsOfScheduleRequest.buildFromHashMap(request.getFilterFields());
         } catch (ApplicationException | NullPointerException | IllegalArgumentException | NoSuchFieldException e) {
             throw new ApplicationException(ErrorCodes.INVALID_FILTERING_FIELD_OR_VALUE);
         }
@@ -59,7 +59,7 @@ public class SessionsOfSchedulesService {
             .findAllSessionsHasMusclesPrioritizeRelationshipByScheduleId(request.getId(), sessionInfo, pageableCf);
 
         return TablePagesResponse.<SessionsOfScheduleResponse>builder()
-            .data(repoRes.stream().map(SessionsOfScheduleResponse::buildFromNativeQuery).toList())
+            .data(repoRes.stream().map(SessionsOfScheduleResponse::buildFromQuery).toList())
             .currentPage(request.getPage()).totalPages(repoRes.getTotalPages()).build();
     }
 

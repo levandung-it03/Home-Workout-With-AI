@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort.Direction;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -30,6 +31,12 @@ public class PageObject {
         Map.entry(1, Direction.ASC),
         Map.entry(-1, Direction.DESC)
     ));
+
+    public Pageable toPageable(List<Class<?>> rootClasses) throws ApplicationException {
+        for (Class<?> rootClass: rootClasses)
+            return this.toPageable(rootClass);
+        throw new ApplicationException(ErrorCodes.INVALID_SORTING_FIELD_OR_VALUE);
+    }
 
     public Pageable toPageable(Class<?> rootClass) {
         if (Objects.isNull(this.sortedField) || this.sortedField.isEmpty())

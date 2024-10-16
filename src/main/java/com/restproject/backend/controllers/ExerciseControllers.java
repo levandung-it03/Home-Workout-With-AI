@@ -2,6 +2,7 @@ package com.restproject.backend.controllers;
 
 import com.restproject.backend.dtos.response.ApiResponseObject;
 import com.restproject.backend.dtos.request.*;
+import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.enums.SucceedCodes;
 import com.restproject.backend.services.ExerciseService;
@@ -22,6 +23,14 @@ import java.util.Map;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ExerciseControllers {
     ExerciseService exerciseServiceOfAdmin;
+
+    @ResponseBody
+    @GetMapping("/admin/v1/get-exercises-has-muscles-pages")
+    public ResponseEntity<ApiResponseObject<TablePagesResponse<Exercise>>> getExercisesHasMusclesPages(
+        @Valid PaginatedTableRequest request) {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_EXERCISES_HAS_MUSCLES_PAGES,
+            exerciseServiceOfAdmin.getExercisesPages(request));
+    }
 
     @ResponseBody
     @PostMapping(value = "/admin/v1/create-exercise")

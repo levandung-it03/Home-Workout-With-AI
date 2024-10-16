@@ -2,17 +2,12 @@ package com.restproject.backend.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.restproject.backend.enums.Level;
-import com.restproject.backend.enums.Muscle;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Length;
 
-import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -54,4 +49,12 @@ public class Session {
     )
     @JsonIgnore
     Collection<Exercise> exercisesOfSession;
+
+    @ManyToMany
+    @JoinTable(
+        name = "muscle_session",
+        joinColumns = @JoinColumn(name = "session_id", referencedColumnName = "session_id"),
+        inverseJoinColumns = @JoinColumn(name = "muscle_id", referencedColumnName = "muscle_id")
+    )
+    Collection<Muscle> muscles;
 }

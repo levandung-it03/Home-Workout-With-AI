@@ -2,7 +2,6 @@ package com.restproject.backend.dtos.request;
 
 import com.restproject.backend.annotations.constraint.LevelEnumConstraint;
 import com.restproject.backend.annotations.constraint.ListTypeConstraint;
-import com.restproject.backend.annotations.constraint.MuscleIdsEnumConstraint;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -32,7 +31,6 @@ public class NewExerciseRequest {
 
     @NotEmpty
     @NotNull
-    @ListTypeConstraint(type = Integer.class)
-    @MuscleIdsEnumConstraint
-    Collection<Integer> muscleIds;
+    @ListTypeConstraint(type = Long.class)
+    Collection<Long> muscleIds;
 }

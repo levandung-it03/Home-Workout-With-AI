@@ -1,13 +1,13 @@
 package com.restproject.backend.services;
 
 import com.restproject.backend.dtos.general.ExerciseInfoDto;
+import com.restproject.backend.dtos.request.ExercisesOfSessionRequest;
 import com.restproject.backend.dtos.request.UpdateExercisesOfSessionRequest;
 import com.restproject.backend.dtos.request.PaginatedRelationshipRequest;
 import com.restproject.backend.dtos.response.ExercisesOfSessionResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.entities.ExercisesOfSessions;
-import com.restproject.backend.entities.MusclesOfExercises;
 import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.exceptions.ApplicationException;
 import com.restproject.backend.mappers.PageMappers;
@@ -38,21 +38,20 @@ public class ExercisesOfSessionsService {
 
     public TablePagesResponse<ExercisesOfSessionResponse> getExercisesHasMusclesOfSessionPagesPrioritizeRelationship(
         PaginatedRelationshipRequest request) {
-        Pageable pageableCfg = pageMappers.relationshipPageRequestToPageable(request)
-            .toPageable(ExercisesOfSessions.class);
+        Pageable pageableCfg = pageMappers.relationshipPageRequestToPageable(request).toPageable(Exercise.class);
 
         if (Objects.isNull(request.getFilterFields()) || request.getFilterFields().isEmpty()) {
             Page<Object[]> repoRes = exercisesOfSessionsRepository
                 .findAllExercisesHasMusclesPrioritizeRelationshipBySessionId(request.getId(), pageableCfg);
             return TablePagesResponse.<ExercisesOfSessionResponse>builder()
-                .data(repoRes.stream().map(ExercisesOfSessionResponse::buildFromNativeQuery).toList())
+                .data(repoRes.stream().map(ExercisesOfSessionResponse::buildFromQuery).toList())
                 .currentPage(request.getPage()).totalPages(repoRes.getTotalPages()).build();
         }
 
         //--Build filtering info.
-        ExercisesOfSessionResponse exerciseInfo;
+        ExercisesOfSessionRequest exerciseInfo;
         try {
-            exerciseInfo = ExercisesOfSessionResponse.buildFromHashMap(request.getFilterFields());
+            exerciseInfo = ExercisesOfSessionRequest.buildFromHashMap(request.getFilterFields());
         } catch (ApplicationException | IllegalArgumentException | NullPointerException | NoSuchFieldException e) {
             throw new ApplicationException(ErrorCodes.INVALID_FILTERING_FIELD_OR_VALUE);
         }
@@ -60,7 +59,7 @@ public class ExercisesOfSessionsService {
         Page<Object[]> repoRes = exercisesOfSessionsRepository
             .findAllExercisesHasMusclesPrioritizeRelationshipBySessionId(request.getId(), exerciseInfo, pageableCfg);
         return TablePagesResponse.<ExercisesOfSessionResponse>builder()
-            .data(repoRes.stream().map(ExercisesOfSessionResponse::buildFromNativeQuery).toList())
+            .data(repoRes.stream().map(ExercisesOfSessionResponse::buildFromQuery).toList())
             .currentPage(request.getPage()).totalPages(repoRes.getTotalPages()).build();
     }
 

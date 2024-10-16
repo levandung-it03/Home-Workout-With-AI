@@ -7,7 +7,6 @@ import com.restproject.backend.dtos.request.UpdateSessionRequest;
 import com.restproject.backend.entities.Session;
 import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.enums.Level;
-import com.restproject.backend.enums.Muscle;
 import com.restproject.backend.enums.SucceedCodes;
 import com.restproject.backend.helpers.JsonService;
 import com.restproject.backend.helpers.MockAuthRequestBuilders;
@@ -57,7 +56,7 @@ public class SessionControllersTest {
     @CoreEngines
     private NewSessionRequest newValidSession() {
         return NewSessionRequest.builder().name("Shoulders exercises for beginner").level(Level.INTERMEDIATE.getLevel())
-            .muscleIds(List.of(Muscle.ABS.getId(), Muscle.TRICEPS.getId())).description("Just shoulders in about 1 hour")
+            .muscleIds(List.of(1L, 2L)).description("Just shoulders in about 1 hour")
             .build();
     }
 
@@ -205,15 +204,6 @@ public class SessionControllersTest {
     }
 
     @Test
-    public void createSession_admin_outOfMuscleIdsRange() throws Exception {
-        mockMvc.perform(mockAuthRequestBuilders
-                .setContent(this.newValidSession())
-                .replaceFieldOfContent("muscleIds", List.of(1, 99))
-                .buildAdminRequestWithContent(POST, "/v1/create-session"))
-            .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
-    }
-
-    @Test
     public void createSession_admin_invalidTypeMuscleIds() throws Exception {
         mockMvc.perform(mockAuthRequestBuilders
                 .setContent(this.newValidSession())
@@ -224,7 +214,7 @@ public class SessionControllersTest {
 
     UpdateSessionRequest updateSessionAndMusclesRequest() {
         return UpdateSessionRequest.builder().sessionId(2L).level(2).name("Push-ups")
-            .description("Hello").muscleIds(List.of(0, 2)).build();
+            .description("Hello").muscleIds(List.of(0L, 2L)).build();
     }
 
     @Test
@@ -396,16 +386,6 @@ public class SessionControllersTest {
             .perform(mockAuthRequestBuilders
                 .setContent(updateSessionAndMusclesRequest())
                 .replaceFieldOfContent("muscleIds", Arrays.stream(new Integer[]{null, null}).toList())
-                .buildAdminRequestWithContent(PUT, "/v1/update-session-and-muscles"))
-            .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
-    }
-
-    @Test
-    public void updateSessionAndMuscles_admin_outOfMuscleIdsRange() throws Exception {
-        mockMvc
-            .perform(mockAuthRequestBuilders
-                .setContent(updateSessionAndMusclesRequest())
-                .replaceFieldOfContent("muscleIds", List.of(1, 99))
                 .buildAdminRequestWithContent(PUT, "/v1/update-session-and-muscles"))
             .andExpect(jsonPath("applicationCode").value(ErrorCodes.VALIDATOR_ERR_RESPONSE.getCode()));
     }

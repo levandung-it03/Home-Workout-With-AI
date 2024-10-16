@@ -7,7 +7,6 @@ import com.restproject.backend.dtos.response.ExercisesOfSessionResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.enums.ErrorCodes;
-import com.restproject.backend.enums.Muscle;
 import com.restproject.backend.enums.SucceedCodes;
 import com.restproject.backend.helpers.JsonService;
 import com.restproject.backend.helpers.MockAuthRequestBuilders;

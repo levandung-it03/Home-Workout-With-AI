@@ -8,10 +8,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Length;
 
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Collection;
 
 @Data
 @NoArgsConstructor
@@ -50,4 +47,12 @@ public class Exercise {
 
     @Column(name = "image_url")
     String imageUrl;
+
+    @ManyToMany
+    @JoinTable(
+        name = "muscle_exercise",
+        joinColumns = @JoinColumn(name = "exercise_id", referencedColumnName = "exercise_id"),
+        inverseJoinColumns = @JoinColumn(name = "muscle_id", referencedColumnName = "muscle_id")
+    )
+    Collection<Muscle> muscles;
 }

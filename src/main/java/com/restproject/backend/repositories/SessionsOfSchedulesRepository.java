@@ -1,6 +1,6 @@
 package com.restproject.backend.repositories;
 
-import com.restproject.backend.dtos.response.SessionsOfScheduleResponse;
+import com.restproject.backend.dtos.request.SessionsOfScheduleRequest;
 import com.restproject.backend.entities.SessionsOfSchedules;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,28 +20,27 @@ public interface SessionsOfSchedulesRepository extends JpaRepository<SessionsOfS
     boolean existsByScheduleScheduleId(Long scheduleId);
 
     @Query("""
-        SELECT s.sessionId, s.name, s.levelEnum,
-            CASE WHEN sos.schedule.scheduleId = :scheduleId THEN 1 ELSE 0 END, s.switchExerciseDelay, sos.ordinal
-        FROM SessionsOfSchedules sos RIGHT OUTER JOIN Session s ON sos.session.sessionId = s.sessionId
+        SELECT s.sessionId, s.name, s.levelEnum, s.switchExerciseDelay, sos.ordinal,
+            (CASE WHEN sos.schedule.scheduleId = :scheduleId THEN TRUE ELSE FALSE END) AS withCurrentSchedule
+        FROM Session s JOIN s.muscles m LEFT OUTER JOIN SessionsOfSchedules sos ON sos.session.sessionId = s.sessionId
         WHERE (:#{#filterObj.withCurrentSchedule} IS NULL
             OR :#{#filterObj.withCurrentSchedule} = CASE WHEN sos.schedule.scheduleId = :scheduleId THEN 1 ELSE 0 END)
         AND (:#{#filterObj.levelEnum} IS NULL OR :#{#filterObj.levelEnum} = s.levelEnum)
-        AND (:#{#filterObj.ordinal} IS NULL OR :#{#filterObj.ordinal} = sos.ordinal)
         AND (:#{#filterObj.switchExerciseDelay} IS NULL OR :#{#filterObj.switchExerciseDelay} = s.switchExerciseDelay)
         AND (:#{#filterObj.name} IS NULL OR s.name LIKE CONCAT('%',:#{#filterObj.name},'%'))
-        ORDER BY CASE WHEN sos.schedule.scheduleId = :scheduleId THEN 1 ELSE 0 END DESC
+        ORDER BY CASE WHEN sos.schedule.scheduleId = :scheduleId THEN 1 ELSE 0 END DESC, m.muscleName ASC
     """)
     Page<Object[]> findAllSessionsHasMusclesPrioritizeRelationshipByScheduleId(
         @Param("scheduleId") Long id,
-        @Param("filterObj") SessionsOfScheduleResponse filteringInfo,
+        @Param("filterObj") SessionsOfScheduleRequest filteringInfo,
         Pageable pageableCf
     );
 
     @Query("""
-        SELECT s.sessionId, s.name, s.levelEnum,
-            CASE WHEN sos.schedule.scheduleId = :scheduleId THEN 1 ELSE 0 END, sos.ordinal
-        FROM SessionsOfSchedules sos RIGHT OUTER JOIN Session s ON sos.session.sessionId = s.sessionId
-        ORDER BY CASE WHEN sos.schedule.scheduleId = :scheduleId THEN 1 ELSE 0 END DESC
+        SELECT s.sessionId, s.name, s.levelEnum, s.switchExerciseDelay, sos.ordinal,
+            (CASE WHEN sos.schedule.scheduleId = :scheduleId THEN TRUE ELSE FALSE END) AS withCurrentSchedule
+        FROM Session s JOIN s.muscles m LEFT OUTER JOIN SessionsOfSchedules sos ON sos.session.sessionId = s.sessionId
+        ORDER BY CASE WHEN sos.schedule.scheduleId = :scheduleId THEN 1 ELSE 0 END DESC, m.muscleName ASC
     """)
     Page<Object[]> findAllSessionsHasMusclesPrioritizeRelationshipByScheduleId(
         @Param("scheduleId") Long id,
