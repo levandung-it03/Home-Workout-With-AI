@@ -53,10 +53,7 @@ public interface ExercisesOfSessionsRepository extends JpaRepository<ExercisesOf
     void deleteAllBySessionSessionId(Long id);
 
     @Query("""
-        SELECT new com.restproject.backend.dtos.general.ExerciseInfoDto(
-            eos.exercise.exerciseId, eos.ordinal, eos.downRepsRatio, eos.slackInSecond, eos.raiseSlackInSecond,
-            eos.iteration, eos.needSwitchExerciseDelay
-        ) FROM ExercisesOfSessions eos WHERE eos.session.sessionId = :sessionId
+        SELECT eos FROM ExercisesOfSessions eos WHERE eos.session.sessionId = :sessionId
     """)
-    List<ExerciseInfoDto> findAllById(@Param("sessionId") Long sessionId);
+    List<ExercisesOfSessions> findAllById(@Param("sessionId") Long sessionId);
 }

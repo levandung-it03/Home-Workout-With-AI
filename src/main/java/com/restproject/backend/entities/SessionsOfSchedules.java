@@ -22,7 +22,6 @@ public class SessionsOfSchedules {
 
     @ManyToOne(targetEntity = Session.class)
     @JoinColumn(name = "session_id", referencedColumnName = "session_id", updatable = false)
-    @JsonIgnore
     Session session;
 
     @ManyToOne(targetEntity = Schedule.class)

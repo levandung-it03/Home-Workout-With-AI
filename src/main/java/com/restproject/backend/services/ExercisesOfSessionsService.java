@@ -32,35 +32,9 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ExercisesOfSessionsService {
-    PageMappers pageMappers;
     SessionRepository sessionRepository;
     ExerciseRepository exerciseRepository;
     ExercisesOfSessionsRepository exercisesOfSessionsRepository;
-
-    public TablePagesResponse<ExercisesOfSessionResponse> getExercisesHasMusclesOfSessionPagesPrioritizeRelationship(
-        PaginatedRelationshipRequest request) {
-        Pageable pageableCfg = pageMappers.relationshipPageRequestToPageable(request).toPageable(Exercise.class);
-
-        if (Objects.isNull(request.getFilterFields()) || request.getFilterFields().isEmpty()) {
-            Page<ExercisesOfSessionResponse> repoRes = exercisesOfSessionsRepository
-                .findAllExercisesHasMusclesPrioritizeRelationshipBySessionId(request.getId(), pageableCfg);
-            return TablePagesResponse.<ExercisesOfSessionResponse>builder().data(repoRes.stream().toList())
-                .currentPage(request.getPage()).totalPages(repoRes.getTotalPages()).build();
-        }
-
-        //--Build filtering info.
-        ExercisesOfSessionRequest exerciseInfo;
-        try {
-            exerciseInfo = ExercisesOfSessionRequest.buildFromHashMap(request.getFilterFields());
-        } catch (ApplicationException | IllegalArgumentException | NullPointerException | NoSuchFieldException e) {
-            throw new ApplicationException(ErrorCodes.INVALID_FILTERING_FIELD_OR_VALUE);
-        }
-
-        Page<ExercisesOfSessionResponse> repoRes = exercisesOfSessionsRepository
-            .findAllExercisesHasMusclesPrioritizeRelationshipBySessionId(request.getId(), exerciseInfo, pageableCfg);
-        return TablePagesResponse.<ExercisesOfSessionResponse>builder().data(repoRes.stream().toList())
-            .currentPage(request.getPage()).totalPages(repoRes.getTotalPages()).build();
-    }
 
     //--Missing Test
     @Transactional(rollbackOn = {RuntimeException.class})
@@ -92,7 +66,7 @@ public class ExercisesOfSessionsService {
         return repoResponse.stream().map(ExercisesOfSessions::getExercise).toList();
     }
 
-    public List<ExerciseInfoDto> getExercisesOfSessionRelationship(ByIdDto request) {
+    public List<ExercisesOfSessions> getExercisesOfSessionRelationship(ByIdDto request) {
         return exercisesOfSessionsRepository.findAllById(request.getId());
     }
 }

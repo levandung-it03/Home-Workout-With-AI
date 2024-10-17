@@ -28,16 +28,8 @@ public class ExercisesOfSessionsControllers {
     ExercisesOfSessionsService exercisesOfSessionsServiceOfAdmin;
 
     @ResponseBody
-    @GetMapping("/admin/v1/get-exercises-has-muscles-of-session-pages")   //--For "Show Exercises" of Session.
-    public ResponseEntity<ApiResponseObject<TablePagesResponse<ExercisesOfSessionResponse>>>
-    getExercisesHasMusclesOfSessionPagesPrioritizeRelationship(@Valid PaginatedRelationshipRequest request) {
-        return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_EXERCISES_HAS_MUSCLES_OF_SESSION_PAGES,
-            exercisesOfSessionsServiceOfAdmin.getExercisesHasMusclesOfSessionPagesPrioritizeRelationship(request));
-    }
-
-    @ResponseBody
     @GetMapping("/admin/v1/get-exercises-of-session-relationship")
-    public ResponseEntity<ApiResponseObject<List<ExerciseInfoDto>>> getExercisesOfSessionRelationship(
+    public ResponseEntity<ApiResponseObject<List<ExercisesOfSessions>>> getExercisesOfSessionRelationship(
         @Valid ByIdDto request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_EXERCISES_OF_SESSION_RELATIONSHIP,
             exercisesOfSessionsServiceOfAdmin.getExercisesOfSessionRelationship(request));

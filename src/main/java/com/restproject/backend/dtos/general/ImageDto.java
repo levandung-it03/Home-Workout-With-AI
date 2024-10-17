@@ -1,4 +1,4 @@
-package com.restproject.backend.dtos.request;
+package com.restproject.backend.dtos.general;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -10,10 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UpsertExerciseImageRequest {
+public class ImageDto {
     @NotNull
-    Long exerciseId;
-
-    @NotNull
-    MultipartFile exerciseImage;
+    MultipartFile image;
 }

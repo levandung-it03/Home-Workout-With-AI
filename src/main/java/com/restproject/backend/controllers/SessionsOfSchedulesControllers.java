@@ -29,17 +29,8 @@ public class SessionsOfSchedulesControllers {
     SessionsOfSchedulesService sessionsOfSchedulesServiceOfAdmin;
 
     @ResponseBody
-    @GetMapping("/admin/v1/get-sessions-has-muscles-of-schedule-pages")
-    public ResponseEntity<ApiResponseObject<TablePagesResponse<SessionsOfScheduleResponse>>>
-    getSessionsHasMusclesOfSchedulePagesPrioritizeRelationship(
-        @Valid PaginatedRelationshipRequest request) {
-        return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_SESSIONS_HAS_MUSCLES_OF_SCHEDULE_PAGES,
-            sessionsOfSchedulesServiceOfAdmin.getSessionsHasMusclesOfSchedulePagesPrioritizeRelationship(request));
-    }
-
-    @ResponseBody
     @GetMapping("/admin/v1/get-sessions-of-schedule-relationship")
-    public ResponseEntity<ApiResponseObject<List<SessionInfoDto>>> getSessionsOfScheduleRelationship(
+    public ResponseEntity<ApiResponseObject<List<SessionsOfSchedules>>> getSessionsOfScheduleRelationship(
         @Valid ByIdDto request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_SESSIONS_OF_SCHEDULE_RELATIONSHIP,
             sessionsOfSchedulesServiceOfAdmin.getSessionsOfScheduleRelationship(request));

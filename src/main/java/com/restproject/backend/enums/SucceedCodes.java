@@ -45,7 +45,12 @@ public enum SucceedCodes {
     //--User(27)
     UPDATE_USER_STATUS(27001, "Update User status"),
     //--Subscription(28)
-    GET_SUBSCRIPTIONS_OF_USER_INFO_PAGES(28001, "Get Subscriptions successfully!");
+    GET_SUBSCRIPTIONS_OF_USER_INFO_PAGES(28001, "Get Subscriptions successfully!"),
+    //--Supported(29)
+    GET_ALL_SLIDES_FOR_HOME(29001, "Get all Slides successfully"),
+    UPLOAD_SLIDES(29002, "Upload Slide successfully"),
+    DELETE_SLIDES(29003, "Delete Slide successfully"),
+    ;
 
     int code;
     String message;

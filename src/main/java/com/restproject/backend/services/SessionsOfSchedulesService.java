@@ -32,35 +32,9 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SessionsOfSchedulesService {
-    PageMappers pageMappers;
     SessionsOfSchedulesRepository sessionsOfSchedulesRepository;
     ScheduleRepository scheduleRepository;
     SessionRepository sessionRepository;
-
-    public TablePagesResponse<SessionsOfScheduleResponse> getSessionsHasMusclesOfSchedulePagesPrioritizeRelationship(
-        PaginatedRelationshipRequest request) {
-        Pageable pageableCf = pageMappers.relationshipPageRequestToPageable(request)
-            .toPageable(SessionsOfSchedules.class);
-
-        if (Objects.isNull(request.getFilterFields()) || request.getFilterFields().isEmpty()) {
-            Page<SessionsOfScheduleResponse> repoRes = sessionsOfSchedulesRepository
-                .findAllSessionsHasMusclesPrioritizeRelationshipByScheduleId(request.getId(), pageableCf);
-            return TablePagesResponse.<SessionsOfScheduleResponse>builder().data(repoRes.stream().toList())
-                .currentPage(request.getPage()).totalPages(repoRes.getTotalPages()).build();
-        }
-
-        SessionsOfScheduleRequest sessionInfo;
-        try {
-            sessionInfo = SessionsOfScheduleRequest.buildFromHashMap(request.getFilterFields());
-        } catch (ApplicationException | NullPointerException | IllegalArgumentException | NoSuchFieldException e) {
-            throw new ApplicationException(ErrorCodes.INVALID_FILTERING_FIELD_OR_VALUE);
-        }
-        Page<SessionsOfScheduleResponse> repoRes = sessionsOfSchedulesRepository
-            .findAllSessionsHasMusclesPrioritizeRelationshipByScheduleId(request.getId(), sessionInfo, pageableCf);
-
-        return TablePagesResponse.<SessionsOfScheduleResponse>builder().data(repoRes.stream().toList())
-            .currentPage(request.getPage()).totalPages(repoRes.getTotalPages()).build();
-    }
 
     //--Missing Test
     @Transactional(rollbackOn = {RuntimeException.class})
@@ -87,7 +61,7 @@ public class SessionsOfSchedulesService {
         return sessionsFromDB;
     }
 
-    public List<SessionInfoDto> getSessionsOfScheduleRelationship(ByIdDto request) {
+    public List<SessionsOfSchedules> getSessionsOfScheduleRelationship(ByIdDto request) {
         return sessionsOfSchedulesRepository.findAllById(request.getId());
     }
 }

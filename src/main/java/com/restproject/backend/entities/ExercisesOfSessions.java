@@ -25,7 +25,6 @@ public class ExercisesOfSessions {
 
     @ManyToOne(targetEntity = Exercise.class)
     @JoinColumn(name = "exercise_id", referencedColumnName = "exercise_id", updatable = false)
-    @JsonIgnore
     Exercise exercise;
 
     @ManyToOne(targetEntity = Session.class)

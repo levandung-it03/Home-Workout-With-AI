@@ -54,8 +54,7 @@ public interface SessionsOfSchedulesRepository extends JpaRepository<SessionsOfS
     );
 
     @Query("""
-        SELECT new com.restproject.backend.dtos.general.SessionInfoDto(sos.session.sessionId, sos.ordinal)
-        FROM SessionsOfSchedules sos WHERE sos.schedule.scheduleId = :scheduleId
+        SELECT sos FROM SessionsOfSchedules sos WHERE sos.schedule.scheduleId = :scheduleId
     """)
-    List<SessionInfoDto> findAllById(@Param("scheduleId") Long scheduleId);
+    List<SessionsOfSchedules> findAllById(@Param("scheduleId") Long scheduleId);
 }
