@@ -1,11 +1,14 @@
 package com.restproject.backend.controllers;
 
+import com.restproject.backend.dtos.general.ByIdDto;
+import com.restproject.backend.dtos.general.ExerciseInfoDto;
 import com.restproject.backend.dtos.request.UpdateExercisesOfSessionRequest;
 import com.restproject.backend.dtos.response.ApiResponseObject;
 import com.restproject.backend.dtos.request.PaginatedRelationshipRequest;
 import com.restproject.backend.dtos.response.ExercisesOfSessionResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.entities.Exercise;
+import com.restproject.backend.entities.ExercisesOfSessions;
 import com.restproject.backend.enums.SucceedCodes;
 import com.restproject.backend.services.ExercisesOfSessionsService;
 import jakarta.validation.Valid;
@@ -32,6 +35,13 @@ public class ExercisesOfSessionsControllers {
             exercisesOfSessionsServiceOfAdmin.getExercisesHasMusclesOfSessionPagesPrioritizeRelationship(request));
     }
 
+    @ResponseBody
+    @GetMapping("/admin/v1/get-exercises-of-session-relationship")
+    public ResponseEntity<ApiResponseObject<List<ExerciseInfoDto>>> getExercisesOfSessionRelationship(
+        @Valid ByIdDto request) {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_EXERCISES_OF_SESSION_RELATIONSHIP,
+            exercisesOfSessionsServiceOfAdmin.getExercisesOfSessionRelationship(request));
+    }
 
     //--Missing Test
     @ResponseBody

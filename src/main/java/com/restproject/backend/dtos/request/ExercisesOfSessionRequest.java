@@ -19,7 +19,7 @@ public class ExercisesOfSessionRequest {
     Integer basicReps;
     Level levelEnum;
     List<Long> muscleIds;
-    boolean withCurrentSession;
+    Boolean withCurrentSession;
 
     public static ExercisesOfSessionRequest buildFromHashMap(HashMap<String, Object> map)
         throws ApplicationException, IllegalArgumentException, NullPointerException, NoSuchFieldException {
@@ -34,6 +34,8 @@ public class ExercisesOfSessionRequest {
             : Integer.parseInt(map.get("basicReps").toString()));
         exerciseInfo.setLevelEnum(!map.containsKey("level") ? null : Level.getByLevel(map.get("level")));
         exerciseInfo.setMuscleIds(!map.containsKey("muscleIds") ? null : Muscle.parseStrIdsToList(map.get("muscleIds")));
+        exerciseInfo.setWithCurrentSession(!map.containsKey("withCurrentSession") ? null
+            : Boolean.parseBoolean(map.get("withCurrentSession").toString()));
         return exerciseInfo;
     }
 }

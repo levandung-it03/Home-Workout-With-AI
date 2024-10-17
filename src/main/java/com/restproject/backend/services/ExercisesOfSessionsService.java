@@ -1,5 +1,6 @@
 package com.restproject.backend.services;
 
+import com.restproject.backend.dtos.general.ByIdDto;
 import com.restproject.backend.dtos.general.ExerciseInfoDto;
 import com.restproject.backend.dtos.request.ExercisesOfSessionRequest;
 import com.restproject.backend.dtos.request.UpdateExercisesOfSessionRequest;
@@ -41,10 +42,9 @@ public class ExercisesOfSessionsService {
         Pageable pageableCfg = pageMappers.relationshipPageRequestToPageable(request).toPageable(Exercise.class);
 
         if (Objects.isNull(request.getFilterFields()) || request.getFilterFields().isEmpty()) {
-            Page<Object[]> repoRes = exercisesOfSessionsRepository
+            Page<ExercisesOfSessionResponse> repoRes = exercisesOfSessionsRepository
                 .findAllExercisesHasMusclesPrioritizeRelationshipBySessionId(request.getId(), pageableCfg);
-            return TablePagesResponse.<ExercisesOfSessionResponse>builder()
-                .data(repoRes.stream().map(ExercisesOfSessionResponse::buildFromQuery).toList())
+            return TablePagesResponse.<ExercisesOfSessionResponse>builder().data(repoRes.stream().toList())
                 .currentPage(request.getPage()).totalPages(repoRes.getTotalPages()).build();
         }
 
@@ -56,10 +56,9 @@ public class ExercisesOfSessionsService {
             throw new ApplicationException(ErrorCodes.INVALID_FILTERING_FIELD_OR_VALUE);
         }
 
-        Page<Object[]> repoRes = exercisesOfSessionsRepository
+        Page<ExercisesOfSessionResponse> repoRes = exercisesOfSessionsRepository
             .findAllExercisesHasMusclesPrioritizeRelationshipBySessionId(request.getId(), exerciseInfo, pageableCfg);
-        return TablePagesResponse.<ExercisesOfSessionResponse>builder()
-            .data(repoRes.stream().map(ExercisesOfSessionResponse::buildFromQuery).toList())
+        return TablePagesResponse.<ExercisesOfSessionResponse>builder().data(repoRes.stream().toList())
             .currentPage(request.getPage()).totalPages(repoRes.getTotalPages()).build();
     }
 
@@ -91,5 +90,9 @@ public class ExercisesOfSessionsService {
                 .build());
         var repoResponse = exercisesOfSessionsRepository.saveAll(savedRelationships);
         return repoResponse.stream().map(ExercisesOfSessions::getExercise).toList();
+    }
+
+    public List<ExerciseInfoDto> getExercisesOfSessionRelationship(ByIdDto request) {
+        return exercisesOfSessionsRepository.findAllById(request.getId());
     }
 }

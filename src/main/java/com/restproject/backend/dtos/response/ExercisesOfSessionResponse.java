@@ -1,6 +1,7 @@
 package com.restproject.backend.dtos.response;
 
 import com.restproject.backend.dtos.general.ObjectDto;
+import com.restproject.backend.entities.Exercise;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -10,23 +11,25 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ExercisesOfSessionResponse {
-    Object exerciseId;
-    Object name;
-    Object basicReps;
-    Object levelEnum;
-    Object muscles;
-    Object withCurrentSession;
-    Object ordinal;
-    Object downRepsRatio;
-    Object slackInSecond;
-    Object raiseSlackInSecond;
-    Object iteration;
-    Object needSwitchExerciseDelay;
+    Exercise exercise;
+    Boolean withCurrentSession;
+    Integer ordinal;
+    Float downRepsRatio;
+    Integer slackInSecond;
+    Integer raiseSlackInSecond;
+    Integer iteration;
+    Boolean needSwitchExerciseDelay;
 
-
-    public static ExercisesOfSessionResponse buildFromQuery(Object[] params) {
-        var res = new ExercisesOfSessionResponse();
-        ObjectDto.mappingValues(res, params);
-        return res;
+    public ExercisesOfSessionResponse(Exercise exercise, Long sessionId, Long sessionIdInput, Integer ordinal,
+                                      Float downRepsRatio, Integer slackInSecond, Integer raiseSlackInSecond,
+                                      Integer iteration, Boolean needSwitchExerciseDelay) {
+        this.exercise = exercise;
+        this.withCurrentSession = sessionId.equals(sessionIdInput);
+        this.ordinal = ordinal;
+        this.downRepsRatio = downRepsRatio;
+        this.slackInSecond = slackInSecond;
+        this.raiseSlackInSecond = raiseSlackInSecond;
+        this.iteration = iteration;
+        this.needSwitchExerciseDelay = needSwitchExerciseDelay;
     }
 }

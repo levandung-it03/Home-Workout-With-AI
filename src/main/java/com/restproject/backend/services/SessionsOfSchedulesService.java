@@ -1,5 +1,6 @@
 package com.restproject.backend.services;
 
+import com.restproject.backend.dtos.general.ByIdDto;
 import com.restproject.backend.dtos.general.SessionInfoDto;
 import com.restproject.backend.dtos.request.PaginatedRelationshipRequest;
 import com.restproject.backend.dtos.request.SessionsOfScheduleRequest;
@@ -42,10 +43,9 @@ public class SessionsOfSchedulesService {
             .toPageable(SessionsOfSchedules.class);
 
         if (Objects.isNull(request.getFilterFields()) || request.getFilterFields().isEmpty()) {
-            Page<Object[]> repoRes = sessionsOfSchedulesRepository
+            Page<SessionsOfScheduleResponse> repoRes = sessionsOfSchedulesRepository
                 .findAllSessionsHasMusclesPrioritizeRelationshipByScheduleId(request.getId(), pageableCf);
-            return TablePagesResponse.<SessionsOfScheduleResponse>builder()
-                .data(repoRes.stream().map(SessionsOfScheduleResponse::buildFromQuery).toList())
+            return TablePagesResponse.<SessionsOfScheduleResponse>builder().data(repoRes.stream().toList())
                 .currentPage(request.getPage()).totalPages(repoRes.getTotalPages()).build();
         }
 
@@ -55,11 +55,10 @@ public class SessionsOfSchedulesService {
         } catch (ApplicationException | NullPointerException | IllegalArgumentException | NoSuchFieldException e) {
             throw new ApplicationException(ErrorCodes.INVALID_FILTERING_FIELD_OR_VALUE);
         }
-        Page<Object[]> repoRes = sessionsOfSchedulesRepository
+        Page<SessionsOfScheduleResponse> repoRes = sessionsOfSchedulesRepository
             .findAllSessionsHasMusclesPrioritizeRelationshipByScheduleId(request.getId(), sessionInfo, pageableCf);
 
-        return TablePagesResponse.<SessionsOfScheduleResponse>builder()
-            .data(repoRes.stream().map(SessionsOfScheduleResponse::buildFromQuery).toList())
+        return TablePagesResponse.<SessionsOfScheduleResponse>builder().data(repoRes.stream().toList())
             .currentPage(request.getPage()).totalPages(repoRes.getTotalPages()).build();
     }
 
@@ -86,5 +85,9 @@ public class SessionsOfSchedulesService {
         }
         sessionsOfSchedulesRepository.saveAll(savedRelationships);
         return sessionsFromDB;
+    }
+
+    public List<SessionInfoDto> getSessionsOfScheduleRelationship(ByIdDto request) {
+        return sessionsOfSchedulesRepository.findAllById(request.getId());
     }
 }

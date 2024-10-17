@@ -30,12 +30,14 @@ public enum SucceedCodes {
     DELETE_SCHEDULE(24003, "Delete Exercise successfully"),
     GET_SCHEDULES_PAGES(24004, "Get Schedule pages successfully"),
     GET_SESSIONS_HAS_MUSCLES_OF_SCHEDULE_PAGES(24005, "Get Sessions in Schedule pages successfully"),
+    GET_SESSIONS_OF_SCHEDULE_RELATIONSHIP(24006, "Get Sessions in Schedule successfully"),
     //--Session(25)
     CREATE_SESSION(25001, "Create new Session successfully"),
     UPDATE_SESSION(25002, "Update Session successfully"),
     DELETE_SESSION(25003, "Delete Exercise successfully"),
     GET_SESSIONS_HAS_MUSCLES_PAGES(25004, "Get Session has Muscles pages successfully"),
     GET_EXERCISES_HAS_MUSCLES_OF_SESSION_PAGES(25005, "Get Exercises in Session pages successfully"),
+    GET_EXERCISES_OF_SESSION_RELATIONSHIP(25006, "Get Exercises in Session successfully"),
     //--UserInfo(26)
     CREATE_USER_INFO(26001, "Create new User Info successfully"),
     GET_USER_INFO_PAGES(26002, "Get User Info pages successfully"),

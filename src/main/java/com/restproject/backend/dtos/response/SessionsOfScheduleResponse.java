@@ -1,6 +1,6 @@
 package com.restproject.backend.dtos.response;
 
-import com.restproject.backend.dtos.general.ObjectDto;
+import com.restproject.backend.entities.Session;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -10,17 +10,13 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SessionsOfScheduleResponse {
-    Object sessionId;
-    Object name;
-    Object levelEnum;
-    Object muscles;
-    Object switchExerciseDelay;
-    Object ordinal;
-    Object withCurrentSchedule;
+    Session session;
+    Boolean withCurrentSchedule;
+    Long ordinal;
 
-    public static SessionsOfScheduleResponse buildFromQuery(Object[] params) {
-        var res = new SessionsOfScheduleResponse();
-        ObjectDto.mappingValues(res, params);
-        return res;
+    public SessionsOfScheduleResponse(Session session, Long scheduleId, Long scheduleIdInput, Long ordinal) {
+        this.session = session;
+        this.ordinal = ordinal;
+        this.withCurrentSchedule = scheduleId.equals(scheduleIdInput);
     }
 }

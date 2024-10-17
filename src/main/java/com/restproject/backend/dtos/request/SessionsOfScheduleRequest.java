@@ -18,7 +18,7 @@ public class SessionsOfScheduleRequest {
     String name;
     Level levelEnum;
     List<Long> muscleIds;
-    boolean withCurrentSchedule;
+    Boolean withCurrentSchedule;
     Integer switchExerciseDelay;
 
     public static SessionsOfScheduleRequest buildFromHashMap(HashMap<String, Object> map)
@@ -36,6 +36,8 @@ public class SessionsOfScheduleRequest {
             : Muscle.parseStrIdsToList(map.containsKey("muscleIds")));
         sessionInfo.setSwitchExerciseDelay(!map.containsKey("switchExerciseDelay") ? null
             : Integer.parseInt(map.get("switchExerciseDelay").toString()));
+        sessionInfo.setWithCurrentSchedule(!map.containsKey("withCurrentSchedule") ? null
+            : Boolean.parseBoolean(map.get("withCurrentSchedule").toString()));
         return sessionInfo;
     }
 }

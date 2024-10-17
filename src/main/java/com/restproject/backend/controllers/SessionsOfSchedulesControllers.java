@@ -1,5 +1,8 @@
 package com.restproject.backend.controllers;
 
+import com.restproject.backend.dtos.general.ByIdDto;
+import com.restproject.backend.dtos.general.ExerciseInfoDto;
+import com.restproject.backend.dtos.general.SessionInfoDto;
 import com.restproject.backend.dtos.request.PaginatedRelationshipRequest;
 import com.restproject.backend.dtos.request.UpdateSessionsOfScheduleRequest;
 import com.restproject.backend.dtos.response.ApiResponseObject;
@@ -32,6 +35,14 @@ public class SessionsOfSchedulesControllers {
         @Valid PaginatedRelationshipRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_SESSIONS_HAS_MUSCLES_OF_SCHEDULE_PAGES,
             sessionsOfSchedulesServiceOfAdmin.getSessionsHasMusclesOfSchedulePagesPrioritizeRelationship(request));
+    }
+
+    @ResponseBody
+    @GetMapping("/admin/v1/get-sessions-of-schedule-relationship")
+    public ResponseEntity<ApiResponseObject<List<SessionInfoDto>>> getSessionsOfScheduleRelationship(
+        @Valid ByIdDto request) {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_SESSIONS_OF_SCHEDULE_RELATIONSHIP,
+            sessionsOfSchedulesServiceOfAdmin.getSessionsOfScheduleRelationship(request));
     }
 
     //--Missing Test
