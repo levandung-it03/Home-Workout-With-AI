@@ -5,6 +5,7 @@ import com.restproject.backend.dtos.general.ImageDto;
 import com.restproject.backend.dtos.response.ApiResponseObject;
 import com.restproject.backend.entities.Slides;
 import com.restproject.backend.enums.SucceedCodes;
+import com.restproject.backend.services.SlidesService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -20,20 +21,20 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SlidesControllers {
-    com.restproject.backend.services.SlidesControllers supportedService;
+    SlidesService slidesService;
 
     @ResponseBody
     @GetMapping({"/api/private/admin/v1/get-all-slides-for-home", "/api/private/user/v1/get-all-slides-for-home"})
     public ResponseEntity<ApiResponseObject<List<Slides>>> getAllSlidesForHome() {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_ALL_SLIDES_FOR_HOME,
-            supportedService.getAllSlidesForHome());
+            slidesService.getAllSlidesForHome());
     }
 
     @ResponseBody
     @DeleteMapping("/api/private/admin/v1/delete-slide")
     public ResponseEntity<ApiResponseObject<Void>> getAllSlidesForHome(@Valid @RequestBody ByIdDto request)
         throws IOException {
-        supportedService.deleteSlide(request);
+        slidesService.deleteSlide(request);
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.UPLOAD_SLIDES);
     }
 
@@ -44,6 +45,6 @@ public class SlidesControllers {
     public ResponseEntity<ApiResponseObject<Slides>> getAllSlidesForHome(@Valid ImageDto request)
         throws IOException {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.UPLOAD_SLIDES,
-            supportedService.uploadSlide(request));
+            slidesService.uploadSlide(request));
     }
 }

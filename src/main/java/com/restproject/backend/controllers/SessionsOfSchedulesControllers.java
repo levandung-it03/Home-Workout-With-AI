@@ -1,13 +1,8 @@
 package com.restproject.backend.controllers;
 
 import com.restproject.backend.dtos.general.ByIdDto;
-import com.restproject.backend.dtos.general.ExerciseInfoDto;
-import com.restproject.backend.dtos.general.SessionInfoDto;
-import com.restproject.backend.dtos.request.PaginatedRelationshipRequest;
 import com.restproject.backend.dtos.request.UpdateSessionsOfScheduleRequest;
 import com.restproject.backend.dtos.response.ApiResponseObject;
-import com.restproject.backend.dtos.response.SessionsOfScheduleResponse;
-import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.entities.Session;
 import com.restproject.backend.entities.SessionsOfSchedules;
 import com.restproject.backend.enums.SucceedCodes;

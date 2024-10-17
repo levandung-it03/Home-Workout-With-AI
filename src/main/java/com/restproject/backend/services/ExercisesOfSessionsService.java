@@ -2,16 +2,11 @@ package com.restproject.backend.services;
 
 import com.restproject.backend.dtos.general.ByIdDto;
 import com.restproject.backend.dtos.general.ExerciseInfoDto;
-import com.restproject.backend.dtos.request.ExercisesOfSessionRequest;
 import com.restproject.backend.dtos.request.UpdateExercisesOfSessionRequest;
-import com.restproject.backend.dtos.request.PaginatedRelationshipRequest;
-import com.restproject.backend.dtos.response.ExercisesOfSessionResponse;
-import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.entities.ExercisesOfSessions;
 import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.exceptions.ApplicationException;
-import com.restproject.backend.mappers.PageMappers;
 import com.restproject.backend.repositories.ExerciseRepository;
 import com.restproject.backend.repositories.ExercisesOfSessionsRepository;
 import com.restproject.backend.repositories.SessionRepository;
@@ -19,14 +14,11 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
