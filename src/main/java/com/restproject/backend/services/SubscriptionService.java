@@ -30,11 +30,10 @@ public class SubscriptionService {
     JwtService jwtService;
     PageMappers pageMappers;
 
-    public List<Schedule> getSchedulesByStatusPages(ScheduleByStatusRequest request, String accessToken) {
+    public List<Schedule> getSchedulesOfUser(ScheduleByStatusRequest request, String accessToken) {
         return subscriptionRepository.getAllScheduleByUsernameAndStatus(
-            jwtService.readPayload(accessToken).get("subject"),
-            request.getIsCompleted()
-        );
+            jwtService.readPayload(accessToken).get("sub"),
+            request.getIsCompleted() ? 1 : 0);
     }
 
     public TablePagesResponse<SubscriptionsInfoResponse> getSubscriptionsOfUserInfoPages(

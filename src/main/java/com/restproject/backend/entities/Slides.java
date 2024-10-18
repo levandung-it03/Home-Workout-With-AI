@@ -17,6 +17,8 @@ public class Slides {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+    String name;
+
     @Column(name = "image_public_id")
     String imagePublicId;
 

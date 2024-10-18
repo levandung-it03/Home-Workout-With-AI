@@ -25,12 +25,12 @@ public class SubscriptionControllers {
     SubscriptionService subscriptionService;
 
     @ResponseBody
-    @GetMapping("/user/v1/get-schedules-of-user-pages")
-    public ResponseEntity<ApiResponseObject<List<Schedule>>> getSchedulesPages(
+    @GetMapping("/user/v1/get-schedules-of-user")
+    public ResponseEntity<ApiResponseObject<List<Schedule>>> getSchedulesOfUser(
         @RequestHeader("Authorization") String accessToken,
         @Valid ScheduleByStatusRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_SCHEDULES_PAGES,
-            subscriptionService.getSchedulesByStatusPages(request, accessToken));
+            subscriptionService.getSchedulesOfUser(request, accessToken));
     }
 
     @ResponseBody

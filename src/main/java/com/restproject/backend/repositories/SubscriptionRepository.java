@@ -16,11 +16,12 @@ import java.util.List;
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
 
     @Query("""
-        SELECT s.schedule FROM Subscription s WHERE s.userInfo.user.email = :email
-        AND ((s.completedTime IS NOT NULL AND :isCompleted = TRUE) OR (s.completedTime IS NULL AND :isCompleted = FALSE))
+        SELECT s.schedule FROM Subscription s
+        WHERE s.userInfo.user.email = :email
+        AND ((s.completedTime IS NULL AND :isCompleted = 0) OR (s.completedTime IS NOT NULL AND :isCompleted = 1))
     """)
     List<Schedule> getAllScheduleByUsernameAndStatus(
-        @Param("email") String email, @Param("isCompleted") Boolean isCompleted);
+        @Param("email") String email, @Param("isCompleted") Integer isCompleted);
 
     @Query("""
         SELECT s.subscriptionId, s.userInfo.firstName, s.userInfo.lastName, s.subscribedTime, s.efficientDays,

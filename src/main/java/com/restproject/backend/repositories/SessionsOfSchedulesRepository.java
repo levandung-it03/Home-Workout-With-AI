@@ -18,7 +18,7 @@ public interface SessionsOfSchedulesRepository extends JpaRepository<SessionsOfS
     boolean existsByScheduleScheduleId(Long scheduleId);
 
     @Query("""
-        SELECT sos FROM SessionsOfSchedules sos WHERE sos.schedule.scheduleId = :scheduleId
+        SELECT sos FROM SessionsOfSchedules sos WHERE sos.schedule.scheduleId = :scheduleId ORDER BY sos.ordinal ASC
     """)
     List<SessionsOfSchedules> findAllById(@Param("scheduleId") Long scheduleId);
 }

@@ -21,14 +21,15 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SessionsOfSchedulesControllers {
-    SessionsOfSchedulesService sessionsOfSchedulesServiceOfAdmin;
+    SessionsOfSchedulesService sessionsOfSchedulesService;
 
     @ResponseBody
-    @GetMapping("/admin/v1/get-sessions-of-schedule-relationship")
+    @GetMapping({"/admin/v1/get-sessions-of-schedule-relationship",
+        "/user/v1/get-sessions-of-schedule-relationship"})
     public ResponseEntity<ApiResponseObject<List<SessionsOfSchedules>>> getSessionsOfScheduleRelationship(
         @Valid ByIdDto request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_SESSIONS_OF_SCHEDULE_RELATIONSHIP,
-            sessionsOfSchedulesServiceOfAdmin.getSessionsOfScheduleRelationship(request));
+            sessionsOfSchedulesService.getSessionsOfScheduleRelationship(request));
     }
 
     //--Missing Test
@@ -37,6 +38,6 @@ public class SessionsOfSchedulesControllers {
     public ResponseEntity<ApiResponseObject<List<Session>>> updateExercisesOfSession(
         @Valid @RequestBody UpdateSessionsOfScheduleRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.UPDATE_SCHEDULE,
-            sessionsOfSchedulesServiceOfAdmin.updateSessionsOfSchedule(request));
+            sessionsOfSchedulesService.updateSessionsOfSchedule(request));
     }
 }
