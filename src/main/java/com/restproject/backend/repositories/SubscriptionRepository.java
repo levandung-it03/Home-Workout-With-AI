@@ -1,7 +1,9 @@
 package com.restproject.backend.repositories;
 
 import com.restproject.backend.dtos.request.SubscriptionsInfoRequest;
+import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.entities.Schedule;
+import com.restproject.backend.entities.Session;
 import com.restproject.backend.entities.Subscription;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,9 +13,28 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
+
+    @Query("""
+        SELECT sos.session FROM Subscription s INNER JOIN SessionsOfSchedules sos
+        ON s.schedule.scheduleId = sos.schedule.scheduleId
+        WHERE s.userInfo.user.email = :email AND sos.session.sessionId = :id
+        LIMIT 1
+    """)
+    Optional<Session> getSessionsOfSubscribedScheduleByIdAndEmail(
+        @Param("email") String email, @Param("sessionId") Long id);
+
+    @Query("""
+        SELECT eos.exercise FROM Subscription s
+        INNER JOIN SessionsOfSchedules sos ON s.schedule.scheduleId = sos.schedule.scheduleId
+        INNER JOIN ExercisesOfSessions eos ON sos.session.sessionId = eos.session.sessionId
+        WHERE s.userInfo.user.email = :email AND sos.session.sessionId = :id
+    """)
+    List<Exercise> getExercisesInSessionOfSubscribedScheduleByIdAndEmail(
+        @Param("email") String email, @Param("sessionId") Long id);
 
     @Query("""
         SELECT s.schedule FROM Subscription s
@@ -51,4 +72,5 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
         @Param("filterObj") SubscriptionsInfoRequest filterObj,
         Pageable pageableCfg
     );
+
 }

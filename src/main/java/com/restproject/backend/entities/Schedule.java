@@ -60,9 +60,11 @@ public class Schedule {
 
     public static Schedule buildFromHashMap(HashMap<String, Object> map)
         throws NullPointerException, ApplicationException, IllegalArgumentException, NoSuchFieldException {
-        for (String key: map.keySet())
+        for (String key: map.keySet()) {
+            if (key.equals("level"))    continue;
             if (Arrays.stream(Schedule.class.getDeclaredFields()).noneMatch(f -> f.getName().equals(key)))
                 throw new NoSuchFieldException();
+        }
 
         var result = new Schedule();
         result.setName(!map.containsKey("name") ? null : map.get("name").toString());

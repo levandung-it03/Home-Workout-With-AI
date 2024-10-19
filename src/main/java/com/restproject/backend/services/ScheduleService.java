@@ -14,6 +14,7 @@ import com.restproject.backend.mappers.ScheduleMappers;
 import com.restproject.backend.repositories.ScheduleRepository;
 import com.restproject.backend.repositories.SessionRepository;
 import com.restproject.backend.repositories.SessionsOfSchedulesRepository;
+import com.restproject.backend.services.Auth.JwtService;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class ScheduleService {
     SessionRepository sessionRepository;
     SessionsOfSchedulesRepository sessionsOfSchedulesRepository;
     ScheduleMappers scheduleMappers;
+    JwtService jwtService;
 
     public TablePagesResponse<Schedule> getSchedulesPages(PaginatedTableRequest request) {
         Pageable pageableCf = pageMappers.tablePageRequestToPageable(request).toPageable(Schedule.class);
@@ -103,5 +105,29 @@ public class ScheduleService {
 
         sessionsOfSchedulesRepository.deleteAllByScheduleScheduleId(request.getId());
         scheduleRepository.deleteById(request.getId());
+    }
+
+    public TablePagesResponse<Schedule> getAvailableSchedulesOfUserPages(
+        PaginatedTableRequest request, String accessToken) {
+        Pageable pageableCf = pageMappers.tablePageRequestToPageable(request).toPageable(Schedule.class);
+        String email = jwtService.readPayload(accessToken).get("sub");
+
+
+        if (Objects.isNull(request.getFilterFields()) || request.getFilterFields().isEmpty()) {
+            Page<Schedule> repoRes = scheduleRepository.findAllAvailableScheduleOfUser(email, pageableCf);
+            return TablePagesResponse.<Schedule>builder().data(repoRes.stream().toList())
+                .totalPages(repoRes.getTotalPages()).currentPage(request.getPage()).build();
+        }
+
+        Schedule scheduleInfo;
+        try {
+            scheduleInfo = Schedule.buildFromHashMap(request.getFilterFields());
+        } catch (ApplicationException | NullPointerException | IllegalArgumentException | NoSuchFieldException e) {
+            throw new ApplicationException(ErrorCodes.INVALID_FILTERING_FIELD_OR_VALUE);
+        }
+
+        Page<Schedule> repoRes = scheduleRepository.findAllAvailableScheduleOfUser(email, scheduleInfo, pageableCf);
+        return TablePagesResponse.<Schedule>builder().data(repoRes.stream().toList())
+            .totalPages(repoRes.getTotalPages()).currentPage(request.getPage()).build();
     }
 }

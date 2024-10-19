@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @Table(
     name = "sessions_of_schedules",
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"session_id", "schedule_id", "ordinal"})}
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"schedule_id", "ordinal"})}
 )
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)

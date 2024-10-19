@@ -13,7 +13,7 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @Table(
     name = "exercises_of_sessions",
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"exercise_id", "session_id", "ordinal"})}
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"session_id", "ordinal"})}
 )
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)

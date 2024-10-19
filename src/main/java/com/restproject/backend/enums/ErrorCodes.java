@@ -35,8 +35,10 @@ public enum ErrorCodes {
     INVALID_GENDER_ID(12003, "Gender Id is invalid", BAD_REQUEST),
     //--Exercise(13)
     DUPLICATED_EXERCISE(13001, "Exercise's Name, Level and Basic Reps set is already existing", BAD_REQUEST),
+    NOT_SUBSCRIBED_EXERCISES_YET(14002, "This Exercises belongs to an un-subscribed Schedule", BAD_REQUEST),
     //--Session(14)
     DUPLICATED_SESSION(14001, "Session's Name and Level pair is already existing", BAD_REQUEST),
+    NOT_SUBSCRIBED_SESSION_YET(14002, "This Session belongs to an un-subscribed Schedule", BAD_REQUEST),
     //--ExercisesOfSessions(15)
     DUPLICATED_EXERCISE_RELATED_TO_SESSION(15001, "Exercise has been already belonged to Session", BAD_REQUEST),
     //--Schedule(16)

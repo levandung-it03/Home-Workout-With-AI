@@ -15,6 +15,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     @Query("""
         SELECT s FROM Schedule s
         WHERE (:#{#filterObj.name} IS NULL OR s.name LIKE CONCAT('%',:#{#filterObj.name},'%'))
+        AND (:#{#filterObj.description} IS NULL OR s.description LIKE CONCAT('%',:#{#filterObj.description},'%'))
         AND (:#{#filterObj.levelEnum} IS NULL OR s.levelEnum = :#{#filterObj.levelEnum})
         AND (:#{#filterObj.coins} IS NULL OR s.coins = :#{#filterObj.coins})
     """)
@@ -30,4 +31,26 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
         WHERE s.scheduleId = :#{#schedule.scheduleId}
     """)
     void updateScheduleBySchedule(@Param("schedule") Schedule formerSch);
+
+    @Query("""
+        SELECT s FROM Schedule s WHERE s.scheduleId NOT IN (
+            SELECT DISTINCT sub.schedule.scheduleId FROM Subscription sub
+            WHERE sub.userInfo.user.email = :email
+        )
+    """)
+    Page<Schedule> findAllAvailableScheduleOfUser(@Param("email") String email, Pageable pageableCf);
+
+
+    @Query("""
+        SELECT s FROM Schedule s WHERE s.scheduleId NOT IN (
+            SELECT DISTINCT sub.schedule.scheduleId FROM Subscription sub
+            WHERE sub.userInfo.user.email = :email
+        ) AND (:#{#filterObj.levelEnum} IS NULL OR :#{#filterObj.levelEnum} = s.levelEnum)
+         AND (:#{#filterObj.coins} IS NULL OR :#{#filterObj.coins} = s.coins)
+    """)
+    Page<Schedule> findAllAvailableScheduleOfUser(
+        @Param("email") String email,
+        @Param("filterObj") Schedule schedule,
+        Pageable pageableCf
+    );
 }

@@ -10,6 +10,7 @@ import com.restproject.backend.exceptions.ApplicationException;
 import com.restproject.backend.repositories.ScheduleRepository;
 import com.restproject.backend.repositories.SessionRepository;
 import com.restproject.backend.repositories.SessionsOfSchedulesRepository;
+import com.restproject.backend.services.Auth.JwtService;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class SessionsOfSchedulesService {
     SessionsOfSchedulesRepository sessionsOfSchedulesRepository;
     ScheduleRepository scheduleRepository;
     SessionRepository sessionRepository;
+    JwtService jwtService;
 
     //--Missing Test
     @Transactional(rollbackOn = {RuntimeException.class})

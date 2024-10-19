@@ -54,4 +54,13 @@ public class ScheduleControllers {
         scheduleServiceOfAdmin.deleteSchedule(request);
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.DELETE_SCHEDULE);
     }
+
+    @ResponseBody
+    @GetMapping("/user/v1/get-available-schedules-of-user-pages")
+    public ResponseEntity<ApiResponseObject<TablePagesResponse<Schedule>>> getAvailableSchedulesOfUserPages(
+        @RequestHeader("Authorization") String accessToken,
+        @Valid PaginatedTableRequest request) {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_SCHEDULES_PAGES,
+            scheduleServiceOfAdmin.getAvailableSchedulesOfUserPages(request, accessToken));
+    }
 }

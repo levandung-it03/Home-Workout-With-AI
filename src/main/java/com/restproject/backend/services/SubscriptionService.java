@@ -1,11 +1,14 @@
 package com.restproject.backend.services;
 
+import com.restproject.backend.dtos.general.ByIdDto;
 import com.restproject.backend.dtos.request.PaginatedRelationshipRequest;
 import com.restproject.backend.dtos.request.ScheduleByStatusRequest;
 import com.restproject.backend.dtos.request.SubscriptionsInfoRequest;
 import com.restproject.backend.dtos.response.SubscriptionsInfoResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
+import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.entities.Schedule;
+import com.restproject.backend.entities.Session;
 import com.restproject.backend.entities.Subscription;
 import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.exceptions.ApplicationException;
@@ -61,5 +64,20 @@ public class SubscriptionService {
         return TablePagesResponse.<SubscriptionsInfoResponse>builder()
             .data(repoRes.stream().map(SubscriptionsInfoResponse::buildFromNativeQuery).toList())
             .currentPage(request.getPage()).totalPages(repoRes.getTotalPages()).build();
+    }
+
+    public Session getSessionsOfSubscribedScheduleOfUser(ByIdDto request, String accessToken) {
+        return subscriptionRepository.getSessionsOfSubscribedScheduleByIdAndEmail(
+            jwtService.readPayload(accessToken).get("sub"),
+            request.getId()
+        ).orElseThrow(() -> new ApplicationException(ErrorCodes.NOT_SUBSCRIBED_SESSION_YET));
+    }
+
+    public List<Exercise> getExercisesInSessionOfSubscribedScheduleOfUser(ByIdDto request, String accessToken) {
+        List<Exercise> result = subscriptionRepository.getExercisesInSessionOfSubscribedScheduleByIdAndEmail(
+            jwtService.readPayload(accessToken).get("sub"), request.getId());
+        if (result.isEmpty())
+            throw new ApplicationException(ErrorCodes.NOT_SUBSCRIBED_EXERCISES_YET);
+        return result;
     }
 }
