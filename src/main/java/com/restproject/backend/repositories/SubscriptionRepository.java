@@ -21,8 +21,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
     @Query("""
         SELECT sos.session FROM Subscription s INNER JOIN SessionsOfSchedules sos
         ON s.schedule.scheduleId = sos.schedule.scheduleId
-        WHERE s.userInfo.user.email = :email AND sos.session.sessionId = :id
-        LIMIT 1
+        WHERE s.userInfo.user.email = :email AND sos.session.sessionId = :sessionId
     """)
     Optional<Session> getSessionsOfSubscribedScheduleByIdAndEmail(
         @Param("email") String email, @Param("sessionId") Long id);
@@ -31,7 +30,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
         SELECT eos.exercise FROM Subscription s
         INNER JOIN SessionsOfSchedules sos ON s.schedule.scheduleId = sos.schedule.scheduleId
         INNER JOIN ExercisesOfSessions eos ON sos.session.sessionId = eos.session.sessionId
-        WHERE s.userInfo.user.email = :email AND sos.session.sessionId = :id
+        WHERE s.userInfo.user.email = :email AND sos.session.sessionId = :sessionId
     """)
     List<Exercise> getExercisesInSessionOfSubscribedScheduleByIdAndEmail(
         @Param("email") String email, @Param("sessionId") Long id);
