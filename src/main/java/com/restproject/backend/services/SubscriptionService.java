@@ -1,10 +1,7 @@
 package com.restproject.backend.services;
 
 import com.restproject.backend.dtos.general.ByIdDto;
-import com.restproject.backend.dtos.request.PaginatedRelationshipRequest;
-import com.restproject.backend.dtos.request.ScheduleByStatusRequest;
-import com.restproject.backend.dtos.request.ScheduleSubscriptionRequest;
-import com.restproject.backend.dtos.request.SubscriptionsInfoRequest;
+import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.dtos.response.PreviewScheduleResponse;
 import com.restproject.backend.dtos.response.SessionToPerformResponse;
 import com.restproject.backend.dtos.response.SubscriptionsInfoResponse;
@@ -75,11 +72,11 @@ public class SubscriptionService {
             .currentPage(request.getPage()).totalPages(repoRes.getTotalPages()).build();
     }
 
-    public SessionToPerformResponse getSessionsOfSubscribedScheduleOfUser(ByIdDto request, String accessToken) {
+    public SessionToPerformResponse getSessionsOfSubscribedScheduleOfUser(ScheduleInfoToPerformSessionRequest request,
+                                                                          String accessToken) {
         return subscriptionRepository.getSessionsOfSubscribedScheduleByIdAndEmail(
-            jwtService.readPayload(accessToken).get("sub"),
-            request.getId()
-        ).orElseThrow(() -> new ApplicationException(ErrorCodes.NOT_SUBSCRIBED_SESSION_YET));
+            jwtService.readPayload(accessToken).get("sub"), request)
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.NOT_SUBSCRIBED_SESSION_YET));
     }
 
     public List<ExercisesOfSessions> getExercisesInSessionOfSubscribedScheduleOfUser(ByIdDto request,
@@ -134,7 +131,7 @@ public class SubscriptionService {
             .aim(Aim.getByLevel(request.getAimLevel()))
             .efficientDays(null)
             .bmr(null)
-            .repRatio((byte) (request.getRepRatio() * 10))
+            .repRatio((byte) (100 - request.getRepRatio()*10))
             .subscribedTime(LocalDateTime.now())
             .completedTime(null)
             .build());

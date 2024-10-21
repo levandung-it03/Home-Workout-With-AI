@@ -4,11 +4,10 @@ import com.restproject.backend.dtos.general.ByIdDto;
 import com.restproject.backend.dtos.request.PaginatedRelationshipRequest;
 import com.restproject.backend.dtos.request.ScheduleByStatusRequest;
 import com.restproject.backend.dtos.request.ScheduleSubscriptionRequest;
+import com.restproject.backend.dtos.request.ScheduleInfoToPerformSessionRequest;
 import com.restproject.backend.dtos.response.*;
-import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.entities.ExercisesOfSessions;
 import com.restproject.backend.entities.Schedule;
-import com.restproject.backend.entities.Session;
 import com.restproject.backend.enums.SucceedCodes;
 import com.restproject.backend.services.SubscriptionService;
 import jakarta.validation.Valid;
@@ -47,7 +46,7 @@ public class SubscriptionControllers {
     @ResponseBody
     @GetMapping("/user/v1/get-sessions-of-subscribed-schedule-of-user")
     public ResponseEntity<ApiResponseObject<SessionToPerformResponse>> getSessionsOfSubscribedScheduleOfUser(
-        @RequestHeader("Authorization") String accessToken, @Valid ByIdDto request) {
+        @RequestHeader("Authorization") String accessToken, @Valid ScheduleInfoToPerformSessionRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_SESSIONS_OF_SCHEDULE_RELATIONSHIP,
             subscriptionService.getSessionsOfSubscribedScheduleOfUser(request, accessToken));
     }

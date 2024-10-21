@@ -1,5 +1,6 @@
 package com.restproject.backend.repositories;
 
+import com.restproject.backend.dtos.request.ScheduleInfoToPerformSessionRequest;
 import com.restproject.backend.dtos.request.SubscriptionsInfoRequest;
 import com.restproject.backend.dtos.response.SessionToPerformResponse;
 import com.restproject.backend.entities.*;
@@ -20,10 +21,13 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
         SELECT new com.restproject.backend.dtos.response.SessionToPerformResponse(sos.session, s.repRatio)
         FROM Subscription s INNER JOIN SessionsOfSchedules sos
         ON s.schedule.scheduleId = sos.schedule.scheduleId
-        WHERE s.userInfo.user.email = :email  AND (s.userInfo.user.active = TRUE) AND sos.session.sessionId = :sessionId
+        WHERE s.userInfo.user.email = :email
+            AND (s.userInfo.user.active = TRUE)
+            AND sos.schedule.scheduleId = :#{#scheduleInfo.scheduleId}
+            AND sos.ordinal = :#{#scheduleInfo.ordinal}
     """)
     Optional<SessionToPerformResponse> getSessionsOfSubscribedScheduleByIdAndEmail(
-        @Param("email") String email, @Param("sessionId") Long id);
+        @Param("email") String email, @Param("scheduleInfo") ScheduleInfoToPerformSessionRequest scheduleInfo);
 
     @Query("""
         SELECT eos FROM Subscription s
@@ -31,6 +35,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
         INNER JOIN ExercisesOfSessions eos ON sos.session.sessionId = eos.session.sessionId
         WHERE s.userInfo.user.email = :email  AND s.userInfo.user.active = TRUE
             AND sos.session.sessionId = :sessionId
+        ORDER BY eos.ordinal
     """)
     List<ExercisesOfSessions> getExercisesInSessionOfSubscribedScheduleByIdAndEmail(
         @Param("email") String email, @Param("sessionId") Long id);
