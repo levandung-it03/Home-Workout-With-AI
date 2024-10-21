@@ -1,6 +1,7 @@
 package com.restproject.backend.repositories;
 
 import com.restproject.backend.entities.ExercisesOfSessions;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

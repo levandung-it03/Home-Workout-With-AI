@@ -10,6 +10,7 @@ import com.restproject.backend.exceptions.ApplicationException;
 import com.restproject.backend.repositories.ScheduleRepository;
 import com.restproject.backend.repositories.SessionRepository;
 import com.restproject.backend.repositories.SessionsOfSchedulesRepository;
+import com.restproject.backend.repositories.SubscriptionRepository;
 import com.restproject.backend.services.Auth.JwtService;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -28,7 +29,7 @@ public class SessionsOfSchedulesService {
     SessionsOfSchedulesRepository sessionsOfSchedulesRepository;
     ScheduleRepository scheduleRepository;
     SessionRepository sessionRepository;
-    JwtService jwtService;
+    SubscriptionRepository subscriptionRepository;
 
     //--Missing Test
     @Transactional(rollbackOn = {RuntimeException.class})
@@ -39,8 +40,9 @@ public class SessionsOfSchedulesService {
             .stream().map(SessionInfoDto::getSessionId).toList());
         if (sessionsFromDB.size() != request.getSessionsInfo().size())
             throw new ApplicationException(ErrorCodes.INVALID_IDS_COLLECTION);
+        if (subscriptionRepository.existsByScheduleScheduleId(request.getScheduleId()))
+            throw new ApplicationException(ErrorCodes.SCHEDULE_SUBSCRIPTIONS_VIOLATION);
 
-        sessionsOfSchedulesRepository.deleteAllByScheduleScheduleId(updatedSchedule.getScheduleId());
         List<SessionInfoDto> sessionsInfo = request.getSessionsInfo()
             .stream().sorted(Comparator.comparing(SessionInfoDto::getSessionId)).toList();
         ArrayList<SessionsOfSchedules> savedRelationships = new ArrayList<>();
@@ -51,6 +53,9 @@ public class SessionsOfSchedulesService {
                 .ordinal(sessionsInfo.get(index).getOrdinal())
                 .build());
         }
+
+        sessionsOfSchedulesRepository.deleteAllByScheduleScheduleId(updatedSchedule.getScheduleId());
+        sessionsOfSchedulesRepository.flush();
         sessionsOfSchedulesRepository.saveAll(savedRelationships);
         return sessionsFromDB;
     }

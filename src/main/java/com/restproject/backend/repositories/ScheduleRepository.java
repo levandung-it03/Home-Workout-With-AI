@@ -1,5 +1,6 @@
 package com.restproject.backend.repositories;
 
+import com.restproject.backend.dtos.request.ScheduleRequest;
 import com.restproject.backend.entities.Schedule;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,9 +18,10 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
         WHERE (:#{#filterObj.name} IS NULL OR s.name LIKE CONCAT('%',:#{#filterObj.name},'%'))
         AND (:#{#filterObj.description} IS NULL OR s.description LIKE CONCAT('%',:#{#filterObj.description},'%'))
         AND (:#{#filterObj.levelEnum} IS NULL OR s.levelEnum = :#{#filterObj.levelEnum})
-        AND (:#{#filterObj.coins} IS NULL OR s.coins = :#{#filterObj.coins})
+        AND (:#{#filterObj.fromCoins} IS NULL OR :#{#filterObj.fromCoins} <= s.coins)
+        AND (:#{#filterObj.toCoins} IS NULL OR s.coins <= :#{#filterObj.toCoins})
     """)
-    Page<Schedule> findAllBySchedule(@Param("filterObj") Schedule filteringInfo, Pageable pageable);
+    Page<Schedule> findAllBySchedule(@Param("filterObj") ScheduleRequest filteringInfo, Pageable pageable);
 
     @Modifying
     @Query("""
@@ -46,11 +48,12 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             SELECT DISTINCT sub.schedule.scheduleId FROM Subscription sub
             WHERE sub.userInfo.user.email = :email
         ) AND (:#{#filterObj.levelEnum} IS NULL OR :#{#filterObj.levelEnum} = s.levelEnum)
-         AND (:#{#filterObj.coins} IS NULL OR :#{#filterObj.coins} = s.coins)
+         AND (:#{#filterObj.fromCoins} IS NULL OR :#{#filterObj.fromCoins} <= s.coins)
+         AND (:#{#filterObj.toCoins} IS NULL OR s.coins <= :#{#filterObj.toCoins})
     """)
     Page<Schedule> findAllAvailableScheduleOfUser(
         @Param("email") String email,
-        @Param("filterObj") Schedule schedule,
+        @Param("filterObj") ScheduleRequest schedule,
         Pageable pageableCf
     );
 }

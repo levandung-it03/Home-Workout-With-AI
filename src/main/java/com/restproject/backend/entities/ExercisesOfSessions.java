@@ -49,7 +49,5 @@ public class ExercisesOfSessions {
     Integer iteration;
 
     @Column(name = "need_switch_exercise_delay", columnDefinition = "BIT")
-    @Min(0)
-    @Max(1)
     boolean needSwitchExerciseDelay;    //--Each time exercise's ending
 }

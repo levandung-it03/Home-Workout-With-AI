@@ -1,9 +1,7 @@
 package com.restproject.backend.services;
 
-import com.restproject.backend.dtos.request.DeleteObjectRequest;
-import com.restproject.backend.dtos.request.NewScheduleRequest;
-import com.restproject.backend.dtos.request.PaginatedTableRequest;
-import com.restproject.backend.dtos.request.UpdateScheduleRequest;
+import com.restproject.backend.dtos.general.SessionInfoDto;
+import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.entities.Schedule;
 import com.restproject.backend.entities.SessionsOfSchedules;
@@ -14,6 +12,7 @@ import com.restproject.backend.mappers.ScheduleMappers;
 import com.restproject.backend.repositories.ScheduleRepository;
 import com.restproject.backend.repositories.SessionRepository;
 import com.restproject.backend.repositories.SessionsOfSchedulesRepository;
+import com.restproject.backend.repositories.SubscriptionRepository;
 import com.restproject.backend.services.Auth.JwtService;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -25,6 +24,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +37,7 @@ public class ScheduleService {
     SessionsOfSchedulesRepository sessionsOfSchedulesRepository;
     ScheduleMappers scheduleMappers;
     JwtService jwtService;
+    SubscriptionRepository subscriptionRepository;
 
     public TablePagesResponse<Schedule> getSchedulesPages(PaginatedTableRequest request) {
         Pageable pageableCf = pageMappers.tablePageRequestToPageable(request).toPageable(Schedule.class);
@@ -46,9 +48,9 @@ public class ScheduleService {
                 .totalPages(repoRes.getTotalPages()).currentPage(request.getPage()).build();
         }
 
-        Schedule scheduleInfo;
+        ScheduleRequest scheduleInfo;
         try {
-            scheduleInfo = Schedule.buildFromHashMap(request.getFilterFields());
+            scheduleInfo = ScheduleRequest.buildFromHashMap(request.getFilterFields());
         } catch (ApplicationException | NullPointerException | IllegalArgumentException | NoSuchFieldException e) {
             throw new ApplicationException(ErrorCodes.INVALID_FILTERING_FIELD_OR_VALUE);
         }
@@ -60,6 +62,11 @@ public class ScheduleService {
     //--Missing Test
     @Transactional(rollbackOn = {RuntimeException.class})
     public Schedule createSchedule(NewScheduleRequest request) throws ApplicationException {
+        Set<Integer> uniqueOrdinals = request.getSessionsInfo().stream().map(SessionInfoDto::getOrdinal)
+            .collect(Collectors.toSet());
+        if (request.getSessionsInfo().size() != uniqueOrdinals.size())
+            throw new ApplicationException(ErrorCodes.NOT_UNIQUE_ORDINALS);
+
         Schedule savedSchedule;
         try { savedSchedule = scheduleRepository.save(scheduleMappers.insertionToPlain(request)); }
         catch (DataIntegrityViolationException e) { throw new ApplicationException(ErrorCodes.DUPLICATED_SCHEDULE); }
@@ -84,9 +91,8 @@ public class ScheduleService {
     public Schedule updateSchedule(UpdateScheduleRequest request) throws ApplicationException {
         var formerSch = scheduleRepository.findById(request.getScheduleId())
             .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY));
-        //--Check if this Schedule can be updated or not.
-        if (sessionsOfSchedulesRepository.existsByScheduleScheduleId(formerSch.getScheduleId()))
-            throw new ApplicationException(ErrorCodes.FORBIDDEN_UPDATING);
+        if (subscriptionRepository.existsByScheduleScheduleId(request.getScheduleId()))
+            throw new ApplicationException(ErrorCodes.SCHEDULE_SUBSCRIPTIONS_VIOLATION);
 
         //--Mapping new values into "formerSch".
         scheduleMappers.updateTarget(formerSch, request);
@@ -100,18 +106,17 @@ public class ScheduleService {
         if (!scheduleRepository.existsById(request.getId()))
             throw new ApplicationException(ErrorCodes.INVALID_PRIMARY);
 
-        if (sessionsOfSchedulesRepository.existsByScheduleScheduleId(request.getId()))
-            throw new ApplicationException(ErrorCodes.FORBIDDEN_UPDATING);
+        if (subscriptionRepository.existsByScheduleScheduleId(request.getId()))
+            throw new ApplicationException(ErrorCodes.SCHEDULE_SUBSCRIPTIONS_VIOLATION);
 
         sessionsOfSchedulesRepository.deleteAllByScheduleScheduleId(request.getId());
         scheduleRepository.deleteById(request.getId());
     }
 
-    public TablePagesResponse<Schedule> getAvailableSchedulesOfUserPages(
-        PaginatedTableRequest request, String accessToken) {
+    public TablePagesResponse<Schedule> getAvailableSchedulesOfUserPages(PaginatedTableRequest request,
+                                                                         String accessToken) {
         Pageable pageableCf = pageMappers.tablePageRequestToPageable(request).toPageable(Schedule.class);
         String email = jwtService.readPayload(accessToken).get("sub");
-
 
         if (Objects.isNull(request.getFilterFields()) || request.getFilterFields().isEmpty()) {
             Page<Schedule> repoRes = scheduleRepository.findAllAvailableScheduleOfUser(email, pageableCf);
@@ -119,9 +124,9 @@ public class ScheduleService {
                 .totalPages(repoRes.getTotalPages()).currentPage(request.getPage()).build();
         }
 
-        Schedule scheduleInfo;
+        ScheduleRequest scheduleInfo;
         try {
-            scheduleInfo = Schedule.buildFromHashMap(request.getFilterFields());
+            scheduleInfo = ScheduleRequest.buildFromHashMap(request.getFilterFields());
         } catch (ApplicationException | NullPointerException | IllegalArgumentException | NoSuchFieldException e) {
             throw new ApplicationException(ErrorCodes.INVALID_FILTERING_FIELD_OR_VALUE);
         }

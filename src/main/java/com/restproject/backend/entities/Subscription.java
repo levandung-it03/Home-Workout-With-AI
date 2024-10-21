@@ -57,9 +57,8 @@ public class Subscription {
     @Column(name = "efficient_days")
     Integer efficientDays;
 
-    @Column(name = "bmr", nullable = false)
-    @Min(0)
-    Double bmr;   //--TDEE
+    @Column(name = "bmr")
+    Double bmr;
 
     @Column(name = "is_efficient", columnDefinition = "BIT")
     @Min(0)

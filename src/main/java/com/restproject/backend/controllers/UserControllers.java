@@ -22,7 +22,7 @@ public class UserControllers {
     UserService userService;
 
     @ResponseBody
-    @PostMapping("/api/public/v1/register-user")
+    @PostMapping("/api/public/auth/v1/register-user")
     public ResponseEntity<ApiResponseObject<UserInfo>> registerUser(
         @Valid @RequestBody NewUserRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.CREATE_USER_INFO,

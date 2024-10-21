@@ -30,5 +30,5 @@ public class SessionsOfSchedules {
     Schedule schedule;
 
     @Column(name = "ordinal", nullable = false)
-    Long ordinal;
+    Integer ordinal;
 }

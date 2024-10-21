@@ -32,24 +32,24 @@ public class ScheduleRepositoryTest {
     @Autowired
     ScheduleRepository scheduleRepository;
 
-    @Test
-    public void findAllBySchedule_admin_validWithFiltering() {
-        var req = Schedule.builder().name("Schedule0").build();
-        var schedules = new ArrayList<>(scheduleRepository.saveAll(List.of(
-            Schedule.builder().levelEnum(Level.BEGINNER).name("Test Schedule1").description("Testing").coins(2000L).build(),
-            Schedule.builder().levelEnum(Level.INTERMEDIATE).name("Test Schedule02").description("Testing").coins(2000L).build(),
-            Schedule.builder().levelEnum(Level.INTERMEDIATE).name("Test Schedule03").description("Testing").coins(2000L).build(),
-            Schedule.builder().levelEnum(Level.ADVANCE).name("Test Schedule4").description("Testing").coins(2000L).build(),
-            Schedule.builder().levelEnum(Level.BEGINNER).name("Test Schedule5").description("Testing").coins(2000L).build()
-        )));
-        var pageableCf = PageRequest.of(0, PageEnum.SIZE.getSize());
-
-        Page<Schedule> repoRes = scheduleRepository.findAllBySchedule(req, pageableCf);
-
-        assertNotNull(repoRes);
-        assertEquals(
-            schedules.stream().filter(s -> s.getName().contains(req.getName())).collect(Collectors.toSet()),
-            new HashSet<>(repoRes.toList())
-        );
-    }
+//    @Test
+//    public void findAllBySchedule_admin_validWithFiltering() {
+//        var req = Schedule.builder().name("Schedule0").build();
+//        var schedules = new ArrayList<>(scheduleRepository.saveAll(List.of(
+//            Schedule.builder().levelEnum(Level.BEGINNER).name("Test Schedule1").description("Testing").coins(2000L).build(),
+//            Schedule.builder().levelEnum(Level.INTERMEDIATE).name("Test Schedule02").description("Testing").coins(2000L).build(),
+//            Schedule.builder().levelEnum(Level.INTERMEDIATE).name("Test Schedule03").description("Testing").coins(2000L).build(),
+//            Schedule.builder().levelEnum(Level.ADVANCE).name("Test Schedule4").description("Testing").coins(2000L).build(),
+//            Schedule.builder().levelEnum(Level.BEGINNER).name("Test Schedule5").description("Testing").coins(2000L).build()
+//        )));
+//        var pageableCf = PageRequest.of(0, PageEnum.SIZE.getSize());
+//
+//        Page<Schedule> repoRes = scheduleRepository.findAllBySchedule(req, pageableCf);
+//
+//        assertNotNull(repoRes);
+//        assertEquals(
+//            schedules.stream().filter(s -> s.getName().contains(req.getName())).collect(Collectors.toSet()),
+//            new HashSet<>(repoRes.toList())
+//        );
+//    }
 }

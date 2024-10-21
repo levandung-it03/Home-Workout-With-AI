@@ -33,4 +33,11 @@ public class EnumsControllers {
     public ResponseEntity<ApiResponseObject<List<Map<String, String>>>> getAllGenders() {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_ALL_GENDER_ENUMS, enumsService.getAllGenders());
     }
+
+    @ResponseBody
+    @GetMapping({"/admin/v1/get-all-aims", "/user/v1/get-all-aims"})
+    public ResponseEntity<ApiResponseObject<List<Map<String, String>>>> getAllAims() {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_ALL_LEVEL_ENUMS, enumsService.getAllAims());
+    }
+
 }

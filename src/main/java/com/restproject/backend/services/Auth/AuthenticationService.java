@@ -5,6 +5,7 @@ import com.restproject.backend.dtos.request.VerifyOtpRequest;
 import com.restproject.backend.dtos.response.AuthenticationResponse;
 import com.restproject.backend.dtos.request.AuthenticationRequest;
 import com.restproject.backend.entities.Auth.RefreshToken;
+import com.restproject.backend.entities.Auth.RegisterOtp;
 import com.restproject.backend.entities.Auth.User;
 import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.exceptions.ApplicationException;
@@ -21,6 +22,8 @@ import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +39,7 @@ public class AuthenticationService {
     private final InvalidTokenService invalidTokenService;
     private final JwtService jwtService;
     private final EmailService emailService;
+    private final RegisterOtpService otpService;
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final SecureRandom RANDOM = new SecureRandom();
 
@@ -118,16 +122,15 @@ public class AuthenticationService {
         refreshTokenService.removeRefreshTokenByJwtId(refreshJwt.getJWTID());
     }
 
-    public HashMap<String, Object> getOtp(String email, HttpSession httpSession) {
-        var user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_CREDENTIALS));
-
-        StringBuilder otp = new StringBuilder(6);
-        for (int i = 0; i < otp.length(); i++)
+    public HashMap<String, Object> getOtp(String email) {
+        int OPT_LENGTH = 4;
+        StringBuilder otp = new StringBuilder(OPT_LENGTH);
+        for (int i = 0; i < OPT_LENGTH; i++)
             otp.append(CHARACTERS.charAt(RANDOM.nextInt(CHARACTERS.length())));
 
         //--Remove the previous OTP code in session if it's existing.
-        httpSession.removeAttribute("OTP-" + email);
+        if (otpService.findByEmail(email).isPresent())
+            otpService.deleteByEmail(email);
 
         String otpMailMessage = String.format("""
             <div>
@@ -135,28 +138,28 @@ public class AuthenticationService {
                 <h2>User Email: <b>%s</b></h2>
                 <h2>OTP: <b>%s</b></h2>
             </div>
-        """, user.getEmail(), otp);
+        """, email, otp);
         emailService.sendSimpleEmail(email, "OTP Code by Home Workout With AI", otpMailMessage);
 
         //--Save into session for the next actions.
-        httpSession.setAttribute("OTP-" + email, otp);
+        otpService.save(RegisterOtp.builder().id(email).otpCode(otp.toString()).build());
 
         // Schedule a task to remove the OTP after 5 minutes (or your preferred timeout).
         scheduler.schedule(() -> {
-            httpSession.removeAttribute("OTP-" + email);
+            otpService.deleteByEmail(email);
             log.info("OTP for " + email + " has expired and been removed.");
         }, 5, TimeUnit.MINUTES);
 
         return new HashMap<>(Map.ofEntries(
-            Map.entry("otpCode", otp.toString()),
             Map.entry("ageInSeconds", 5*60)
         ));
     }
 
-    public HashMap<String, Object> verifyOtp(VerifyOtpRequest request, HttpSession httpSession) {
+    public HashMap<String, Object> verifyOtp(VerifyOtpRequest request) {
         //--Remove the previous OTP code in session if it's existing.
-        if (httpSession.getAttribute("OTP-" + request.getEmail()).equals(request.getOtpCode())) {
-            httpSession.removeAttribute("OTP-" + request.getEmail());
+        Optional<RegisterOtp> existsOtp = otpService.findByEmail(request.getEmail());
+        if (existsOtp.isPresent() && existsOtp.get().getOtpCode().equals(request.getOtpCode())) {
+            otpService.deleteByEmail(request.getEmail());
             return new HashMap<>(Map.of("email", request.getEmail()));
         }
         else {

@@ -5,14 +5,11 @@ import com.restproject.backend.exceptions.ApplicationException;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -24,7 +21,8 @@ public class UserInfoAndStatusRequest {
     String lastName;
     Gender gender;
     String email;
-    Long coins;
+    Long fromCoins;
+    Long toCoins;
     LocalDate fromDob;
     LocalDate toDob;
     LocalDateTime fromCreatedTime;
@@ -33,13 +31,15 @@ public class UserInfoAndStatusRequest {
 
     public static UserInfoAndStatusRequest buildFromHashMap(HashMap<String, Object> map)
         throws ApplicationException, NoSuchFieldException, IllegalArgumentException, NullPointerException {
-        for (String key: map.keySet())
-            UserInfoAndStatusRequest.class.getDeclaredField(key);
+        for (String key : map.keySet())
+            if (Arrays.stream(UserInfoAndStatusRequest.class.getDeclaredFields())
+                .noneMatch(f -> f.getName().equals(key))) throw new NoSuchFieldException();
 
         var result = new UserInfoAndStatusRequest();
         result.setFirstName(map.containsKey("firstName") ? map.get("firstName").toString() : null);
         result.setLastName(map.containsKey("lastName") ? map.get("lastName").toString() : null);
-        result.setCoins(map.containsKey("coins") ? Long.parseLong(map.get("coins").toString()) : null);
+        result.setFromCoins(map.containsKey("fromDob") ? Long.parseLong(map.get("fromDob").toString()) : null);
+        result.setToCoins(map.containsKey("toDob") ? Long.parseLong(map.get("toDob").toString()) : null);
         result.setEmail(map.containsKey("email") ? map.get("email").toString() : null);
         result.setActive(map.containsKey("active") ? Boolean.parseBoolean(map.get("active").toString()) : null);
 

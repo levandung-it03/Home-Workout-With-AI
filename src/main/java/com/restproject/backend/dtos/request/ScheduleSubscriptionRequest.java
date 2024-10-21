@@ -1,4 +1,4 @@
-package com.restproject.backend.dtos.general;
+package com.restproject.backend.dtos.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -9,10 +9,19 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SessionInfoDto {
+public class ScheduleSubscriptionRequest {
     @NotNull
-    Long sessionId;
+    Integer aimLevel;
 
     @NotNull
-    Integer ordinal;
+    Long repRatio;
+
+    @NotNull
+    Float height;
+
+    @NotNull
+    Float weight;
+
+    @NotNull
+    Long scheduleId;
 }

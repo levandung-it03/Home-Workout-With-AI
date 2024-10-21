@@ -35,16 +35,16 @@ public class PublicAuthControllers {
     @ResponseBody
     @PostMapping("/v1/get-otp")
     public ResponseEntity<ApiResponseObject<HashMap<String, Object>>> getOtp(
-        @RequestBody GetOtpRequest request, HttpSession httpSession) {
+        @Valid @RequestBody GetOtpRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_OTP,
-            authenticationService.getOtp(request.getEmail(), httpSession));
+            authenticationService.getOtp(request.getEmail()));
     }
 
     @ResponseBody
     @PostMapping("/v1/verify-otp")
     public ResponseEntity<ApiResponseObject<HashMap<String, Object>>> getOtp(
-        @RequestBody VerifyOtpRequest request, HttpSession httpSession) {
+        @Valid @RequestBody VerifyOtpRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.VERIFY_OTP,
-            authenticationService.verifyOtp(request, httpSession));
+            authenticationService.verifyOtp(request));
     }
 }

@@ -2,19 +2,13 @@ package com.restproject.backend.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.restproject.backend.enums.Level;
-import com.restproject.backend.exceptions.ApplicationException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Length;
 
-import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -57,20 +51,4 @@ public class Schedule {
     )
     @JsonIgnore
     Collection<Session> sessionsOfSchedule;
-
-    public static Schedule buildFromHashMap(HashMap<String, Object> map)
-        throws NullPointerException, ApplicationException, IllegalArgumentException, NoSuchFieldException {
-        for (String key: map.keySet()) {
-            if (key.equals("level"))    continue;
-            if (Arrays.stream(Schedule.class.getDeclaredFields()).noneMatch(f -> f.getName().equals(key)))
-                throw new NoSuchFieldException();
-        }
-
-        var result = new Schedule();
-        result.setName(!map.containsKey("name") ? null : map.get("name").toString());
-        result.setLevelEnum(!map.containsKey("level") ? null : Level.getByLevel(map.get("level")));
-        result.setDescription(!map.containsKey("description") ? null : map.get("description").toString());
-        result.setCoins(!map.containsKey("coins") ? null : Long.parseLong(map.get("coins").toString()));
-        return result;
-    }
 }

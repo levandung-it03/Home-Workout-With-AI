@@ -4,9 +4,11 @@ import com.restproject.backend.annotations.dev.Overload;
 import com.restproject.backend.dtos.request.UserInfoAndStatusRequest;
 import com.restproject.backend.dtos.response.UserInfoAndStatusResponse;
 import com.restproject.backend.entities.UserInfo;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -35,7 +37,8 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
         AND (:#{#filterObj.lastName} IS NULL OR u.lastName LIKE CONCAT('%',:#{#filterObj.lastName},'%'))
         AND (:#{#filterObj.email} IS NULL   OR u.user.email LIKE CONCAT('%',:#{#filterObj.email},'%'))
         AND (:#{#filterObj.gender} IS NULL  OR u.gender = :#{#filterObj.gender})
-        AND (:#{#filterObj.coins} IS NULL   OR u.coins = :#{#filterObj.coins})
+        AND (:#{#filterObj.fromCoins} IS NULL   OR :#{#filterObj.fromCoins} <= u.coins)
+        AND (:#{#filterObj.toCoins} IS NULL   OR u.coins <= :#{#filterObj.fromCoins})
         AND (:#{#filterObj.fromDob} IS NULL OR :#{#filterObj.fromDob} <= u.dob)
         AND (:#{#filterObj.toDob} IS NULL   OR u.dob <= :#{#filterObj.toDob})
         AND (:#{#filterObj.fromCreatedTime} IS NULL OR :#{#filterObj.fromCreatedTime} <= u.user.createdTime)
@@ -45,4 +48,8 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
         @Param("filterObj") UserInfoAndStatusRequest request, Pageable pageableCof);
 
     Optional<UserInfo> findByUserEmail(String subject);
+
+    @Query("SELECT u FROM UserInfo u WHERE u.user.email = :email")
+    @Lock(LockModeType.PESSIMISTIC_WRITE)   //--Notice that this userInfo(coins) will be used to be READ and WRITTEN.
+    Optional<UserInfo> findByUserEmailWithPessimisticLock(@Param("email") String subject);
 }

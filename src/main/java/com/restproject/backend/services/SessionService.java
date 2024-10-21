@@ -1,5 +1,6 @@
 package com.restproject.backend.services;
 
+import com.restproject.backend.dtos.general.ExerciseInfoDto;
 import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.entities.*;
@@ -18,6 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -57,6 +60,11 @@ public class SessionService {
     //--Missing Test
     @Transactional(rollbackOn = {RuntimeException.class})
     public Session createSession(NewSessionRequest request) throws ApplicationException {
+        Set<Integer> uniqueOrdinals = request.getExercisesInfo().stream().map(ExerciseInfoDto::getOrdinal)
+            .collect(Collectors.toSet());
+        if (request.getExercisesInfo().size() != uniqueOrdinals.size())
+            throw new ApplicationException(ErrorCodes.NOT_UNIQUE_ORDINALS);
+
         Session savedSession;
         try { savedSession = sessionRepository.save(sessionMappers.insertionToPlain(request)); }
         catch (DataIntegrityViolationException e) { throw new ApplicationException(ErrorCodes.DUPLICATED_SESSION); }

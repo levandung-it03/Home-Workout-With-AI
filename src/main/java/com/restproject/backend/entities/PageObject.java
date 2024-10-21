@@ -32,12 +32,6 @@ public class PageObject {
         Map.entry(-1, Direction.DESC)
     ));
 
-    public Pageable toPageable(List<Class<?>> rootClasses) throws ApplicationException {
-        for (Class<?> rootClass: rootClasses)
-            return this.toPageable(rootClass);
-        throw new ApplicationException(ErrorCodes.INVALID_SORTING_FIELD_OR_VALUE);
-    }
-
     public Pageable toPageable(Class<?> rootClass) {
         if (Objects.isNull(this.sortedField) || this.sortedField.isEmpty())
             return PageRequest.of(page - 1, pageSize);

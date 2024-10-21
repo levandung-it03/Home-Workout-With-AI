@@ -19,6 +19,7 @@ public enum SucceedCodes {
     GET_ALL_LEVEL_ENUMS(22001, "Get all Levels successfully"),
     GET_ALL_MUSCLE_ENUMS(22002, "Get all Muscles successfully"),
     GET_ALL_GENDER_ENUMS(22003, "Get all Genders successfully"),
+    GET_ALL_AIMS_ENUMS(22003, "Get all Aims successfully"),
     //--Exercise(23)
     CREATE_EXERCISE(23001, "Create new Exercise successfully"),
     UPDATE_EXERCISE(23002, "Update Exercise successfully"),
@@ -31,6 +32,7 @@ public enum SucceedCodes {
     GET_SCHEDULES_PAGES(24004, "Get Schedule pages successfully"),
     GET_SESSIONS_HAS_MUSCLES_OF_SCHEDULE_PAGES(24005, "Get Sessions in Schedule pages successfully"),
     GET_SESSIONS_OF_SCHEDULE_RELATIONSHIP(24006, "Get Sessions in Schedule successfully"),
+    GET_PREVIEW_SCHEDULE(24007, "Get preview Schedule successfully"),
     //--Session(25)
     CREATE_SESSION(25001, "Create new Session successfully"),
     UPDATE_SESSION(25002, "Update Session successfully"),
@@ -46,7 +48,8 @@ public enum SucceedCodes {
     UPDATE_USER_STATUS(27001, "Update User status"),
     //--Subscription(28)
     GET_SUBSCRIPTIONS_OF_USER_INFO_PAGES(28001, "Get Subscriptions successfully!"),
-    //--Supported(29)
+    SUBSCRIBE_SCHEDULE(28002, "You've been subscribed Schedule successfully!"),
+    //--Slides(29)
     GET_ALL_SLIDES_FOR_HOME(29001, "Get all Slides successfully"),
     UPLOAD_SLIDES(29002, "Upload Slide successfully"),
     DELETE_SLIDES(29003, "Delete Slide successfully"),

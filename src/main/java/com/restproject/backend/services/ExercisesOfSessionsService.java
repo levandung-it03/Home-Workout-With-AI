@@ -38,7 +38,6 @@ public class ExercisesOfSessionsService {
             .findAllByIdIn(request.getExercisesInfo().stream().map(ExerciseInfoDto::getExerciseId).toList());
         if (exercisesFromDB.size() != request.getExercisesInfo().size())
             throw new ApplicationException(ErrorCodes.INVALID_IDS_COLLECTION);
-        exercisesOfSessionsRepository.deleteAllBySessionSessionId(updatedSession.getSessionId());
 
         var exerciseInfo = request.getExercisesInfo()
             .stream().sorted(Comparator.comparing(ExerciseInfoDto::getExerciseId))
@@ -54,7 +53,11 @@ public class ExercisesOfSessionsService {
                 .raiseSlackInSecond(exerciseInfo.get(index).getRaiseSlackInSecond())
                 .downRepsRatio(exerciseInfo.get(index).getDownRepsRatio())
                 .build());
+
+        exercisesOfSessionsRepository.deleteAllBySessionSessionId(updatedSession.getSessionId());
+        exercisesOfSessionsRepository.flush();
         var repoResponse = exercisesOfSessionsRepository.saveAll(savedRelationships);
+
         return repoResponse.stream().map(ExercisesOfSessions::getExercise).toList();
     }
 
