@@ -128,6 +128,8 @@ public class SubscriptionService {
         final int totalSessionsAWeek = subscribedSchedule.getSessionsOfSchedule().size();
 
         subscriptionRepository.save(Subscription.builder()
+            .schedule(subscribedSchedule)
+            .userInfo(currentUserInfo)
             .aim(Aim.getByLevel(request.getAimLevel()))
             .efficientDays(null)
             .bmr(null)

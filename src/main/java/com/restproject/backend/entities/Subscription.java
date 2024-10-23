@@ -61,7 +61,5 @@ public class Subscription {
     Double bmr;
 
     @Column(name = "is_efficient", columnDefinition = "BIT")
-    @Min(0)
-    @Max(1)
     boolean isEfficient;
 }

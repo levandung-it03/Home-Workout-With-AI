@@ -90,7 +90,9 @@ public class JwtService {
 
     public HashMap<String, String> readPayload(String token) {
         var payload = token.split("\\.")[1];
-        payload += '=' * (4 - payload.length() % 4);    //--Required format if (payload.length % 4) # 0
+        int paddingLength = 4 - payload.length() % 4;
+        if (paddingLength < 4)    //--Required format if (payload.length % 4) # 0
+            payload += "=".repeat(paddingLength);
         var payLoadJson = new String(Base64.getUrlDecoder().decode(payload));
         var strItems = payLoadJson.replaceAll("[{}]", "").split(",");
         var result = new HashMap<String, String>();

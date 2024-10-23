@@ -45,7 +45,7 @@ public class ExerciseControllers {
         produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<ApiResponseObject<Map<String, String>>> upsertExerciseImage(
         @Valid UpsertExerciseImageRequest request) throws IOException {
-        return ApiResponseObject.buildSuccessResponse(SucceedCodes.CREATE_EXERCISE,
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.UPLOAD_EXERCISE_IMG,
             exerciseServiceOfAdmin.uploadExerciseImg(request));
     }
 

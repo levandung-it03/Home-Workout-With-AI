@@ -5,6 +5,7 @@ import com.restproject.backend.dtos.request.VerifyOtpRequest;
 import com.restproject.backend.dtos.response.AuthenticationResponse;
 import com.restproject.backend.dtos.request.AuthenticationRequest;
 import com.restproject.backend.dtos.response.ApiResponseObject;
+import com.restproject.backend.entities.Auth.RegisterOtp;
 import com.restproject.backend.enums.SucceedCodes;
 import com.restproject.backend.services.Auth.AuthenticationService;
 import jakarta.servlet.http.HttpSession;
@@ -33,18 +34,26 @@ public class PublicAuthControllers {
     }
 
     @ResponseBody
-    @PostMapping("/v1/get-otp")
-    public ResponseEntity<ApiResponseObject<HashMap<String, Object>>> getOtp(
+    @PostMapping("/v1/get-register-otp")
+    public ResponseEntity<ApiResponseObject<HashMap<String, Object>>> getRegisterOtp(
         @Valid @RequestBody GetOtpRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_OTP,
-            authenticationService.getOtp(request.getEmail()));
+            authenticationService.getRegisterOtp(request.getEmail()));
     }
 
     @ResponseBody
-    @PostMapping("/v1/verify-otp")
-    public ResponseEntity<ApiResponseObject<HashMap<String, Object>>> getOtp(
+    @PostMapping("/v1/verify-register-otp")
+    public ResponseEntity<ApiResponseObject<RegisterOtp>> verifyRegisterOtp(
         @Valid @RequestBody VerifyOtpRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.VERIFY_OTP,
-            authenticationService.verifyOtp(request));
+            authenticationService.verifyRegisterOtp(request));
+    }
+
+    @ResponseBody
+    @PostMapping("/v1/get-forgot-password-otp")
+    public ResponseEntity<ApiResponseObject<HashMap<String, Object>>> getForgotPasswordOtp(
+        @Valid @RequestBody GetOtpRequest request) {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_OTP,
+            authenticationService.getForgotPasswordOtp(request.getEmail()));
     }
 }

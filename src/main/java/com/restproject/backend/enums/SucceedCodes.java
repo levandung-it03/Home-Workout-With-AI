@@ -15,6 +15,7 @@ public enum SucceedCodes {
     LOGOUT(21003, "Logout successfully"),
     GET_OTP(21004, "Get OTP successfully"),
     VERIFY_OTP(21005, "Verify OTP successfully"),
+    SEND_RANDOM_PASSWORD(21006, "Send random password into your email successfully"),
     //--Enums(22)
     GET_ALL_LEVEL_ENUMS(22001, "Get all Levels successfully"),
     GET_ALL_MUSCLE_ENUMS(22002, "Get all Muscles successfully"),
@@ -25,6 +26,7 @@ public enum SucceedCodes {
     UPDATE_EXERCISE(23002, "Update Exercise successfully"),
     DELETE_EXERCISE(23003, "Delete Exercise successfully"),
     GET_EXERCISES_HAS_MUSCLES_PAGES(23004, "Get Exercise has Muscles pages successfully"),
+    UPLOAD_EXERCISE_IMG(23005, "Upload Exercise image successfully"),
     //--Schedule(24)
     CREATE_SCHEDULE(24001, "Create new Schedule successfully"),
     UPDATE_SCHEDULE(24002, "Update Exercise successfully"),

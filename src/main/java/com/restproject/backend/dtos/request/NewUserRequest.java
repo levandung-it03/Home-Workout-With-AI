@@ -42,4 +42,7 @@ public class NewUserRequest {
     @NotBlank
     @Length(min = 6)
     String password;
+
+    @NotBlank
+    String otpCode;
 }

@@ -2,6 +2,7 @@ package com.restproject.backend.controllers;
 
 import com.restproject.backend.dtos.request.NewUserRequest;
 import com.restproject.backend.dtos.request.UpdateUserStatusRequest;
+import com.restproject.backend.dtos.request.VerifyOtpRequest;
 import com.restproject.backend.dtos.response.ApiResponseObject;
 import com.restproject.backend.entities.UserInfo;
 import com.restproject.backend.enums.SucceedCodes;
@@ -25,8 +26,14 @@ public class UserControllers {
     @PostMapping("/api/public/auth/v1/register-user")
     public ResponseEntity<ApiResponseObject<UserInfo>> registerUser(
         @Valid @RequestBody NewUserRequest request) {
-        return ApiResponseObject.buildSuccessResponse(SucceedCodes.CREATE_USER_INFO,
-            userService.registerUser(request));
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.CREATE_USER_INFO, userService.registerUser(request));
+    }
+
+    @ResponseBody
+    @PostMapping("/api/public/auth/v1/generate-random-password")
+    public ResponseEntity<ApiResponseObject<Void>> generateRandomPassword(@Valid @RequestBody VerifyOtpRequest req) {
+        userService.generateRandomPassword(req);
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.SEND_RANDOM_PASSWORD);
     }
 
     @ResponseBody
