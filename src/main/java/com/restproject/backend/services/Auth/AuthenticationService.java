@@ -1,6 +1,7 @@
 package com.restproject.backend.services.Auth;
 
 import com.restproject.backend.dtos.general.TokenDto;
+import com.restproject.backend.dtos.request.NewUserRequest;
 import com.restproject.backend.dtos.request.VerifyOtpRequest;
 import com.restproject.backend.dtos.response.AuthenticationResponse;
 import com.restproject.backend.dtos.request.AuthenticationRequest;
@@ -8,23 +9,28 @@ import com.restproject.backend.entities.Auth.ForgotPasswordOtp;
 import com.restproject.backend.entities.Auth.RefreshToken;
 import com.restproject.backend.entities.Auth.RegisterOtp;
 import com.restproject.backend.entities.Auth.User;
+import com.restproject.backend.entities.UserInfo;
 import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.exceptions.ApplicationException;
+import com.restproject.backend.mappers.UserInfoMappers;
+import com.restproject.backend.repositories.AuthorityRepository;
+import com.restproject.backend.repositories.UserInfoRepository;
 import com.restproject.backend.repositories.UserRepository;
 import com.restproject.backend.services.ThirdParty.EmailService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -33,6 +39,9 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RequiredArgsConstructor
 public class AuthenticationService {
+    private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private static final SecureRandom RANDOM = new SecureRandom();
+
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
@@ -42,8 +51,13 @@ public class AuthenticationService {
     private final EmailService emailService;
     private final RegisterOtpService registerOtpService;
     private final ForgotPasswordOtpService forgotPasswordOtpService;
-    private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    private static final SecureRandom RANDOM = new SecureRandom();
+    private final UserInfoRepository userInfoRepository;
+    private final UserInfoMappers userInfoMappers;
+    private final AuthorityRepository authorityRepository;
+    private final PasswordEncoder userPasswordEncoder;
+
+    @Value("${services.back-end.user-info.default-coins}")
+    private int defaultCoins;
 
     /**
      * Steps
@@ -197,5 +211,49 @@ public class AuthenticationService {
         for (int i = 0; i < length; i++)
             otp.append(CHARACTERS.charAt(RANDOM.nextInt(CHARACTERS.length())));
         return otp.toString();
+    }
+
+    @Transactional(rollbackOn = {RuntimeException.class})
+    public UserInfo registerUser(NewUserRequest request) throws ApplicationException {
+        var removedOtp = registerOtpService.findByEmail(request.getEmail())
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.VERIFY_OTP));
+        registerOtpService.deleteByEmail(removedOtp.getId());
+
+        UserInfo newUserInfo = userInfoMappers.insertionToPlain(request);
+        User newUser = User.builder()
+            .email(request.getEmail())
+            .password(userPasswordEncoder.encode(request.getPassword()))
+            .createdTime(LocalDateTime.now())
+            .authorities(List.of(
+                authorityRepository.findByAuthorityName("ROLE_USER").orElseThrow(RuntimeException::new)
+            ))
+            .active(true)
+            .build();
+        User savedUser = userRepository.save(newUser);
+
+        newUserInfo.setUser(savedUser);
+        newUserInfo.setCoins((long) defaultCoins);  //--Default coins for new User.
+        return userInfoRepository.save(newUserInfo);    //--FetchType.LAZY will ignore User
+    }
+
+    public void generateRandomPassword(VerifyOtpRequest request) {
+        var user = userRepository.findByEmail(request.getEmail())
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.FORBIDDEN_USER));
+        var removedOtp = forgotPasswordOtpService.findByEmail(request.getEmail())
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.VERIFY_OTP));
+        forgotPasswordOtpService.deleteByEmail(removedOtp.getId());
+
+        String newPassword = AuthenticationService.generateRandomOtp(6);
+        String newPassMessage = String.format("""
+            <div>
+                <p style="font-size: 18px">Do not share this information to anyone. Please secure these characters!</p>
+                <h2>User Email: <b>%s</b></h2>
+                <h2>New Password: <b>%s</b></h2>
+            </div>
+        """, request.getEmail(), newPassword);
+        emailService.sendSimpleEmail(request.getEmail(), "New password by Home Workout With AI", newPassMessage);
+
+        user.setPassword(newPassword);
+        userRepository.save(user);
     }
 }

@@ -23,20 +23,6 @@ public class UserControllers {
     UserService userService;
 
     @ResponseBody
-    @PostMapping("/api/public/auth/v1/register-user")
-    public ResponseEntity<ApiResponseObject<UserInfo>> registerUser(
-        @Valid @RequestBody NewUserRequest request) {
-        return ApiResponseObject.buildSuccessResponse(SucceedCodes.CREATE_USER_INFO, userService.registerUser(request));
-    }
-
-    @ResponseBody
-    @PostMapping("/api/public/auth/v1/generate-random-password")
-    public ResponseEntity<ApiResponseObject<Void>> generateRandomPassword(@Valid @RequestBody VerifyOtpRequest req) {
-        userService.generateRandomPassword(req);
-        return ApiResponseObject.buildSuccessResponse(SucceedCodes.SEND_RANDOM_PASSWORD);
-    }
-
-    @ResponseBody
     @PutMapping("/api/private/admin/v1/update-user-status")
     public ResponseEntity<ApiResponseObject<HashMap<String, Object>>> updateUserStatus(
         @Valid @RequestBody UpdateUserStatusRequest request) {

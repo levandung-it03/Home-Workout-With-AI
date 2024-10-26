@@ -34,7 +34,7 @@ public class SubscriptionsInfoResponse {
             .firstName(params[1].toString())
             .lastName(params[2].toString())
             .subscribedTime(stringToLocalTime(params[3]))
-            .efficientDays(Integer.parseInt(params[4].toString()))
+            .efficientDays(Objects.isNull(params[4]) ? null : Integer.parseInt(params[4].toString()))
             .scheduleName(params[5].toString())
             .scheduleLevelEnum(params[6].toString())
             .scheduleCoins(Long.parseLong(params[7].toString()))

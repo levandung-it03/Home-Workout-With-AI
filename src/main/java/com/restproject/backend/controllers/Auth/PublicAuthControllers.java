@@ -1,11 +1,13 @@
 package com.restproject.backend.controllers.Auth;
 
 import com.restproject.backend.dtos.request.GetOtpRequest;
+import com.restproject.backend.dtos.request.NewUserRequest;
 import com.restproject.backend.dtos.request.VerifyOtpRequest;
 import com.restproject.backend.dtos.response.AuthenticationResponse;
 import com.restproject.backend.dtos.request.AuthenticationRequest;
 import com.restproject.backend.dtos.response.ApiResponseObject;
 import com.restproject.backend.entities.Auth.RegisterOtp;
+import com.restproject.backend.entities.UserInfo;
 import com.restproject.backend.enums.SucceedCodes;
 import com.restproject.backend.services.Auth.AuthenticationService;
 import jakarta.servlet.http.HttpSession;
@@ -50,10 +52,25 @@ public class PublicAuthControllers {
     }
 
     @ResponseBody
+    @PostMapping("/v1/register-user")
+    public ResponseEntity<ApiResponseObject<UserInfo>> registerUser(
+        @Valid @RequestBody NewUserRequest request) {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.CREATE_USER_INFO,
+            authenticationService.registerUser(request));
+    }
+
+    @ResponseBody
     @PostMapping("/v1/get-forgot-password-otp")
     public ResponseEntity<ApiResponseObject<HashMap<String, Object>>> getForgotPasswordOtp(
         @Valid @RequestBody GetOtpRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_OTP,
             authenticationService.getForgotPasswordOtp(request.getEmail()));
+    }
+
+    @ResponseBody
+    @PostMapping("/v1/generate-random-password")
+    public ResponseEntity<ApiResponseObject<Void>> generateRandomPassword(@Valid @RequestBody VerifyOtpRequest req) {
+        authenticationService.generateRandomPassword(req);
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.SEND_RANDOM_PASSWORD);
     }
 }
