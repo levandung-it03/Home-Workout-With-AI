@@ -1,7 +1,6 @@
 package com.restproject.backend.controllers;
 
-import com.restproject.backend.dtos.request.PaginatedTableRequest;
-import com.restproject.backend.dtos.request.UpdateUserInfoRequest;
+import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.dtos.response.ApiResponseObject;
 import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.dtos.response.UserInfoAndStatusResponse;
@@ -28,6 +27,12 @@ public class UserInfoControllers {
         @Valid PaginatedTableRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_USER_INFO_PAGES,
             userInfoService.getUserInfoAndStatusPages(request));
+    }
+
+    @ResponseBody
+    @GetMapping("/user/v1/get-info")
+    public ResponseEntity<ApiResponseObject<UserInfo>> getInfo(@RequestHeader("Authorization") String accessToken) {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_USER_INFO, userInfoService.getInfo(accessToken));
     }
 
     @ResponseBody

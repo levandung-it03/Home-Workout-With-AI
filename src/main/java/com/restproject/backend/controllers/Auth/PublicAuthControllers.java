@@ -10,7 +10,6 @@ import com.restproject.backend.entities.Auth.RegisterOtp;
 import com.restproject.backend.entities.UserInfo;
 import com.restproject.backend.enums.SucceedCodes;
 import com.restproject.backend.services.Auth.AuthenticationService;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -45,16 +44,14 @@ public class PublicAuthControllers {
 
     @ResponseBody
     @PostMapping("/v1/verify-register-otp")
-    public ResponseEntity<ApiResponseObject<RegisterOtp>> verifyRegisterOtp(
-        @Valid @RequestBody VerifyOtpRequest request) {
+    public ResponseEntity<ApiResponseObject<RegisterOtp>> verifyRegisterOtp(@Valid @RequestBody VerifyOtpRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.VERIFY_OTP,
             authenticationService.verifyRegisterOtp(request));
     }
 
     @ResponseBody
     @PostMapping("/v1/register-user")
-    public ResponseEntity<ApiResponseObject<UserInfo>> registerUser(
-        @Valid @RequestBody NewUserRequest request) {
+    public ResponseEntity<ApiResponseObject<UserInfo>> registerUser(@Valid @RequestBody NewUserRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.CREATE_USER_INFO,
             authenticationService.registerUser(request));
     }

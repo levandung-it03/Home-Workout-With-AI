@@ -20,4 +20,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     void updateStatusByUserId(@Param("id") Long userId, @Param("newStatus") Boolean newStatus);
 
     boolean existsByEmail(String email);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE User u SET u.password = :#{#userInput.password} WHERE u.userId = :#{#userInput.userId}")
+    void updateUserPassword(@Param("userInput") User user);
 }

@@ -172,8 +172,38 @@ public class AuthenticationService {
             var result = RegisterOtp.builder().id(request.getEmail()).otpCode(generateRandomOtp(4)).build();
             registerOtpService.deleteByEmail(request.getEmail());
             registerOtpService.save(result);
+
+            // Schedule a task to remove the OTP after 15 minutes (similar to accessToken lifetime).
+            scheduler.schedule(() -> {
+                registerOtpService.deleteByEmail(request.getEmail());
+                log.info("OTP for " + request.getEmail() + " has expired and been removed.");
+            }, 15, TimeUnit.MINUTES);
+
             return result;
         } else throw new ApplicationException(ErrorCodes.VERIFY_OTP);
+    }
+
+    @Transactional(rollbackOn = {RuntimeException.class})
+    public UserInfo registerUser(NewUserRequest request) throws ApplicationException {
+        var removedOtp = registerOtpService.findByEmail(request.getEmail())
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.VERIFY_OTP));
+        registerOtpService.deleteByEmail(removedOtp.getId());
+
+        UserInfo newUserInfo = userInfoMappers.insertionToPlain(request);
+        User newUser = User.builder()
+            .email(request.getEmail())
+            .password(userPasswordEncoder.encode(request.getPassword()))
+            .createdTime(LocalDateTime.now())
+            .authorities(List.of(
+                authorityRepository.findByAuthorityName("ROLE_USER").orElseThrow(RuntimeException::new)
+            ))
+            .active(true)
+            .build();
+        User savedUser = userRepository.save(newUser);
+
+        newUserInfo.setUser(savedUser);
+        newUserInfo.setCoins((long) defaultCoins);  //--Default coins for new User.
+        return userInfoRepository.save(newUserInfo);    //--FetchType.LAZY will ignore User
     }
 
     public HashMap<String, Object> getForgotPasswordOtp(String email) {
@@ -213,29 +243,6 @@ public class AuthenticationService {
         return otp.toString();
     }
 
-    @Transactional(rollbackOn = {RuntimeException.class})
-    public UserInfo registerUser(NewUserRequest request) throws ApplicationException {
-        var removedOtp = registerOtpService.findByEmail(request.getEmail())
-            .orElseThrow(() -> new ApplicationException(ErrorCodes.VERIFY_OTP));
-        registerOtpService.deleteByEmail(removedOtp.getId());
-
-        UserInfo newUserInfo = userInfoMappers.insertionToPlain(request);
-        User newUser = User.builder()
-            .email(request.getEmail())
-            .password(userPasswordEncoder.encode(request.getPassword()))
-            .createdTime(LocalDateTime.now())
-            .authorities(List.of(
-                authorityRepository.findByAuthorityName("ROLE_USER").orElseThrow(RuntimeException::new)
-            ))
-            .active(true)
-            .build();
-        User savedUser = userRepository.save(newUser);
-
-        newUserInfo.setUser(savedUser);
-        newUserInfo.setCoins((long) defaultCoins);  //--Default coins for new User.
-        return userInfoRepository.save(newUserInfo);    //--FetchType.LAZY will ignore User
-    }
-
     public void generateRandomPassword(VerifyOtpRequest request) {
         var user = userRepository.findByEmail(request.getEmail())
             .orElseThrow(() -> new ApplicationException(ErrorCodes.FORBIDDEN_USER));
@@ -253,7 +260,7 @@ public class AuthenticationService {
         """, request.getEmail(), newPassword);
         emailService.sendSimpleEmail(request.getEmail(), "New password by Home Workout With AI", newPassMessage);
 
-        user.setPassword(newPassword);
+        user.setPassword(userPasswordEncoder.encode(newPassword));
         userRepository.save(user);
     }
 }

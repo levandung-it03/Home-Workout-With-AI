@@ -16,6 +16,8 @@ public enum SucceedCodes {
     GET_OTP(21004, "Get OTP successfully"),
     VERIFY_OTP(21005, "Verify OTP successfully"),
     SEND_RANDOM_PASSWORD(21006, "Send random password into your email successfully"),
+    GET_OTP_TO_CHANGE_PASSWORD(21007, "Authentication successfully and sent OTP"),
+    CHANGE_PASSWORD(21008, "Change password successfully"),
     //--Enums(22)
     GET_ALL_LEVEL_ENUMS(22001, "Get all Levels successfully"),
     GET_ALL_MUSCLE_ENUMS(22002, "Get all Muscles successfully"),
@@ -46,6 +48,7 @@ public enum SucceedCodes {
     CREATE_USER_INFO(26001, "Create new User Info successfully"),
     GET_USER_INFO_PAGES(26002, "Get User Info pages successfully"),
     UPDATE_USER_INFO(26003, "Update User Info successfully"),
+    GET_USER_INFO(26004, "Get User Info successfully"),
     //--User(27)
     UPDATE_USER_STATUS(27001, "Update User status"),
     //--Subscription(28)

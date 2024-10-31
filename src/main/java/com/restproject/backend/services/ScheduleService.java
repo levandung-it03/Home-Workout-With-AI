@@ -1,8 +1,11 @@
 package com.restproject.backend.services;
 
+import com.restproject.backend.dtos.general.ByIdDto;
 import com.restproject.backend.dtos.general.SessionInfoDto;
 import com.restproject.backend.dtos.request.*;
+import com.restproject.backend.dtos.response.PreviewScheduleResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
+import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.entities.Schedule;
 import com.restproject.backend.entities.SessionsOfSchedules;
 import com.restproject.backend.enums.ErrorCodes;
@@ -57,6 +60,21 @@ public class ScheduleService {
         Page<Schedule> repoRes = scheduleRepository.findAllBySchedule(scheduleInfo, pageableCf);
         return TablePagesResponse.<Schedule>builder().data(repoRes.stream().toList())
             .totalPages(repoRes.getTotalPages()).currentPage(request.getPage()).build();
+    }
+
+    public PreviewScheduleResponse getPreviewSchedule(ByIdDto request) {
+        Schedule schedule = scheduleRepository.findById(request.getId())
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY));
+        return PreviewScheduleResponse.builder()
+            .schedule(schedule)
+            .totalSessions(schedule.getSessionsOfSchedule().size())
+            .sessionsOfSchedules(schedule.getSessionsOfSchedule().stream().map(session ->
+                PreviewScheduleResponse.PreviewSession.builder()
+                    .session(session)
+                    .exerciseNames(session.getExercisesOfSession().stream().map(Exercise::getName)
+                        .collect(Collectors.toSet()))
+                    .build()
+            ).collect(Collectors.toSet())).build();
     }
 
     //--Missing Test

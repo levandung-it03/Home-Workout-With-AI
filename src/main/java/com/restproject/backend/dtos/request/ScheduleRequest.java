@@ -1,6 +1,5 @@
 package com.restproject.backend.dtos.request;
 
-import com.restproject.backend.entities.Schedule;
 import com.restproject.backend.enums.Level;
 import com.restproject.backend.exceptions.ApplicationException;
 import lombok.*;
@@ -35,7 +34,7 @@ public class ScheduleRequest {
         result.setLevelEnum(!map.containsKey("level") ? null : Level.getByLevel(map.get("level")));
         result.setDescription(!map.containsKey("description") ? null : map.get("description").toString());
         result.setFromCoins(!map.containsKey("fromCoins") ? null : Long.parseLong(map.get("fromCoins").toString()));
-        result.setToCoins(!map.containsKey("fromCoins") ? null : Long.parseLong(map.get("fromCoins").toString()));
+        result.setToCoins(!map.containsKey("toCoins") ? null : Long.parseLong(map.get("toCoins").toString()));
         return result;
     }
 }

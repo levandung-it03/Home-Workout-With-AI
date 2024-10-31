@@ -1,8 +1,6 @@
 package com.restproject.backend.services;
 
-import com.restproject.backend.dtos.request.PaginatedTableRequest;
-import com.restproject.backend.dtos.request.UpdateUserInfoRequest;
-import com.restproject.backend.dtos.request.UserInfoAndStatusRequest;
+import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.dtos.response.UserInfoAndStatusResponse;
 import com.restproject.backend.entities.UserInfo;
@@ -16,6 +14,7 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,6 +23,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserInfoService {
     UserInfoMappers userInfoMappers;
@@ -54,11 +54,16 @@ public class UserInfoService {
 
     @Transactional(rollbackOn = {RuntimeException.class})
     public UserInfo updateUserInfo(UpdateUserInfoRequest request, String accessToken) {
-        var updatedUserInfo = userInfoRepository.findByUserEmail(jwtService.readPayload(accessToken).get("subject"))
+        var updatedUserInfo = userInfoRepository.findByUserEmail(jwtService.readPayload(accessToken).get("sub"))
                 .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_TOKEN));                
         userInfoMappers.updateTarget(updatedUserInfo, request);
         userInfoRepository.deleteById(updatedUserInfo.getUserInfoId());
         updatedUserInfo.setUserInfoId(null);
         return userInfoRepository.save(updatedUserInfo);    //--FetchType.LAZY will ignore User
+    }
+
+    public UserInfo getInfo(String accessToken) {
+        return userInfoRepository.findByUserEmail(jwtService.readPayload(accessToken).get("sub"))
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.FORBIDDEN_USER));
     }
 }

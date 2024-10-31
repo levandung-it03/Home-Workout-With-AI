@@ -1,10 +1,12 @@
 package com.restproject.backend.controllers;
 
+import com.restproject.backend.dtos.general.ByIdDto;
 import com.restproject.backend.dtos.request.DeleteObjectRequest;
 import com.restproject.backend.dtos.request.PaginatedTableRequest;
 import com.restproject.backend.dtos.request.UpdateScheduleRequest;
 import com.restproject.backend.dtos.response.ApiResponseObject;
 import com.restproject.backend.dtos.request.NewScheduleRequest;
+import com.restproject.backend.dtos.response.PreviewScheduleResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.entities.Schedule;
 import com.restproject.backend.enums.SucceedCodes;
@@ -29,6 +31,13 @@ public class ScheduleControllers {
         @Valid PaginatedTableRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_SCHEDULES_PAGES,
             scheduleServiceOfAdmin.getSchedulesPages(request));
+    }
+
+    @ResponseBody
+    @GetMapping("/admin/v1/get-preview-schedule")
+    public ResponseEntity<ApiResponseObject<PreviewScheduleResponse>> getPreviewScheduleInfo(@Valid ByIdDto request) {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_PREVIEW_SCHEDULE,
+            scheduleServiceOfAdmin.getPreviewSchedule(request));
     }
 
     //--Missing Test
