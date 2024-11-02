@@ -17,8 +17,6 @@ public interface SessionsOfSchedulesRepository extends JpaRepository<SessionsOfS
 
     void deleteAllByScheduleScheduleId(Long id);
 
-    boolean existsByScheduleScheduleId(Long scheduleId);
-
     @Query("""
         SELECT sos FROM SessionsOfSchedules sos WHERE sos.schedule.scheduleId = :scheduleId ORDER BY sos.ordinal ASC
     """)

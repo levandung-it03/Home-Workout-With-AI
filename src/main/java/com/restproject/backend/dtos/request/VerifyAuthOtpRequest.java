@@ -1,6 +1,5 @@
 package com.restproject.backend.dtos.request;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -10,11 +9,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class VerifyOtpRequest {
-    @NotBlank
-    @Email
-    String email;
-
+public class VerifyAuthOtpRequest {
     @NotBlank
     String otpCode;
 }

@@ -2,7 +2,7 @@ package com.restproject.backend.services.Auth;
 
 import com.restproject.backend.dtos.general.TokenDto;
 import com.restproject.backend.dtos.request.NewUserRequest;
-import com.restproject.backend.dtos.request.VerifyOtpRequest;
+import com.restproject.backend.dtos.request.VerifyPublicOtpRequest;
 import com.restproject.backend.dtos.response.AuthenticationResponse;
 import com.restproject.backend.dtos.request.AuthenticationRequest;
 import com.restproject.backend.entities.Auth.ForgotPasswordOtp;
@@ -17,8 +17,8 @@ import com.restproject.backend.repositories.AuthorityRepository;
 import com.restproject.backend.repositories.UserInfoRepository;
 import com.restproject.backend.repositories.UserRepository;
 import com.restproject.backend.services.ThirdParty.EmailService;
-import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,6 +58,17 @@ public class AuthenticationService {
 
     @Value("${services.back-end.user-info.default-coins}")
     private int defaultCoins;
+    @Value("${services.security.max-hidden-otp-age-min}")
+    private int maxHiddenOtpAgeMin;
+    @Value("${services.security.max-otp-age-min}")
+    private int maxOtpAgeMin;
+
+    public static String generateRandomOtp(int length) {
+        StringBuilder otp = new StringBuilder(length);
+        for (int i = 0; i < length; i++)
+            otp.append(CHARACTERS.charAt(RANDOM.nextInt(CHARACTERS.length())));
+        return otp.toString();
+    }
 
     /**
      * Steps
@@ -139,6 +150,9 @@ public class AuthenticationService {
     }
 
     public HashMap<String, Object> getRegisterOtp(String email) {
+        if (userRepository.existsByEmail(email))
+            throw new ApplicationException(ErrorCodes.USER_EXISTING);
+
         String otp = generateRandomOtp(4);
         //--Remove the previous OTP code in session if it's existing.
         if (registerOtpService.findByEmail(email).isPresent())
@@ -151,7 +165,8 @@ public class AuthenticationService {
                 <h2>OTP: <b>%s</b></h2>
             </div>
         """, email, otp);
-        emailService.sendSimpleEmail(email, "OTP Code by Home Workout With AI", otpMailMessage);
+        emailService.sendSimpleEmail(email, "Verify Email OTP Code for registering by Home Workout With AI",
+            otpMailMessage);
 
         //--Save into session for the next actions.
         registerOtpService.save(RegisterOtp.builder().id(email).otpCode(otp).build());
@@ -159,35 +174,38 @@ public class AuthenticationService {
         // Schedule a task to remove the OTP after 5 minutes (or your preferred timeout).
         scheduler.schedule(() -> {
             registerOtpService.deleteByEmail(email);
-            log.info("OTP for " + email + " has expired and been removed.");
-        }, 5, TimeUnit.MINUTES);
+            log.info("Register OTP for {} has expired and been removed.", email);
+        }, maxOtpAgeMin, TimeUnit.MINUTES);
 
-        return new HashMap<>(Map.of("ageInSeconds", 5*60));
+        return new HashMap<>(Map.of("ageInSeconds", maxOtpAgeMin*60));
     }
 
-    public RegisterOtp verifyRegisterOtp(VerifyOtpRequest request) {
-        //--Remove the previous OTP code in session if it's existing.
-        Optional<RegisterOtp> existsOtp = registerOtpService.findByEmail(request.getEmail());
-        if (existsOtp.isPresent() && existsOtp.get().getOtpCode().equals(request.getOtpCode())) {
-            var result = RegisterOtp.builder().id(request.getEmail()).otpCode(generateRandomOtp(4)).build();
+    public RegisterOtp verifyRegisterOtp(VerifyPublicOtpRequest request) {
+        var existsOtp = registerOtpService.findByEmail(request.getEmail())
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.OTP_IS_KILLED));
+        if (existsOtp.getOtpCode().equals(request.getOtpCode()))
+            throw new ApplicationException(ErrorCodes.OTP_NOT_FOUND);
+
+        var result = RegisterOtp.builder().id(request.getEmail()).otpCode(generateRandomOtp(4)).build();
+        registerOtpService.deleteByEmail(request.getEmail());
+        registerOtpService.save(result);    //--Creating a Hidden OTP to prevent weird submitting form.
+
+        scheduler.schedule(() -> {
             registerOtpService.deleteByEmail(request.getEmail());
-            registerOtpService.save(result);
+            log.info("Hidden Register OTP for {} has expired and been removed.", request.getEmail());
+        }, maxHiddenOtpAgeMin, TimeUnit.MINUTES);
 
-            // Schedule a task to remove the OTP after 15 minutes (similar to accessToken lifetime).
-            scheduler.schedule(() -> {
-                registerOtpService.deleteByEmail(request.getEmail());
-                log.info("OTP for " + request.getEmail() + " has expired and been removed.");
-            }, 15, TimeUnit.MINUTES);
-
-            return result;
-        } else throw new ApplicationException(ErrorCodes.VERIFY_OTP);
+        return result;
     }
 
     @Transactional(rollbackOn = {RuntimeException.class})
     public UserInfo registerUser(NewUserRequest request) throws ApplicationException {
         var removedOtp = registerOtpService.findByEmail(request.getEmail())
-            .orElseThrow(() -> new ApplicationException(ErrorCodes.VERIFY_OTP));
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.HIDDEN_OTP_IS_KILLED));
         registerOtpService.deleteByEmail(removedOtp.getId());
+
+        if (userRepository.existsByEmail(request.getEmail()))
+            throw new ApplicationException(ErrorCodes.USER_EXISTING);
 
         UserInfo newUserInfo = userInfoMappers.insertionToPlain(request);
         User newUser = User.builder()
@@ -207,7 +225,8 @@ public class AuthenticationService {
     }
 
     public HashMap<String, Object> getForgotPasswordOtp(String email) {
-        if (!userRepository.existsByEmail(email))
+        var userQueryResult = userRepository.findByEmail(email);
+        if (userQueryResult.isEmpty() || !userQueryResult.get().isActive())
             throw new ApplicationException(ErrorCodes.FORBIDDEN_USER);
 
         String otp = generateRandomOtp(4);
@@ -222,7 +241,8 @@ public class AuthenticationService {
                 <h2>OTP: <b>%s</b></h2>
             </div>
         """, email, otp);
-        emailService.sendSimpleEmail(email, "OTP Code for new password by Home Workout With AI", otpMailMessage);
+        emailService.sendSimpleEmail(email, "OTP Code for new password by Home Workout With AI",
+            otpMailMessage);
 
         //--Save into session for the next actions.
         forgotPasswordOtpService.save(ForgotPasswordOtp.builder().id(email).otpCode(otp).build());
@@ -230,24 +250,21 @@ public class AuthenticationService {
         // Schedule a task to remove the OTP after 5 minutes (or your preferred timeout).
         scheduler.schedule(() -> {
             forgotPasswordOtpService.deleteByEmail(email);
-            log.info("OTP for " + email + " has expired and been removed.");
-        }, 5, TimeUnit.MINUTES);
+            log.info("Forgot Password OTP for {} has expired and been removed.", email);
+        }, maxOtpAgeMin, TimeUnit.MINUTES);
 
-        return new HashMap<>(Map.of("ageInSeconds", 5*60));
+        return new HashMap<>(Map.of("ageInSeconds", maxOtpAgeMin*60));
     }
 
-    public static String generateRandomOtp(int length) {
-        StringBuilder otp = new StringBuilder(length);
-        for (int i = 0; i < length; i++)
-            otp.append(CHARACTERS.charAt(RANDOM.nextInt(CHARACTERS.length())));
-        return otp.toString();
-    }
-
-    public void generateRandomPassword(VerifyOtpRequest request) {
+    public void generateRandomPassword(VerifyPublicOtpRequest request) {
         var user = userRepository.findByEmail(request.getEmail())
             .orElseThrow(() -> new ApplicationException(ErrorCodes.FORBIDDEN_USER));
+        if (!user.isActive())   throw new ApplicationException(ErrorCodes.FORBIDDEN_USER);
+
         var removedOtp = forgotPasswordOtpService.findByEmail(request.getEmail())
-            .orElseThrow(() -> new ApplicationException(ErrorCodes.VERIFY_OTP));
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.HIDDEN_OTP_IS_KILLED));
+        if (!removedOtp.getOtpCode().equals(request.getOtpCode()))
+            throw new ApplicationException(ErrorCodes.HIDDEN_OTP_NOT_FOUND);
         forgotPasswordOtpService.deleteByEmail(removedOtp.getId());
 
         String newPassword = AuthenticationService.generateRandomOtp(6);

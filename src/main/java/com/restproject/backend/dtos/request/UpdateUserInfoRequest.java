@@ -2,8 +2,6 @@ package com.restproject.backend.dtos.request;
 
 import com.restproject.backend.annotations.constraint.DobConstraint;
 import com.restproject.backend.annotations.constraint.GenderEnumConstraint;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
@@ -33,11 +31,4 @@ public class UpdateUserInfoRequest {
     @NotNull
     @GenderEnumConstraint
     Integer genderId;
-
-    @NotBlank
-    @Email
-    String email;
-
-    @NotNull
-    Long coins;
 }

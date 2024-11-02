@@ -14,7 +14,10 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "user")
+@Table(
+    name = "user",
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"email"})}
+)
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class User implements UserDetails {

@@ -37,6 +37,7 @@ public enum SucceedCodes {
     GET_SESSIONS_HAS_MUSCLES_OF_SCHEDULE_PAGES(24005, "Get Sessions in Schedule pages successfully"),
     GET_SESSIONS_OF_SCHEDULE_RELATIONSHIP(24006, "Get Sessions in Schedule successfully"),
     GET_PREVIEW_SCHEDULE(24007, "Get preview Schedule successfully"),
+    GET_SESSION_QUANTITY_OF_SCHEDULE(24008, "Get Sessions quantity of Schedule successfully"),
     //--Session(25)
     CREATE_SESSION(25001, "Create new Session successfully"),
     UPDATE_SESSION(25002, "Update Session successfully"),

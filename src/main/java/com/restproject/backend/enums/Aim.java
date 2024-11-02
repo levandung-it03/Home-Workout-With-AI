@@ -9,16 +9,16 @@ public enum Aim {
     MAINTAIN_WEIGHT(0, "Maintain weight"),
     WEIGHT_DOWN(-1, "Weight down"),
     ;
-    final Integer level;
+    final Integer type;
     final String name;
-    Aim(int level, String name) {
-        this.level = level;
+    Aim(int type, String name) {
+        this.type = type;
         this.name = name;
     }
 
-    public static Aim getByLevel(Integer aimLevel) {
+    public static Aim getByType(Integer aimType) {
         for (Aim aim: Aim.values())
-            if (aim.level.equals(aimLevel))
+            if (aim.type.equals(aimType))
                 return aim;
         throw new ApplicationException(ErrorCodes.INVALID_AIM);
     }

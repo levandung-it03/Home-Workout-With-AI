@@ -1,10 +1,7 @@
 package com.restproject.backend.controllers.Auth;
 
-import com.restproject.backend.dtos.request.GetOtpRequest;
-import com.restproject.backend.dtos.request.NewUserRequest;
-import com.restproject.backend.dtos.request.VerifyOtpRequest;
+import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.dtos.response.AuthenticationResponse;
-import com.restproject.backend.dtos.request.AuthenticationRequest;
 import com.restproject.backend.dtos.response.ApiResponseObject;
 import com.restproject.backend.entities.Auth.RegisterOtp;
 import com.restproject.backend.entities.UserInfo;
@@ -44,7 +41,8 @@ public class PublicAuthControllers {
 
     @ResponseBody
     @PostMapping("/v1/verify-register-otp")
-    public ResponseEntity<ApiResponseObject<RegisterOtp>> verifyRegisterOtp(@Valid @RequestBody VerifyOtpRequest request) {
+    public ResponseEntity<ApiResponseObject<RegisterOtp>> verifyRegisterOtp(
+        @Valid @RequestBody VerifyPublicOtpRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.VERIFY_OTP,
             authenticationService.verifyRegisterOtp(request));
     }
@@ -66,7 +64,8 @@ public class PublicAuthControllers {
 
     @ResponseBody
     @PostMapping("/v1/generate-random-password")
-    public ResponseEntity<ApiResponseObject<Void>> generateRandomPassword(@Valid @RequestBody VerifyOtpRequest req) {
+    public ResponseEntity<ApiResponseObject<Void>> generateRandomPassword(
+        @Valid @RequestBody VerifyPublicOtpRequest req) {
         authenticationService.generateRandomPassword(req);
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.SEND_RANDOM_PASSWORD);
     }

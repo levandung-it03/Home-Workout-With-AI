@@ -40,7 +40,7 @@ public class UserInfoControllers {
     public ResponseEntity<ApiResponseObject<UserInfo>> updateUserInfo(
         @RequestHeader("Authorization") String accessToken,
         @Valid @RequestBody UpdateUserInfoRequest request) {
-        return ApiResponseObject.buildSuccessResponse(SucceedCodes.CREATE_USER_INFO,
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.UPDATE_USER_INFO,
             userInfoService.updateUserInfo(request, accessToken));
     }
 }

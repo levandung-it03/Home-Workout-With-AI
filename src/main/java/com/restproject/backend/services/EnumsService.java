@@ -35,7 +35,7 @@ public class EnumsService {
     public List<Map<String, String>> getAllAims() {
         return Arrays.stream(Aim.values()).map(aim -> Map.of(
             "raw", aim.toString(),
-            "level", aim.getLevel().toString(),
+            "type", aim.getType().toString(),
             "name", aim.getName()
         )).toList();
     }

@@ -10,7 +10,6 @@ import com.restproject.backend.mappers.PageMappers;
 import com.restproject.backend.mappers.UserInfoMappers;
 import com.restproject.backend.repositories.UserInfoRepository;
 import com.restproject.backend.services.Auth.JwtService;
-import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -52,14 +51,12 @@ public class UserInfoService {
             .currentPage(repoRes.getTotalPages()).data(repoRes.stream().toList()).build();
     }
 
-    @Transactional(rollbackOn = {RuntimeException.class})
     public UserInfo updateUserInfo(UpdateUserInfoRequest request, String accessToken) {
         var updatedUserInfo = userInfoRepository.findByUserEmail(jwtService.readPayload(accessToken).get("sub"))
                 .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_TOKEN));                
         userInfoMappers.updateTarget(updatedUserInfo, request);
-        userInfoRepository.deleteById(updatedUserInfo.getUserInfoId());
-        updatedUserInfo.setUserInfoId(null);
-        return userInfoRepository.save(updatedUserInfo);    //--FetchType.LAZY will ignore User
+        userInfoRepository.updateUserInfoByUserInfoId(updatedUserInfo);
+        return updatedUserInfo;
     }
 
     public UserInfo getInfo(String accessToken) {

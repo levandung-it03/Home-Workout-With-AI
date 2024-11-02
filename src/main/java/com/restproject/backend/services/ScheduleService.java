@@ -3,6 +3,7 @@ package com.restproject.backend.services;
 import com.restproject.backend.dtos.general.ByIdDto;
 import com.restproject.backend.dtos.general.SessionInfoDto;
 import com.restproject.backend.dtos.request.*;
+import com.restproject.backend.dtos.response.PreviewFullScheduleResponse;
 import com.restproject.backend.dtos.response.PreviewScheduleResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.entities.Exercise;
@@ -12,12 +13,10 @@ import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.exceptions.ApplicationException;
 import com.restproject.backend.mappers.PageMappers;
 import com.restproject.backend.mappers.ScheduleMappers;
-import com.restproject.backend.repositories.ScheduleRepository;
-import com.restproject.backend.repositories.SessionRepository;
-import com.restproject.backend.repositories.SessionsOfSchedulesRepository;
-import com.restproject.backend.repositories.SubscriptionRepository;
+import com.restproject.backend.repositories.*;
 import com.restproject.backend.services.Auth.JwtService;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -26,6 +25,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,6 +39,7 @@ public class ScheduleService {
     ScheduleRepository scheduleRepository;
     SessionRepository sessionRepository;
     SessionsOfSchedulesRepository sessionsOfSchedulesRepository;
+    ExercisesOfSessionsRepository exercisesOfSessionsRepository;
     ScheduleMappers scheduleMappers;
     JwtService jwtService;
     SubscriptionRepository subscriptionRepository;
@@ -62,19 +64,22 @@ public class ScheduleService {
             .totalPages(repoRes.getTotalPages()).currentPage(request.getPage()).build();
     }
 
-    public PreviewScheduleResponse getPreviewSchedule(ByIdDto request) {
-        Schedule schedule = scheduleRepository.findById(request.getId())
+    public PreviewFullScheduleResponse getPreviewSchedule(ByIdDto request) {
+        var schedule = scheduleRepository.findById(request.getId())
             .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY));
-        return PreviewScheduleResponse.builder()
+        var sessionsOfSchedules = sessionsOfSchedulesRepository.findAllById(request.getId());
+        var previewSessions = sessionsOfSchedules.stream().map(sessionOfSchedule ->
+            PreviewFullScheduleResponse.PreviewSession.builder()
+                .ordinal(sessionOfSchedule.getOrdinal())
+                .session(sessionOfSchedule.getSession())
+                .exercisesOfSessions(
+                    exercisesOfSessionsRepository.findAllById(sessionOfSchedule.getSession().getSessionId()))
+                .build()
+        ).toList();
+        return PreviewFullScheduleResponse.builder()
             .schedule(schedule)
             .totalSessions(schedule.getSessionsOfSchedule().size())
-            .sessionsOfSchedules(schedule.getSessionsOfSchedule().stream().map(session ->
-                PreviewScheduleResponse.PreviewSession.builder()
-                    .session(session)
-                    .exerciseNames(session.getExercisesOfSession().stream().map(Exercise::getName)
-                        .collect(Collectors.toSet()))
-                    .build()
-            ).collect(Collectors.toSet())).build();
+            .sessionsOfSchedules(previewSessions).build();
     }
 
     //--Missing Test
@@ -152,5 +157,12 @@ public class ScheduleService {
         Page<Schedule> repoRes = scheduleRepository.findAllAvailableScheduleOfUser(email, scheduleInfo, pageableCf);
         return TablePagesResponse.<Schedule>builder().data(repoRes.stream().toList())
             .totalPages(repoRes.getTotalPages()).currentPage(request.getPage()).build();
+    }
+
+    public Map<String, Object> getSessionsQuantityOfSchedule(ByIdDto request) {
+        return Map.of("sessionsQuantity", scheduleRepository
+            .findById(request.getId())
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY))
+            .getSessionsOfSchedule().size());
     }
 }

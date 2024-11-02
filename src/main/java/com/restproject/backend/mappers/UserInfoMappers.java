@@ -17,6 +17,7 @@ public interface UserInfoMappers {
     UserInfo insertionToPlain(NewUserRequest request);
 
     @Mapping(target = "gender", source = "genderId", qualifiedByName = "mapGenderField")
+    @Mapping(target = "coins", ignore = true)
     @Mapping(target = "user", ignore = true)
     void updateTarget(@MappingTarget UserInfo result, UpdateUserInfoRequest request);
 

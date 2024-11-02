@@ -3,7 +3,7 @@ package com.restproject.backend.services;
 import com.restproject.backend.dtos.request.AuthenticationRequest;
 import com.restproject.backend.dtos.request.ChangePasswordRequest;
 import com.restproject.backend.dtos.request.UpdateUserStatusRequest;
-import com.restproject.backend.dtos.request.VerifyOtpRequest;
+import com.restproject.backend.dtos.request.VerifyAuthOtpRequest;
 import com.restproject.backend.entities.Auth.ChangePasswordOtp;
 import com.restproject.backend.entities.Auth.User;
 import com.restproject.backend.enums.ErrorCodes;
@@ -13,10 +13,9 @@ import com.restproject.backend.services.Auth.ChangePasswordOtpService;
 import com.restproject.backend.services.Auth.JwtService;
 import com.restproject.backend.services.ThirdParty.EmailService;
 import jakarta.transaction.Transactional;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,15 +33,19 @@ import static com.restproject.backend.services.Auth.AuthenticationService.genera
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService {
-    ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    UserRepository userRepository;
-    AuthenticationManager authenticationManager;
-    EmailService emailService;
-    ChangePasswordOtpService changePasswordOtpService;
-    PasswordEncoder userPasswordEncoder;
-    JwtService jwtService;
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+    private final EmailService emailService;
+    private final ChangePasswordOtpService changePasswordOtpService;
+    private final PasswordEncoder userPasswordEncoder;
+    private final JwtService jwtService;
+
+    @Value("${services.security.max-hidden-otp-age-min}")
+    private int maxHiddenOtpAgeMin;
+    @Value("${services.security.max-otp-age-min}")
+    private int maxOtpAgeMin;
 
     public HashMap<String, Object> updateUserStatus(UpdateUserStatusRequest request) {
         if (!userRepository.existsById(request.getUserId()))
@@ -54,7 +57,6 @@ public class UserService {
             Map.entry("newStatus", request.getNewStatus())
         ));
     }
-
 
     public HashMap<String, Object> getOtpToChangePassword(AuthenticationRequest request) {
         var authToken = new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
@@ -75,7 +77,7 @@ public class UserService {
                 <h2>OTP: <b>%s</b></h2>
             </div>
         """, request.getEmail(), otp);
-        emailService.sendSimpleEmail(request.getEmail(), "OTP Code for new password by Home Workout With AI",
+        emailService.sendSimpleEmail(request.getEmail(), "OTP Code for changing password by Home Workout With AI",
             otpMailMessage);
 
         //--Save into session for the next actions.
@@ -85,37 +87,40 @@ public class UserService {
         scheduler.schedule(() -> {
             changePasswordOtpService.deleteByEmail(request.getEmail());
             log.info("Change Password OTP for {} has expired and been removed.", request.getEmail());
-        }, 5, TimeUnit.MINUTES);
+        }, maxOtpAgeMin, TimeUnit.MINUTES);
 
-        return new HashMap<>(Map.of("ageInSeconds", 5*60));
+        return new HashMap<>(Map.of("ageInSeconds", maxOtpAgeMin*60));
     }
 
-    public ChangePasswordOtp verifyOtpToChangePassword(VerifyOtpRequest request, String accessToken) {
+    public ChangePasswordOtp verifyOtpToChangePassword(VerifyAuthOtpRequest request, String accessToken) {
         //--Remove the previous OTP code in session if it's existing.
-        Optional<ChangePasswordOtp> existsOtp = changePasswordOtpService.findByEmail(request.getEmail());
+        String email = jwtService.readPayload(accessToken).get("sub");
+        Optional<ChangePasswordOtp> existsOtp = changePasswordOtpService.findByEmail(email);
         if (existsOtp.isPresent() && existsOtp.get().getOtpCode().equals(request.getOtpCode())) {
-            var result = ChangePasswordOtp.builder().id(request.getEmail()).otpCode(generateRandomOtp(4)).build();
-            changePasswordOtpService.deleteByEmail(request.getEmail());
+            var result = ChangePasswordOtp.builder().id(email).otpCode(generateRandomOtp(4)).build();
+            changePasswordOtpService.deleteByEmail(email);
             changePasswordOtpService.save(result);
 
             // Schedule a task to remove the OTP after 15 minutes (similar to accessToken lifetime).
             scheduler.schedule(() -> {
-                changePasswordOtpService.deleteByEmail(request.getEmail());
-                log.info("Change Password Hidden OTP for {} has expired and been removed.", request.getEmail());
-            }, 15, TimeUnit.MINUTES);
+                changePasswordOtpService.deleteByEmail(email);
+                log.info("Hidden Change Password OTP for {} has expired and been removed.", email);
+            }, maxHiddenOtpAgeMin, TimeUnit.MINUTES);
 
             return result;
-        } else throw new ApplicationException(ErrorCodes.VERIFY_OTP);
+        } else throw new ApplicationException(ErrorCodes.OTP_NOT_FOUND);
     }
 
     @Transactional(rollbackOn = {RuntimeException.class})
     public void changePassword(ChangePasswordRequest request, String accessToken) {
         var user = userRepository.findByEmail(jwtService.readPayload(accessToken).get("sub"))
             .orElseThrow(() -> new ApplicationException(ErrorCodes.FORBIDDEN_USER));
+        if (!user.isActive())   throw new ApplicationException(ErrorCodes.FORBIDDEN_USER);
 
-        Optional<ChangePasswordOtp> existsOtp = changePasswordOtpService.findByEmail(user.getEmail());
-        if (existsOtp.isEmpty() || !existsOtp.get().getOtpCode().equals(request.getOtpCode()))
-            throw new ApplicationException(ErrorCodes.VERIFY_OTP);
+        var existsOtp = changePasswordOtpService.findByEmail(user.getEmail())
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.HIDDEN_OTP_IS_KILLED));
+        if (!existsOtp.getOtpCode().equals(request.getOtpCode()))
+            throw new ApplicationException(ErrorCodes.HIDDEN_OTP_NOT_FOUND);
 
         changePasswordOtpService.deleteByEmail(user.getEmail());
         user.setPassword(userPasswordEncoder.encode(request.getPassword()));

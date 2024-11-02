@@ -5,10 +5,12 @@ import com.restproject.backend.dtos.request.UserInfoAndStatusRequest;
 import com.restproject.backend.dtos.response.UserInfoAndStatusResponse;
 import com.restproject.backend.entities.UserInfo;
 import jakarta.persistence.LockModeType;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -49,7 +51,21 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
 
     Optional<UserInfo> findByUserEmail(String subject);
 
-    @Query("SELECT u FROM UserInfo u WHERE u.user.email = :email")
-    @Lock(LockModeType.PESSIMISTIC_WRITE)   //--Notice that this userInfo(coins) will be used to be READ and WRITTEN.
-    Optional<UserInfo> findByUserEmailWithPessimisticLock(@Param("email") String subject);
+    @Modifying
+    @Transactional
+    @Query("""
+        UPDATE UserInfo u SET
+            u.firstName = :#{#updatedObj.firstName},
+            u.lastName = :#{#updatedObj.lastName},
+            u.dob = :#{#updatedObj.dob},
+            u.gender = :#{#updatedObj.gender}
+        WHERE u.userInfoId = :#{#updatedObj.userInfoId}
+    """)
+    void updateUserInfoByUserInfoId(@Param("updatedObj") UserInfo userInfo);
+
+    @Modifying
+    @Transactional
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("UPDATE UserInfo u SET u.coins = :newCoins WHERE u.userInfoId = :userInfoId")
+    void updateCoins(@Param("newCoins") long coins, @Param("userInfoId") Long userInfoId);
 }

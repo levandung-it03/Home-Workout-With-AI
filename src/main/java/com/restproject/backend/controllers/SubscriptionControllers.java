@@ -1,10 +1,7 @@
 package com.restproject.backend.controllers;
 
 import com.restproject.backend.dtos.general.ByIdDto;
-import com.restproject.backend.dtos.request.PaginatedRelationshipRequest;
-import com.restproject.backend.dtos.request.ScheduleByStatusRequest;
-import com.restproject.backend.dtos.request.ScheduleSubscriptionRequest;
-import com.restproject.backend.dtos.request.ScheduleInfoToPerformSessionRequest;
+import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.dtos.response.*;
 import com.restproject.backend.entities.ExercisesOfSessions;
 import com.restproject.backend.entities.Schedule;
@@ -72,6 +69,15 @@ public class SubscriptionControllers {
     public ResponseEntity<ApiResponseObject<Void>> subscribeSchedule(
         @RequestHeader("Authorization") String accessToken, @Valid @RequestBody ScheduleSubscriptionRequest request) {
         subscriptionService.subscribeSchedule(request, accessToken);
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.SUBSCRIBE_SCHEDULE);
+    }
+
+    @ResponseBody
+    @PostMapping("/user/v1/subscribe-schedule-with-AI")
+    public ResponseEntity<ApiResponseObject<Void>> subscribeScheduleWithAI(
+        @RequestHeader("Authorization") String accessToken,
+        @Valid @RequestBody ScheduleSubscriptionWithAIRequest request) {
+        subscriptionService.subscribeScheduleWithAI(request, accessToken);
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.SUBSCRIBE_SCHEDULE);
     }
 }

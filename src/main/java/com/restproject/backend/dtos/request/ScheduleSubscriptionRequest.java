@@ -11,16 +11,10 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ScheduleSubscriptionRequest {
     @NotNull
-    Integer aimLevel;
+    Integer aimType;
 
     @NotNull
-    Long repRatio;
-
-    @NotNull
-    Float height;
-
-    @NotNull
-    Float weight;
+    Byte repRatio;   //--Receive values: [100, 90, 80]
 
     @NotNull
     Long scheduleId;
