@@ -60,6 +60,9 @@ public class Subscription {
     @Column(name = "bmr")
     Double bmr;
 
+    @Column(name = "weight_aim")    //--new
+    Float weightAim;
+
     @Column(name = "is_efficient", columnDefinition = "BIT")
-    boolean isEfficient;
+    Boolean isEfficient;
 }

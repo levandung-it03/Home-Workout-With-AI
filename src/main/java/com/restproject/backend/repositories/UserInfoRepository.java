@@ -46,8 +46,8 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
         AND (:#{#filterObj.fromCreatedTime} IS NULL OR :#{#filterObj.fromCreatedTime} <= u.user.createdTime)
         AND (:#{#filterObj.toCreatedTime} IS NULL   OR u.user.createdTime <= :#{#filterObj.toCreatedTime})
     """)
-    Page<UserInfoAndStatusResponse> findAllUserInfoAndStatus(
-        @Param("filterObj") UserInfoAndStatusRequest request, Pageable pageableCof);
+    Page<UserInfoAndStatusResponse> findAllUserInfoAndStatus(@Param("filterObj") UserInfoAndStatusRequest request,
+                                                             Pageable pageableCof);
 
     Optional<UserInfo> findByUserEmail(String subject);
 
@@ -65,7 +65,6 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
 
     @Modifying
     @Transactional
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("UPDATE UserInfo u SET u.coins = :newCoins WHERE u.userInfoId = :userInfoId")
     void updateCoins(@Param("newCoins") long coins, @Param("userInfoId") Long userInfoId);
 }

@@ -4,9 +4,7 @@ import com.restproject.backend.dtos.general.ByIdDto;
 import com.restproject.backend.dtos.general.SessionInfoDto;
 import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.dtos.response.PreviewFullScheduleResponse;
-import com.restproject.backend.dtos.response.PreviewScheduleResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
-import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.entities.Schedule;
 import com.restproject.backend.entities.SessionsOfSchedules;
 import com.restproject.backend.enums.ErrorCodes;
@@ -15,23 +13,25 @@ import com.restproject.backend.mappers.PageMappers;
 import com.restproject.backend.mappers.ScheduleMappers;
 import com.restproject.backend.repositories.*;
 import com.restproject.backend.services.Auth.JwtService;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ScheduleService {
@@ -43,6 +43,10 @@ public class ScheduleService {
     ScheduleMappers scheduleMappers;
     JwtService jwtService;
     SubscriptionRepository subscriptionRepository;
+    UserInfoRepository userInfoRepository;
+
+    @Value("${default-changing-rep-ratio-coins}")
+    public static int defaultChangingRepRatioCoins;
 
     public TablePagesResponse<Schedule> getSchedulesPages(PaginatedTableRequest request) {
         Pageable pageableCf = pageMappers.tablePageRequestToPageable(request).toPageable(Schedule.class);
@@ -164,5 +168,36 @@ public class ScheduleService {
             .findById(request.getId())
             .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY))
             .getSessionsOfSchedule().size());
+    }
+
+    @Transactional(rollbackOn = {RuntimeException.class})
+    public void updateSubscribedScheduleRepRatio(UpdateSubscribedScheduleRepRatioRequest request, String accessToken) {
+        var email = jwtService.readPayload(accessToken).get("sub");
+        var userInfo = userInfoRepository.findByUserEmail(email)
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.FORBIDDEN_USER));
+        var subscription = subscriptionRepository.findSubscribedScheduleByEmail(email, request.getScheduleId())
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.FORBIDDEN_USER));
+
+        final long subtractedCoins = userInfo.getCoins() - defaultChangingRepRatioCoins;
+        if (subtractedCoins < 0)
+            throw new ApplicationException(ErrorCodes.NOT_ENOUGH_COINS);
+        this.subtractCoinsWhenSubscribeSchedule(subtractedCoins, userInfo.getUserInfoId());
+
+        subscription.setRepRatio(request.getNewRepRatio());
+        subscriptionRepository.save(subscription);
+    }
+
+    private void subtractCoinsWhenSubscribeSchedule(long newCoins, long userInfoId) throws ApplicationException {
+        int retries = 3;
+        while (retries > 0) {
+            try {
+                userInfoRepository.updateCoins(newCoins, userInfoId);
+                return;
+            } catch (OptimisticLockException e) {
+                log.warn("Pessimistic Lock found a contention when Updating Coins (for Subscribe Schedule)");
+                if (--retries == 0)
+                    throw new ApplicationException(ErrorCodes.TRANSACTION_VIOLATION_FROM_SUBSCRIPTION);
+            }
+        }
     }
 }

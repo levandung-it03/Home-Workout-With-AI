@@ -17,9 +17,6 @@ public class ScheduleSubscriptionWithAIRequest {
     Byte repRatio;  //--Receive values: [100, 90, 80]
 
     @NotNull
-    Float height;
-
-    @NotNull
     Float weight;
 
     @NotNull
@@ -28,6 +25,6 @@ public class ScheduleSubscriptionWithAIRequest {
     @NotNull
     Long bodyFat;
 
-    Long aimRatio;  //--Receive values: [10, null, -10, -20, -30, -40]
-    Long weightAimByDiet;
+    Long aimRatio;  //--Receive values: [15, 10, 5, null, -10, -20, -30, -40]
+    Float weightAimByDiet;
 }

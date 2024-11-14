@@ -159,8 +159,8 @@ public class UserInfoControllersTest {
 
 
     UpdateUserInfoRequest updateUserInfoRequest() {
-        return UpdateUserInfoRequest.builder().firstName("Dung").lastName("Le Van").email("levandung.it03@gmail.com")
-            .genderId(1).dob(LocalDate.of(2003, 12, 11)).coins(3000L).build();
+        return UpdateUserInfoRequest.builder().firstName("Dung").lastName("Le Van")
+            .genderId(1).dob(LocalDate.of(2003, 12, 11)).build();
     }
 
     @Test

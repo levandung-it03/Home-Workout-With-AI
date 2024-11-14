@@ -26,16 +26,14 @@ public class Session {
     @Column(name = "session_id")
     Long sessionId;
 
-    @Column(name = "name", nullable = false)
-    @Length(max = 100)
+    @Column(name = "name", nullable = false, length = 100)
     String name;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "level_enum", nullable = false)
     Level levelEnum;
 
-    @Column(name = "description", nullable = false)
-    @Length(max = 200)
+    @Column(name = "description", nullable = false, length = 200)
     String description;
 
     @Column(name = "switch_exercise_delay", nullable = false)

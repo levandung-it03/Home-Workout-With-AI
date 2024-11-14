@@ -78,12 +78,13 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
     );
 
     @Query("""
-        SELECT s FROM Schedule s WHERE s.scheduleId NOT IN (
-            SELECT DISTINCT sub.schedule.scheduleId FROM Subscription sub
-            WHERE sub.userInfo.user.email = :email AND sub.userInfo.user.active = TRUE
-        ) AND s.scheduleId = :scheduleId
+        SELECT sub FROM Subscription sub
+        WHERE sub.userInfo.user.email = :email AND sub.userInfo.user.active = TRUE
+            AND sub.schedule.scheduleId = :scheduleId
     """)
-    Optional<Schedule> findScheduleToSubscribe(@Param("email") String email, @Param("scheduleId") Long id);
+    Optional<Subscription> findSubscribedScheduleByEmail(@Param("email") String email, @Param("scheduleId") Long id);
 
     boolean existsByScheduleScheduleId(Long scheduleId);
+
+    boolean existsByScheduleScheduleIdAndUserInfoUserEmail(Long scheduleId, String userEmail);
 }

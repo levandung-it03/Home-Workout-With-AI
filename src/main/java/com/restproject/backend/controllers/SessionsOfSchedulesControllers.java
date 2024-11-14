@@ -3,6 +3,7 @@ package com.restproject.backend.controllers;
 import com.restproject.backend.dtos.general.ByIdDto;
 import com.restproject.backend.dtos.request.UpdateSessionsOfScheduleRequest;
 import com.restproject.backend.dtos.response.ApiResponseObject;
+import com.restproject.backend.dtos.response.PreviewSubscribedScheduleResponse;
 import com.restproject.backend.entities.Session;
 import com.restproject.backend.entities.SessionsOfSchedules;
 import com.restproject.backend.enums.SucceedCodes;
@@ -24,12 +25,19 @@ public class SessionsOfSchedulesControllers {
     SessionsOfSchedulesService sessionsOfSchedulesService;
 
     @ResponseBody
-    @GetMapping({"/admin/v1/get-sessions-of-schedule-relationship",
-        "/user/v1/get-sessions-of-schedule-relationship"})
+    @GetMapping("/admin/v1/get-sessions-of-schedule-relationship")
     public ResponseEntity<ApiResponseObject<List<SessionsOfSchedules>>> getSessionsOfScheduleRelationship(
         @Valid ByIdDto request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_SESSIONS_OF_SCHEDULE_RELATIONSHIP,
             sessionsOfSchedulesService.getSessionsOfScheduleRelationship(request));
+    }
+
+    @ResponseBody
+    @GetMapping("/user/v1/get-preview-schedule-to-perform")
+    public ResponseEntity<ApiResponseObject<PreviewSubscribedScheduleResponse>> getPreviewScheduleToPerform(
+        @RequestHeader("Authorization") String accessToken, @Valid ByIdDto request) {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_SESSIONS_OF_SCHEDULE_RELATIONSHIP,
+            sessionsOfSchedulesService.getPreviewScheduleToPerform(request, accessToken));
     }
 
     //--Missing Test

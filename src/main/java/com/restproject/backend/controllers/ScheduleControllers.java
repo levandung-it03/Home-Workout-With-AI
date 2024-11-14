@@ -1,11 +1,8 @@
 package com.restproject.backend.controllers;
 
 import com.restproject.backend.dtos.general.ByIdDto;
-import com.restproject.backend.dtos.request.DeleteObjectRequest;
-import com.restproject.backend.dtos.request.PaginatedTableRequest;
-import com.restproject.backend.dtos.request.UpdateScheduleRequest;
+import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.dtos.response.ApiResponseObject;
-import com.restproject.backend.dtos.request.NewScheduleRequest;
 import com.restproject.backend.dtos.response.PreviewFullScheduleResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.entities.Schedule;
@@ -80,5 +77,14 @@ public class ScheduleControllers {
     public ResponseEntity<ApiResponseObject<Map<String, Object>>> getSessionsQuantityOfSchedule(@Valid ByIdDto req) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_SESSION_QUANTITY_OF_SCHEDULE,
             scheduleServiceOfAdmin.getSessionsQuantityOfSchedule(req));
+    }
+
+    @ResponseBody
+    @PutMapping("/user/v1/update-subscribed-schedule-rep-ratio")
+    public ResponseEntity<ApiResponseObject<Void>> updateSubscribedScheduleRepRatio(
+        @RequestHeader("Authorization") String accessToken,
+        @Valid @RequestBody UpdateSubscribedScheduleRepRatioRequest req) {
+        scheduleServiceOfAdmin.updateSubscribedScheduleRepRatio(req, accessToken);
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.UPDATE_SUBSCRIBED_SCHEDULE_REP_RATIO);
     }
 }

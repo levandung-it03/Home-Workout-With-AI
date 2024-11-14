@@ -3,6 +3,7 @@ package com.restproject.backend.services;
 import com.restproject.backend.dtos.general.ByIdDto;
 import com.restproject.backend.dtos.general.SessionInfoDto;
 import com.restproject.backend.dtos.request.UpdateSessionsOfScheduleRequest;
+import com.restproject.backend.dtos.response.PreviewSubscribedScheduleResponse;
 import com.restproject.backend.entities.Session;
 import com.restproject.backend.entities.SessionsOfSchedules;
 import com.restproject.backend.enums.ErrorCodes;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +32,7 @@ public class SessionsOfSchedulesService {
     ScheduleRepository scheduleRepository;
     SessionRepository sessionRepository;
     SubscriptionRepository subscriptionRepository;
+    JwtService jwtService;
 
     //--Missing Test
     @Transactional(rollbackOn = {RuntimeException.class})
@@ -62,5 +65,21 @@ public class SessionsOfSchedulesService {
 
     public List<SessionsOfSchedules> getSessionsOfScheduleRelationship(ByIdDto request) {
         return sessionsOfSchedulesRepository.findAllById(request.getId());
+    }
+
+    public PreviewSubscribedScheduleResponse getPreviewScheduleToPerform(ByIdDto request, String accessToken) {
+        var schedule = scheduleRepository.findById(request.getId())
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY));
+        var subscription = subscriptionRepository
+            .findSubscribedScheduleByEmail(jwtService.readPayload(accessToken).get("sub"), request.getId())
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.FORBIDDEN_USER));
+        var tdee = Objects.isNull(subscription.getBmr()) ? null
+            : SubscriptionService.calculateTDEE(subscription.getBmr(), schedule.getSessionsOfSchedule().size());
+        return PreviewSubscribedScheduleResponse.builder()
+            .schedule(schedule)
+            .subscription(subscription)
+            .TDEE(tdee)
+            .sessions(sessionsOfSchedulesRepository.findAllById(request.getId()))
+            .build();
     }
 }

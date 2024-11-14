@@ -361,8 +361,8 @@ INSERT INTO sessions_of_schedules (schedule_id, session_id, ordinal) VALUES
 (10, 3, 1), (10, 2, 2), (10, 4, 3), (10, 5, 4), (10, 3, 5), (10, 2, 6);
 
 INSERT INTO home_workout_with_ai.subscription
-(subscription_id, aim, bmr, subscribed_time, efficient_days, is_efficient, rep_ratio, completed_time, schedule_id, user_info_id)
+(subscription_id, aim, bmr, subscribed_time, efficient_days, is_efficient, rep_ratio, weight_aim, completed_time, schedule_id, user_info_id)
 VALUES
-(NULL, "WEIGHT_UP", 21.0, "2024-01-01 09:12:45", 120, NULL, 0.2, "2025-01-01 01:00:00", 1, 1),
-(NULL, "WEIGHT_UP", 21.0, "2024-01-01 09:00:00", 120, NULL, 0.2, "2025-01-01 01:00:00", 2, 1),
-(NULL, "WEIGHT_UP", 21.0, "2024-01-01 09:00:45", 120, NULL, 0.2, NULL, 3, 1);
+    (NULL, "MAINTAIN_WEIGHT", 1580.0, "2024-01-01 09:12:45", NULL, NULL, 100, 70, "2025-01-01 01:00:00", 1, 1),
+    (NULL, "WEIGHT_UP", 1580.0, "2024-01-01 09:00:00", NULL, NULL, 100, 70, "2025-01-01 01:00:00", 2, 1),
+    (NULL, "WEIGHT_DOWN", 1580.0, "2024-01-01 09:00:45", 158, NULL, 100, 65, NULL, 3, 1);

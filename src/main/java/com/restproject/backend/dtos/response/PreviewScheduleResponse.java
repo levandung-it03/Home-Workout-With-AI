@@ -16,6 +16,7 @@ import java.util.Set;
 public class PreviewScheduleResponse {
     Schedule schedule;
     int totalSessions;
+    boolean wasSubscribed;
     Set<PreviewSession> sessionsOfSchedules;
 
     @Data

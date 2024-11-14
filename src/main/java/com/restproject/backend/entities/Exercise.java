@@ -29,8 +29,7 @@ public class Exercise {
     @Column(name = "exercise_id")
     Long exerciseId;
 
-    @Column(name = "name", nullable = false)
-    @Length(max = 100)
+    @Column(name = "name", nullable = false, length = 100)
     String name;
 
     @Enumerated(EnumType.STRING)

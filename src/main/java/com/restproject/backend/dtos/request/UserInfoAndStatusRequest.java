@@ -38,8 +38,8 @@ public class UserInfoAndStatusRequest {
         var result = new UserInfoAndStatusRequest();
         result.setFirstName(map.containsKey("firstName") ? map.get("firstName").toString() : null);
         result.setLastName(map.containsKey("lastName") ? map.get("lastName").toString() : null);
-        result.setFromCoins(map.containsKey("fromDob") ? Long.parseLong(map.get("fromDob").toString()) : null);
-        result.setToCoins(map.containsKey("toDob") ? Long.parseLong(map.get("toDob").toString()) : null);
+        result.setFromCoins(map.containsKey("fromCoins") ? Long.parseLong(map.get("fromCoins").toString()) : null);
+        result.setToCoins(map.containsKey("toCoins") ? Long.parseLong(map.get("toCoins").toString()) : null);
         result.setEmail(map.containsKey("email") ? map.get("email").toString() : null);
         result.setActive(map.containsKey("active") ? Boolean.parseBoolean(map.get("active").toString()) : null);
 
