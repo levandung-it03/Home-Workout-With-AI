@@ -2,6 +2,7 @@ package com.restproject.backend.repositories;
 
 import com.restproject.backend.entities.ExercisesOfSessions;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,4 +21,6 @@ public interface ExercisesOfSessionsRepository extends JpaRepository<ExercisesOf
         SELECT eos FROM ExercisesOfSessions eos WHERE eos.session.sessionId = :sessionId
     """)
     List<ExercisesOfSessions> findAllById(@Param("sessionId") Long sessionId);
+
+    List<ExercisesOfSessions> findAllBySessionSessionId(Long sessionId);
 }

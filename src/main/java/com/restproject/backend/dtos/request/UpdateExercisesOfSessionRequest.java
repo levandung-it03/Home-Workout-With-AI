@@ -21,5 +21,6 @@ public class UpdateExercisesOfSessionRequest {
 
     @NotEmpty
     @NotNull
+    @ListTypeConstraint(type = ExerciseInfoDto.class)
     Collection<ExerciseInfoDto> exercisesInfo;
 }

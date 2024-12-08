@@ -21,11 +21,11 @@ public class SessionsOfSchedules {
     Long id;
 
     @ManyToOne(targetEntity = Session.class)
-    @JoinColumn(name = "session_id", referencedColumnName = "session_id", updatable = false)
+    @JoinColumn(name = "session_id", referencedColumnName = "session_id")
     Session session;
 
     @ManyToOne(targetEntity = Schedule.class)
-    @JoinColumn(name = "schedule_id", referencedColumnName = "schedule_id", updatable = false)
+    @JoinColumn(name = "schedule_id", referencedColumnName = "schedule_id")
     @JsonIgnore
     Schedule schedule;
 

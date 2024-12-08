@@ -1,9 +1,11 @@
 package com.restproject.backend.services;
 
 import com.restproject.backend.dtos.general.ByIdDto;
+import com.restproject.backend.dtos.general.ExerciseInfoDto;
 import com.restproject.backend.dtos.general.SessionInfoDto;
 import com.restproject.backend.dtos.request.UpdateSessionsOfScheduleRequest;
 import com.restproject.backend.dtos.response.PreviewSubscribedScheduleResponse;
+import com.restproject.backend.entities.Exercise;
 import com.restproject.backend.entities.Session;
 import com.restproject.backend.entities.SessionsOfSchedules;
 import com.restproject.backend.enums.ErrorCodes;
@@ -19,10 +21,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,11 +37,16 @@ public class SessionsOfSchedulesService {
     //--Missing Test
     @Transactional(rollbackOn = {RuntimeException.class})
     public List<Session> updateSessionsOfSchedule(UpdateSessionsOfScheduleRequest request) {
+        Set<Integer> uniqueOrdinals = request.getSessionsInfo().stream().map(SessionInfoDto::getOrdinal)
+            .collect(Collectors.toSet());
+        if (request.getSessionsInfo().size() != uniqueOrdinals.size())
+            throw new ApplicationException(ErrorCodes.NOT_UNIQUE_ORDINALS);
         var updatedSchedule = scheduleRepository.findById(request.getScheduleId())
             .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY));
         var sessionsFromDB = sessionRepository.findAllByIdIn(request.getSessionsInfo()
             .stream().map(SessionInfoDto::getSessionId).toList());
-        if (sessionsFromDB.size() != request.getSessionsInfo().size())
+        if (new HashSet<>(sessionsFromDB.stream().map(Session::getSessionId).toList()).size()
+            != new HashSet<>(request.getSessionsInfo().stream().map(SessionInfoDto::getSessionId).toList()).size())
             throw new ApplicationException(ErrorCodes.INVALID_IDS_COLLECTION);
         if (subscriptionRepository.existsByScheduleScheduleId(request.getScheduleId()))
             throw new ApplicationException(ErrorCodes.SCHEDULE_SUBSCRIPTIONS_VIOLATION);
@@ -50,6 +55,8 @@ public class SessionsOfSchedulesService {
             .stream().sorted(Comparator.comparing(SessionInfoDto::getSessionId)).toList();
         ArrayList<SessionsOfSchedules> savedRelationships = new ArrayList<>();
         for (var index = 0; index < request.getSessionsInfo().size(); index++) {
+            if (!sessionsFromDB.get(index).getLevelEnum().equals(updatedSchedule.getLevelEnum()))
+                throw new ApplicationException(ErrorCodes.NOT_SYNC_LEVEL);
             savedRelationships.add(SessionsOfSchedules.builder()
                 .schedule(updatedSchedule)
                 .session(sessionsFromDB.get(index))

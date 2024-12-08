@@ -87,7 +87,7 @@ public class ExerciseService {
         exerciseRepository.updateExerciseByExercise(formerEx);
 
         //--Check if there's changes with Muscles of Updated Exercise.
-        if (!formerRls.stream().map(r -> r.getMuscle().getMuscleId()).collect(Collectors.toSet())
+        if (formerRls.stream().map(r -> r.getMuscle().getMuscleId()).collect(Collectors.toSet())
             .equals(new HashSet<>(request.getMuscleIds()))) {
             return formerEx;   //--Nothing updated equal to return immediately.
         }
@@ -103,15 +103,18 @@ public class ExerciseService {
     }
 
     @Transactional(rollbackOn = {RuntimeException.class})
-    public void deleteExercise(DeleteObjectRequest request) {
+    public void deleteExercise(DeleteObjectRequest request) throws IOException {
         if (!exerciseRepository.existsById(request.getId()))
             throw new ApplicationException(ErrorCodes.INVALID_PRIMARY);
 
         if (exercisesOfSessionsRepository.existsByExerciseExerciseId(request.getId()))
             throw new ApplicationException(ErrorCodes.FORBIDDEN_UPDATING);
 
-        muscleExerciseRepository.deleteAllByExerciseExerciseId(request.getId());
-        exerciseRepository.deleteById(request.getId());
+        var imagePublicId = exerciseRepository.findById(request.getId())
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY)).getImagePublicId();
+
+        exerciseRepository.deleteById(request.getId());  //--Automatically delete Muscles relationships.
+        imgCloudUpload.remove(imagePublicId);
     }
 
     public Map<String, String> uploadExerciseImg(UpsertExerciseImageRequest request) throws IOException {

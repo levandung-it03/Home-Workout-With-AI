@@ -33,6 +33,6 @@ public class UpdateExerciseRequest {
 
     @NotEmpty
     @NotNull
-    @ListTypeConstraint(type = Integer.class)
+    @ListTypeConstraint(type = Long.class)
     Collection<Long> muscleIds;
 }

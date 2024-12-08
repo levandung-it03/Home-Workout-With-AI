@@ -26,12 +26,12 @@ public class MuscleSession {
     Long id;
 
     @ManyToOne(targetEntity = Muscle.class)
-    @JoinColumn(name = "muscle_id", referencedColumnName = "muscle_id", updatable = false)
+    @JoinColumn(name = "muscle_id", referencedColumnName = "muscle_id")
     @JsonIgnore
     Muscle muscle;
 
     @ManyToOne(targetEntity = Session.class)
-    @JoinColumn(name = "session_id", referencedColumnName = "session_id", updatable = false)
+    @JoinColumn(name = "session_id", referencedColumnName = "session_id")
     @JsonIgnore
     Session session;
 }

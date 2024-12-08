@@ -10,15 +10,15 @@ import com.restproject.backend.exceptions.ApplicationException;
 import com.restproject.backend.repositories.ExerciseRepository;
 import com.restproject.backend.repositories.ExercisesOfSessionsRepository;
 import com.restproject.backend.repositories.SessionRepository;
+import com.restproject.backend.repositories.SessionsOfSchedulesRepository;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,23 +27,33 @@ public class ExercisesOfSessionsService {
     SessionRepository sessionRepository;
     ExerciseRepository exerciseRepository;
     ExercisesOfSessionsRepository exercisesOfSessionsRepository;
+    SessionsOfSchedulesRepository sessionsOfSchedulesRepository;
 
     //--Missing Test
     @Transactional(rollbackOn = {RuntimeException.class})
     public List<Exercise> updateExercisesOfSession(UpdateExercisesOfSessionRequest request)
         throws ApplicationException {
+        Set<Integer> uniqueOrdinals = request.getExercisesInfo().stream().map(ExerciseInfoDto::getOrdinal)
+            .collect(Collectors.toSet());
+        if (request.getExercisesInfo().size() != uniqueOrdinals.size())
+            throw new ApplicationException(ErrorCodes.NOT_UNIQUE_ORDINALS);
         var updatedSession = sessionRepository.findById(request.getSessionId())
             .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY));
         var exercisesFromDB = exerciseRepository
             .findAllByIdIn(request.getExercisesInfo().stream().map(ExerciseInfoDto::getExerciseId).toList());
-        if (exercisesFromDB.size() != request.getExercisesInfo().size())
+        if (new HashSet<>(exercisesFromDB.stream().map(Exercise::getExerciseId).toList()).size()
+            != new HashSet<>(request.getExercisesInfo().stream().map(ExerciseInfoDto::getExerciseId).toList()).size())
             throw new ApplicationException(ErrorCodes.INVALID_IDS_COLLECTION);
+        if (sessionsOfSchedulesRepository.existsBySessionSessionId(request.getSessionId()))
+            throw new ApplicationException(ErrorCodes.FORBIDDEN_UPDATING);
 
         var exerciseInfo = request.getExercisesInfo()
             .stream().sorted(Comparator.comparing(ExerciseInfoDto::getExerciseId))
             .toList();
         ArrayList<ExercisesOfSessions> savedRelationships = new ArrayList<>();
-        for (var index = 0; index < exercisesFromDB.size(); index++)
+        for (var index = 0; index < exercisesFromDB.size(); index++) {
+            if (!exercisesFromDB.get(index).getLevelEnum().equals(updatedSession.getLevelEnum()))
+                throw new ApplicationException(ErrorCodes.NOT_SYNC_LEVEL);
             savedRelationships.add(ExercisesOfSessions.builder()
                 .session(updatedSession)
                 .exercise(exercisesFromDB.get(index))
@@ -53,6 +63,7 @@ public class ExercisesOfSessionsService {
                 .raiseSlackInSecond(exerciseInfo.get(index).getRaiseSlackInSecond())
                 .downRepsRatio(exerciseInfo.get(index).getDownRepsRatio())
                 .build());
+        }
 
         exercisesOfSessionsRepository.deleteAllBySessionSessionId(updatedSession.getSessionId());
         exercisesOfSessionsRepository.flush();

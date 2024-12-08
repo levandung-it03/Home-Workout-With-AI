@@ -103,6 +103,10 @@ public class SessionService {
         if (formerRls.isEmpty())    //--If data in DB is wrong.
             throw new ApplicationException(ErrorCodes.INVALID_PRIMARY);
 
+        if (!exercisesOfSessionsRepository.findAllBySessionSessionId(request.getSessionId())
+            .stream().allMatch(eos -> eos.getExercise().getLevelEnum().getLevel().equals(request.getLevel())))
+            throw new ApplicationException(ErrorCodes.NOT_SYNC_LEVEL);
+
         //--Mapping new values into "formerSes".
         sessionMappers.updateTarget(formerSes, request);
         //--Start to save updated data.
@@ -132,8 +136,6 @@ public class SessionService {
         if (sessionsOfSchedulesRepository.existsBySessionSessionId(request.getId()))
             throw new ApplicationException(ErrorCodes.FORBIDDEN_UPDATING);
 
-        muscleSessionRepository.deleteAllBySessionSessionId(request.getId());
-        exercisesOfSessionsRepository.deleteAllBySessionSessionId(request.getId());
-        sessionRepository.deleteById(request.getId());
+        sessionRepository.deleteById(request.getId());  //--Automatically delete Exercises, Muscles relationships.
     }
 }

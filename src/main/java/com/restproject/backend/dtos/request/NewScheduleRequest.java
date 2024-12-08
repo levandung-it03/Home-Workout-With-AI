@@ -1,6 +1,7 @@
 package com.restproject.backend.dtos.request;
 
 import com.restproject.backend.annotations.constraint.LevelEnumConstraint;
+import com.restproject.backend.annotations.constraint.ListTypeConstraint;
 import com.restproject.backend.dtos.general.SessionInfoDto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -34,9 +35,7 @@ public class NewScheduleRequest {
     Long coins;
 
     @NotNull
-    Integer switchExerciseDelay;
-
-    @NotNull
     @NotEmpty
+    @ListTypeConstraint(type = SessionInfoDto.class)
     Collection<SessionInfoDto> sessionsInfo;
 }

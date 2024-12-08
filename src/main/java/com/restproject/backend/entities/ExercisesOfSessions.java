@@ -24,11 +24,11 @@ public class ExercisesOfSessions {
     Long id;
 
     @ManyToOne(targetEntity = Exercise.class)
-    @JoinColumn(name = "exercise_id", referencedColumnName = "exercise_id", updatable = false)
+    @JoinColumn(name = "exercise_id", referencedColumnName = "exercise_id")
     Exercise exercise;
 
     @ManyToOne(targetEntity = Session.class)
-    @JoinColumn(name = "session_id", referencedColumnName = "session_id", updatable = false)
+    @JoinColumn(name = "session_id", referencedColumnName = "session_id")
     @JsonIgnore
     Session session;
 

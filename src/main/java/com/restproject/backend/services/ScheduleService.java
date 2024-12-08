@@ -121,6 +121,11 @@ public class ScheduleService {
         if (subscriptionRepository.existsByScheduleScheduleId(request.getScheduleId()))
             throw new ApplicationException(ErrorCodes.SCHEDULE_SUBSCRIPTIONS_VIOLATION);
 
+
+        if (!sessionsOfSchedulesRepository.findAllByScheduleScheduleId(request.getScheduleId())
+            .stream().allMatch(sos -> sos.getSchedule().getLevelEnum().getLevel().equals(request.getLevel())))
+            throw new ApplicationException(ErrorCodes.NOT_SYNC_LEVEL);
+
         //--Mapping new values into "formerSch".
         scheduleMappers.updateTarget(formerSch, request);
         //--Start to save updated data.
@@ -136,8 +141,7 @@ public class ScheduleService {
         if (subscriptionRepository.existsByScheduleScheduleId(request.getId()))
             throw new ApplicationException(ErrorCodes.SCHEDULE_SUBSCRIPTIONS_VIOLATION);
 
-        sessionsOfSchedulesRepository.deleteAllByScheduleScheduleId(request.getId());
-        scheduleRepository.deleteById(request.getId());
+        scheduleRepository.deleteById(request.getId());  //--Automatically delete Muscles relationships.
     }
 
     public TablePagesResponse<Schedule> getAvailableSchedulesOfUserPages(PaginatedTableRequest request,

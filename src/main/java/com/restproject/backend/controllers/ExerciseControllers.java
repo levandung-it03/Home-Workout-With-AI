@@ -59,7 +59,8 @@ public class ExerciseControllers {
 
     @ResponseBody
     @DeleteMapping("/admin/v1/delete-exercise")
-    public ResponseEntity<ApiResponseObject<Void>> deleteExercise(@Valid @RequestBody DeleteObjectRequest request) {
+    public ResponseEntity<ApiResponseObject<Void>> deleteExercise(@Valid @RequestBody DeleteObjectRequest request)
+        throws IOException {
         exerciseServiceOfAdmin.deleteExercise(request);
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.DELETE_EXERCISE);
     }

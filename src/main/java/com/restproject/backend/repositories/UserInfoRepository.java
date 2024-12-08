@@ -64,7 +64,7 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
     void updateUserInfoByUserInfoId(@Param("updatedObj") UserInfo userInfo);
 
     @Modifying
-    @Transactional
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("UPDATE UserInfo u SET u.coins = :newCoins WHERE u.userInfoId = :userInfoId")
     void updateCoins(@Param("newCoins") long coins, @Param("userInfoId") Long userInfoId);
 }

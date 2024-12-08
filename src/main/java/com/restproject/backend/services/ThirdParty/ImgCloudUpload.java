@@ -42,7 +42,7 @@ public class ImgCloudUpload {
     }
 
     public void remove(String publicId) throws IOException {
-        cloudinary.uploader().destroy(publicId, Map.of());
+        cloudinary.uploader().destroy(publicId, Map.of("resource_type", "image"));
     }
 
     private String getFormatName(String filename) {

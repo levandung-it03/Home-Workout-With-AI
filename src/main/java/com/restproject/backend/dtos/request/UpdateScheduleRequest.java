@@ -32,7 +32,4 @@ public class UpdateScheduleRequest {
 
     @NotNull
     Long coins;
-
-    @NotNull
-    Integer switchExerciseDelay;
 }

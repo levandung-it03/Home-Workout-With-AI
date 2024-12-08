@@ -1,5 +1,6 @@
 package com.restproject.backend.dtos.request;
 
+import com.restproject.backend.annotations.constraint.ListTypeConstraint;
 import com.restproject.backend.dtos.general.SessionInfoDto;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -20,5 +21,6 @@ public class UpdateSessionsOfScheduleRequest {
 
     @NotEmpty
     @NotNull
+    @ListTypeConstraint(type = SessionInfoDto.class)
     Collection<SessionInfoDto> sessionsInfo;
 }
