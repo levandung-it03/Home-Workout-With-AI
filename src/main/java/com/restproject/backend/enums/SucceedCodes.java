@@ -31,8 +31,8 @@ public enum SucceedCodes {
     UPLOAD_EXERCISE_IMG(23005, "Upload Exercise image successfully"),
     //--Schedule(24)
     CREATE_SCHEDULE(24001, "Create new Schedule successfully"),
-    UPDATE_SCHEDULE(24002, "Update Exercise successfully"),
-    DELETE_SCHEDULE(24003, "Delete Exercise successfully"),
+    UPDATE_SCHEDULE(24002, "Update Schedule successfully"),
+    DELETE_SCHEDULE(24003, "Delete Schedule successfully"),
     GET_SCHEDULES_PAGES(24004, "Get Schedule pages successfully"),
     GET_SESSIONS_HAS_MUSCLES_OF_SCHEDULE_PAGES(24005, "Get Sessions in Schedule pages successfully"),
     GET_SESSIONS_OF_SCHEDULE_RELATIONSHIP(24006, "Get Sessions in Schedule successfully"),
@@ -42,7 +42,7 @@ public enum SucceedCodes {
     //--Session(25)
     CREATE_SESSION(25001, "Create new Session successfully"),
     UPDATE_SESSION(25002, "Update Session successfully"),
-    DELETE_SESSION(25003, "Delete Exercise successfully"),
+    DELETE_SESSION(25003, "Delete Session successfully"),
     GET_SESSIONS_HAS_MUSCLES_PAGES(25004, "Get Session has Muscles pages successfully"),
     GET_EXERCISES_HAS_MUSCLES_OF_SESSION_PAGES(25005, "Get Exercises in Session pages successfully"),
     GET_EXERCISES_OF_SESSION_RELATIONSHIP(25006, "Get Exercises in Session successfully"),
