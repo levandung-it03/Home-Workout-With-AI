@@ -51,6 +51,10 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
 
     Optional<UserInfo> findByUserEmail(String subject);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT u FROM UserInfo u WHERE u.userInfoId = :userInfoId OR u.user.email = :email")
+    Optional<UserInfo> findByIdOrEmailWithLock(@Param("userInfoId") Long userInfoId, @Param("email") String email);
+
     @Modifying
     @Transactional
     @Query("""
@@ -62,9 +66,4 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
         WHERE u.userInfoId = :#{#updatedObj.userInfoId}
     """)
     void updateUserInfoByUserInfoId(@Param("updatedObj") UserInfo userInfo);
-
-    @Modifying
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("UPDATE UserInfo u SET u.coins = :newCoins WHERE u.userInfoId = :userInfoId")
-    void updateCoins(@Param("newCoins") long coins, @Param("userInfoId") Long userInfoId);
 }

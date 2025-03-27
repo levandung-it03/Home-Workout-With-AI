@@ -17,6 +17,7 @@ import java.util.Collection;
 public class NewExerciseRequest {
 
     @NotBlank
+    @NotNull
     @Length(max = 100)
     String name;
 

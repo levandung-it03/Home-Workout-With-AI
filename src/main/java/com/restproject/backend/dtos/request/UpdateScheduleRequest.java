@@ -19,10 +19,12 @@ public class UpdateScheduleRequest {
     Long scheduleId;
 
     @NotBlank
+    @NotNull
     @Length(max = 100)
     String name;
 
     @NotBlank
+    @NotNull
     @Length(max = 200)
     String description;
 

@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 
+import static org.springframework.http.HttpStatus.PROCESSING;
+
 @Getter
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -22,7 +24,8 @@ public enum SucceedCodes {
     GET_ALL_LEVEL_ENUMS(22001, "Get all Levels successfully"),
     GET_ALL_MUSCLE_ENUMS(22002, "Get all Muscles successfully"),
     GET_ALL_GENDER_ENUMS(22003, "Get all Genders successfully"),
-    GET_ALL_AIMS_ENUMS(22003, "Get all Aims successfully"),
+    GET_ALL_AIMS_ENUMS(22004, "Get all Aims successfully"),
+    GET_ALL_DEFAULT_PASSWORDS_ENUMS(22005, "Get all Passwords successfully"),
     //--Exercise(23)
     CREATE_EXERCISE(23001, "Create new Exercise successfully"),
     UPDATE_EXERCISE(23002, "Update Exercise successfully"),
@@ -60,6 +63,11 @@ public enum SucceedCodes {
     GET_ALL_SLIDES_FOR_HOME(29001, "Get all Slides successfully"),
     UPLOAD_SLIDES(29002, "Upload Slide successfully"),
     DELETE_SLIDES(29003, "Delete Slide successfully"),
+    //--ChangingCoinsHistories(30)
+    GET_SEPAY_QR_URL(30001, "Get QR URL successfully"),
+    DEPOSIT_COINS(30002, "Deposit Coins successfully"),
+    PROCESSING_DEPOSIT_BANKING(30003, "Deposit progress is processing, please wait!"),
+    GET_COINS_HISTORIES(30004, "Get Coins history successfully"),
     ;
 
     int code;

@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,6 +23,28 @@ import java.util.HashMap;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PublicAuthControllers {
     AuthenticationService authenticationService;
+
+    @GetMapping("/v1/oauth2-authentication-url")
+    public ResponseEntity<ApiResponseObject<String>> oauth2Authenticate(
+        @RequestParam("loginType") String loginType) {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.AUTHENTICATION,
+            authenticationService.oauth2GenerateUrl(loginType));
+    }
+
+    @ResponseBody
+    @PostMapping("/v1/oauth2-authorization")
+    public ResponseEntity<ApiResponseObject<Map<String, Object>>> oauth2GoogleAuthorize(
+        @Valid @RequestBody Oauth2AuthorizationRequest req) {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.AUTHENTICATION,
+            authenticationService.oauth2GoogleAuthorize(req));
+    }
+
+    @ResponseBody
+    @PostMapping("/v1/oauth2-register-user")
+    public ResponseEntity<ApiResponseObject<AuthenticationResponse>> oauth2RegisterUser(@Valid @RequestBody NewUserRequest request) {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.CREATE_USER_INFO,
+            authenticationService.oauth2RegisterUser(request));
+    }
 
     @ResponseBody
     @PostMapping("/v1/authenticate")

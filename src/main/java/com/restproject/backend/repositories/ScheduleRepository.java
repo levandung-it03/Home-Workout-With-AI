@@ -37,7 +37,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     @Query("""
         SELECT s FROM Schedule s WHERE s.scheduleId NOT IN (
             SELECT DISTINCT sub.schedule.scheduleId FROM Subscription sub
-            WHERE sub.userInfo.user.email = :email
+            WHERE sub.changingCoinsHistories.userInfo.user.email = :email
         )
     """)
     Page<Schedule> findAllAvailableScheduleOfUser(@Param("email") String email, Pageable pageableCf);
@@ -46,7 +46,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     @Query("""
         SELECT s FROM Schedule s WHERE s.scheduleId NOT IN (
             SELECT DISTINCT sub.schedule.scheduleId FROM Subscription sub
-            WHERE sub.userInfo.user.email = :email
+            WHERE sub.changingCoinsHistories.userInfo.user.email = :email
         ) AND (:#{#filterObj.levelEnum} IS NULL OR :#{#filterObj.levelEnum} = s.levelEnum)
          AND (:#{#filterObj.fromCoins} IS NULL OR :#{#filterObj.fromCoins} <= s.coins)
          AND (:#{#filterObj.toCoins} IS NULL OR s.coins <= :#{#filterObj.toCoins})

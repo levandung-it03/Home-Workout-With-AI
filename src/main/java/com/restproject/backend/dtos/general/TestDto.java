@@ -13,7 +13,10 @@ import org.springframework.web.multipart.MultipartFile;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TestDto {
     @NotBlank
+    @NotNull
     String name;
+
     @NotBlank
+    @NotNull
     String size;
 }

@@ -2,6 +2,7 @@ package com.restproject.backend.services.Auth;
 
 import com.restproject.backend.dtos.general.TokenDto;
 import com.restproject.backend.dtos.request.NewUserRequest;
+import com.restproject.backend.dtos.request.Oauth2AuthorizationRequest;
 import com.restproject.backend.dtos.request.VerifyPublicOtpRequest;
 import com.restproject.backend.dtos.response.AuthenticationResponse;
 import com.restproject.backend.dtos.request.AuthenticationRequest;
@@ -18,16 +19,20 @@ import com.restproject.backend.repositories.UserInfoRepository;
 import com.restproject.backend.repositories.UserRepository;
 import com.restproject.backend.services.ThirdParty.EmailService;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -35,12 +40,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static com.restproject.backend.enums.DefaultOauth2Password.*;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class AuthenticationService {
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final SecureRandom RANDOM = new SecureRandom();
+    private final String SEPARATOR = "_SePaRaToR_";
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final AuthenticationManager authenticationManager;
@@ -54,6 +62,7 @@ public class AuthenticationService {
     private final UserInfoRepository userInfoRepository;
     private final UserInfoMappers userInfoMappers;
     private final AuthorityRepository authorityRepository;
+    private final WebClient webClient;
     private final PasswordEncoder userPasswordEncoder;
 
     @Value("${services.back-end.user-info.default-coins}")
@@ -62,6 +71,24 @@ public class AuthenticationService {
     private int maxHiddenOtpAgeMin;
     @Value("${services.security.max-otp-age-min}")
     private int maxOtpAgeMin;
+    @Value("${spring.security.oauth2.client.provider.google.authorization-uri}")
+    private String authUri;
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+    private String clientId;
+    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
+    private String clientSecret;
+    @Value("${services.front-end.domain-name}")
+    private String clientDomain;
+    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
+    private String redirectUri;
+    @Value("${spring.security.oauth2.client.provider.google.token-uri}")
+    private String getTokenUri;
+    @Value("${spring.security.oauth2.client.provider.google.revoke-token-uri}")
+    private String revokeTokenUrl;
+    @Value("${spring.security.oauth2.client.provider.google.user-info-uri}")
+    private String getUserInfoUri;
+    @Value("${spring.security.oauth2.client.registration.google.scope}")
+    private Set<String> scopes;
 
     public static String generateRandomOtp(int length) {
         StringBuilder otp = new StringBuilder(length);
@@ -89,7 +116,7 @@ public class AuthenticationService {
         var authToken = new UsernamePasswordAuthenticationToken(authObject.getEmail(), authObject.getPassword());
         var authUser = (User) authenticationManager.authenticate(authToken).getPrincipal();
         //--Check if this User is in blacklist or not.
-        if (!authUser.isActive())
+        if (!authUser.isActive() || isDefaultOauth2Password(authObject.getPassword()))
             throw new ApplicationException(ErrorCodes.FORBIDDEN_USER);
         //--Generate Token Pair: Access Token and Refresh Token for response.
         var accessTok = jwtService.generateAccessToken(authUser).get("token");
@@ -147,6 +174,12 @@ public class AuthenticationService {
         //--If Access Token is invalid, the code can't be touched at here to remove Refresh Token.
         var refreshJwt = jwtService.verifyTokenOrElseThrow(refreshToken, false);
         refreshTokenService.removeRefreshTokenByJwtId(refreshJwt.getJWTID());
+        //--Revoke JWT from oauth2 server.
+        if (Objects.nonNull(refreshJwt.getClaim("oauth2Type"))
+            && refreshJwt.getClaim("oauth2Type").toString().equals(GOOGLE.getVirtualPassword()))
+            webClient.post()
+                .uri(revokeTokenUrl + refreshJwt.getClaim("oauth2RefreshToken").toString())
+                .retrieve().bodyToMono(Void.class).block();
     }
 
     public HashMap<String, Object> getRegisterOtp(String email) {
@@ -159,12 +192,12 @@ public class AuthenticationService {
             registerOtpService.deleteByEmail(email);
 
         String otpMailMessage = String.format("""
-            <div>
-                <p style="font-size: 18px">Do not share this information to anyone. Please secure this characters!</p>
-                <h2>User Email: <b>%s</b></h2>
-                <h2>OTP: <b>%s</b></h2>
-            </div>
-        """, email, otp);
+                <div>
+                    <p style="font-size: 18px">Do not share this information to anyone. Please secure this characters!</p>
+                    <h2>User Email: <b>%s</b></h2>
+                    <h2>OTP: <b>%s</b></h2>
+                </div>
+            """, email, otp);
         emailService.sendSimpleEmail(email, "Verify Email OTP Code for registering by Home Workout With AI",
             otpMailMessage);
 
@@ -177,7 +210,7 @@ public class AuthenticationService {
             log.info("Register OTP for {} has expired and been removed.", email);
         }, maxOtpAgeMin, TimeUnit.MINUTES);
 
-        return new HashMap<>(Map.of("ageInSeconds", maxOtpAgeMin*60));
+        return new HashMap<>(Map.of("ageInSeconds", maxOtpAgeMin * 60));
     }
 
     public RegisterOtp verifyRegisterOtp(VerifyPublicOtpRequest request) {
@@ -210,7 +243,8 @@ public class AuthenticationService {
         UserInfo newUserInfo = userInfoMappers.insertionToPlain(request);
         User newUser = User.builder()
             .email(request.getEmail())
-            .password(userPasswordEncoder.encode(request.getPassword()))
+            .password(isDefaultOauth2Password(request.getPassword())
+                ? request.getPassword() : userPasswordEncoder.encode(request.getPassword()))
             .createdTime(LocalDateTime.now())
             .authorities(List.of(
                 authorityRepository.findByAuthorityName("ROLE_USER").orElseThrow(RuntimeException::new)
@@ -235,12 +269,12 @@ public class AuthenticationService {
             forgotPasswordOtpService.deleteByEmail(email);
 
         String otpMailMessage = String.format("""
-            <div>
-                <p style="font-size: 18px">Do not share this information to anyone. Please secure these characters!</p>
-                <h2>User Email: <b>%s</b></h2>
-                <h2>OTP: <b>%s</b></h2>
-            </div>
-        """, email, otp);
+                <div>
+                    <p style="font-size: 18px">Do not share this information to anyone. Please secure these characters!</p>
+                    <h2>User Email: <b>%s</b></h2>
+                    <h2>OTP: <b>%s</b></h2>
+                </div>
+            """, email, otp);
         emailService.sendSimpleEmail(email, "OTP Code for new password by Home Workout With AI",
             otpMailMessage);
 
@@ -253,13 +287,13 @@ public class AuthenticationService {
             log.info("Forgot Password OTP for {} has expired and been removed.", email);
         }, maxOtpAgeMin, TimeUnit.MINUTES);
 
-        return new HashMap<>(Map.of("ageInSeconds", maxOtpAgeMin*60));
+        return new HashMap<>(Map.of("ageInSeconds", maxOtpAgeMin * 60));
     }
 
     public void generateRandomPassword(VerifyPublicOtpRequest request) {
         var user = userRepository.findByEmail(request.getEmail())
             .orElseThrow(() -> new ApplicationException(ErrorCodes.FORBIDDEN_USER));
-        if (!user.isActive())   throw new ApplicationException(ErrorCodes.FORBIDDEN_USER);
+        if (!user.isActive()) throw new ApplicationException(ErrorCodes.FORBIDDEN_USER);
 
         var removedOtp = forgotPasswordOtpService.findByEmail(request.getEmail())
             .orElseThrow(() -> new ApplicationException(ErrorCodes.HIDDEN_OTP_IS_KILLED));
@@ -269,15 +303,98 @@ public class AuthenticationService {
 
         String newPassword = AuthenticationService.generateRandomOtp(6);
         String newPassMessage = String.format("""
-            <div>
-                <p style="font-size: 18px">Do not share this information to anyone. Please secure these characters!</p>
-                <h2>User Email: <b>%s</b></h2>
-                <h2>New Password: <b>%s</b></h2>
-            </div>
-        """, request.getEmail(), newPassword);
+                <div>
+                    <p style="font-size: 18px">Do not share this information to anyone. Please secure these characters!</p>
+                    <h2>User Email: <b>%s</b></h2>
+                    <h2>New Password: <b>%s</b></h2>
+                </div>
+            """, request.getEmail(), newPassword);
         emailService.sendSimpleEmail(request.getEmail(), "New password by Home Workout With AI", newPassMessage);
 
         user.setPassword(userPasswordEncoder.encode(newPassword));
         userRepository.save(user);
+    }
+
+    public String oauth2GenerateUrl(String loginType) {
+        if (loginType.equals(GOOGLE.getVirtualPassword()))
+            return authUri +
+                "?client_id=" + clientId +
+                "&redirect_uri=" + clientDomain + redirectUri +
+                "&response_type=code" +
+                "&scope=" + String.join("%20", scopes) +
+                "&access_type=offline" +
+                "&prompt=consent";
+        else if (loginType.equals(FACEBOOK.getVirtualPassword()))
+            return null;
+        return null;
+    }
+
+    @Transactional(rollbackOn = RuntimeException.class)
+    public Map<String, Object> oauth2GoogleAuthorize(Oauth2AuthorizationRequest request) {
+        Map<String, Object> authResponse = new HashMap<>();
+        if (request.getLoginType().equals(GOOGLE.getVirtualPassword())) {
+            //--Publisher: Getting Access_Token from Oauth2 Server.
+            //--Using .block() to make result returns synchronously.
+            Map<String, Object> getTokenResponse = webClient.post().uri(getTokenUri)
+                .body(BodyInserters.fromFormData("client_id", clientId)
+                    .with("client_secret", clientSecret)
+                    .with("redirect_uri", clientDomain + redirectUri)
+                    .with("grant_type", "authorization_code")
+                    .with("code", URLDecoder.decode(request.getCode(), StandardCharsets.UTF_8))
+                ).retrieve().bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {}).block();
+            if (Objects.isNull(getTokenResponse)
+                || Objects.isNull(getTokenResponse.get("access_token"))
+                || getTokenResponse.get("access_token").toString().isBlank())
+                throw new ApplicationException(ErrorCodes.INVALID_TOKEN);
+
+            //--Publisher: Getting User_Info from Oauth2 Server by Access_Token.
+            //--Using .block() to make result returns synchronously and auto-return .map(res -> res) as Map.
+            authResponse = webClient.get().uri(getUserInfoUri)
+                .header("Authorization", "Bearer " + getTokenResponse.get("access_token"))
+                .retrieve().bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {}).block();
+            if (Objects.isNull(authResponse) || authResponse.isEmpty())
+                throw new ApplicationException(ErrorCodes.INVALID_TOKEN);
+
+            String email = authResponse.get("email").toString();
+            Optional<User> user = userRepository.findByEmail(email);
+            authResponse.put("isExistingUserInfo", user.isPresent());
+            //--If (User is NOT existing && found account isn't the right Oauth2 type)
+            if (user.isEmpty() || !user.get().getPassword().equals(GOOGLE.getVirtualPassword())) {
+                //--Save Oauth2-Refresh-Token as a virtual code.
+                var registerCode = GOOGLE.getVirtualPassword() + SEPARATOR + getTokenResponse.get("refresh_token").toString();
+                registerOtpService.save(RegisterOtp.builder().id(email).otpCode(registerCode).build());
+                //--Schedule a task to remove the OTP after 5 minutes (or your preferred timeout).
+                scheduler.schedule(() -> {
+                    registerOtpService.deleteByEmail(email);
+                    log.info("Register OTP for {} has expired and been removed.", email);
+                }, maxOtpAgeMin, TimeUnit.MINUTES);
+                //--Virtual OTP Code to avoid XSS attack.
+                authResponse.put("otpRegisterCode", registerCode);
+            } else {
+                var refreshTokMap = jwtService.generateOauth2RefreshToken(user.get(),
+                    getTokenResponse.get("refresh_token").toString(), GOOGLE.getVirtualPassword());
+                var refreshTokObj = RefreshToken.builder().id(refreshTokMap.get("id")).build();
+                //--Save Refresh Token into Redis for security (logout or immediately denying accessibility).
+                refreshTokenService.saveRefreshToken(refreshTokObj);
+                return Map.of(
+                    "isExistingUserInfo", true,
+                    "accessToken", jwtService.generateAccessToken(user.get()).get("token"),
+                    "refreshToken", refreshTokMap.get("token")
+                );
+            }
+        }
+        return authResponse;
+    }
+
+    @Transactional(rollbackOn = RuntimeException.class)
+    public AuthenticationResponse oauth2RegisterUser(NewUserRequest request) {
+        UserInfo userInfo = this.registerUser(request);
+        String[] oauth2TokenInfo = request.getOtpCode().split(SEPARATOR);
+
+        var accessTok = jwtService.generateAccessToken(userInfo.getUser()).get("token");
+        var refreshTokMap = jwtService.generateOauth2RefreshToken(userInfo.getUser(), oauth2TokenInfo[1], oauth2TokenInfo[0]);
+        //--Save Refresh Token into Redis for security (logout or immediately denying accessibility).
+        refreshTokenService.saveRefreshToken(RefreshToken.builder().id(refreshTokMap.get("id")).build());
+        return AuthenticationResponse.builder().accessToken(accessTok).refreshToken(refreshTokMap.get("token")).build();
     }
 }

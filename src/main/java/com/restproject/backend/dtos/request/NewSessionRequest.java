@@ -20,10 +20,12 @@ import java.util.Collection;
 public class NewSessionRequest {
 
     @NotBlank
+    @NotNull
     @Length(max = 100)
     String name;
 
     @NotBlank
+    @NotNull
     @Length(max = 200)
     String description;
 

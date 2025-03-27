@@ -182,26 +182,12 @@ public class ScheduleService {
         var subscription = subscriptionRepository.findSubscribedScheduleByEmail(email, request.getScheduleId())
             .orElseThrow(() -> new ApplicationException(ErrorCodes.FORBIDDEN_USER));
 
-        final long subtractedCoins = userInfo.getCoins() - defaultChangingRepRatioCoins;
-        if (subtractedCoins < 0)
-            throw new ApplicationException(ErrorCodes.NOT_ENOUGH_COINS);
-        this.subtractCoinsWhenSubscribeSchedule(subtractedCoins, userInfo.getUserInfoId());
+//        final long subtractedCoins = userInfo.getCoins() - defaultChangingRepRatioCoins;
+//        if (subtractedCoins < 0)
+//            throw new ApplicationException(ErrorCodes.NOT_ENOUGH_COINS);
+//        this.subtractCoinsWhenSubscribeSchedule(subtractedCoins, userInfo.getUserInfoId());
 
         subscription.setRepRatio(request.getNewRepRatio());
         subscriptionRepository.save(subscription);
-    }
-
-    private void subtractCoinsWhenSubscribeSchedule(long newCoins, long userInfoId) throws ApplicationException {
-        int retries = 3;
-        while (retries > 0) {
-            try {
-                userInfoRepository.updateCoins(newCoins, userInfoId);
-                return;
-            } catch (OptimisticLockException e) {
-                log.warn("Pessimistic Lock found a contention when Updating Coins (for Subscribe Schedule)");
-                if (--retries == 0)
-                    throw new ApplicationException(ErrorCodes.TRANSACTION_VIOLATION_FROM_SUBSCRIPTION);
-            }
-        }
     }
 }

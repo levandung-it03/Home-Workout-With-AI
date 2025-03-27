@@ -1,0 +1,92 @@
+server:
+  port: 9999
+  tomcat:
+    relaxed-query-chars: "[, ]"
+
+spring:
+  jackson:
+    time-zone: "Asia/Ho_Chi_Minh"
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: "10MB"
+      max-request-size: "10MB"
+  datasource:
+    url: ${DBMS_CONNECTION:jdbc:mysql://localhost:3306/home_workout_with_ai?createDatabaseIfNotExist=true&autoReconnect=true&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Ho_Chi_Minh&useSSL=false}
+    driver-class-name: "com.mysql.cj.jdbc.Driver"
+    username: ${DBMS_USERNAME:root}
+    password: ${DBMS_PASSWORD:sa}
+  jpa:
+    database: mysql
+    database-platform: "org.hibernate.dialect.MySQL8Dialect"
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  data:
+    redis:
+      host: ${REDIS_CONNECTION:localhost}
+      port: 6379
+      timeout: 60000
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ""
+            client-secret: ""
+            scope: email, profile
+            authorization-grant-type: authorization_code
+            redirect-uri: "/auth/google/callback"
+        provider:
+          google:
+            authorization-uri: "https://accounts.google.com/o/oauth2/v2/auth"
+            token-uri: "https://oauth2.googleapis.com/token"
+            revoke-token-uri: "https://accounts.google.com/o/oauth2/revoke?token="
+            user-info-uri: "https://www.googleapis.com/oauth2/v3/userinfo"
+            user-name-attribute: sub
+
+  mail:
+    host: "smtp.gmail.com"
+    port: 587
+    username: ""
+    password: ""
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+services:
+  front-end:
+    domain-name: "http://localhost:3000"
+  security:
+    secret-key: ""
+    max-hidden-otp-age-min: 10
+    max-otp-age-min: 5
+    access-token-expired-min: 60
+    refresh-token-expired-days: 30
+  cloudinary:
+    cloud-name: ""
+    api-key: ""
+    api-secret: ""
+  back-end:
+    user-info:
+      min-age: 14
+      default-coins: 2000
+      default-changing-rep-ratio-coins: 0
+
+sepay:
+  target:
+    account: ""
+    bank-name: ""
+    description: ""
+  service:
+    api-token: ""
+    create-qr-url: "https://qr.sepay.vn/img?acc=$[account_target]$&bank=$[bank_target]$&amount=$[amount]$&des=$[description]$&template=compact"
+    trans-list-by-date-url: "https://my.sepay.vn/userapi/transactions/list?transaction_date_min=$[date_min]$&transaction_date_max=$[date_max]$"
+    trans-list-by-ref-url: "https://my.sepay.vn/userapi/transactions/list?reference_number=$[ref_code]$"
+    trans-list-by-bank-url: "https://my.sepay.vn/userapi/transactions/list?account_number=$[user_account]$&limit=$[limit]$"

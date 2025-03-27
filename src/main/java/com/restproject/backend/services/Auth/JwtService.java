@@ -57,7 +57,35 @@ public class JwtService {
         }
     }
 
-    @Overload
+    public HashMap<String, String> generateOauth2RefreshToken(User user, String oauth2RefreshToken, String oauth2Type) {
+        try {
+            var nowInstant = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toInstant();
+            var tokenId = UUID.randomUUID().toString();
+            var jwtClaimsSet = new JWTClaimsSet.Builder()
+                .subject(user.getUsername())
+                .issuer("home-workout-with-ai")
+                .issueTime(new Date(nowInstant.toEpochMilli()))
+                .expirationTime(new Date(nowInstant.plus(REFRESH_TOKEN_EXPIRED*24, ChronoUnit.HOURS)
+                    .toEpochMilli()))
+                .jwtID(tokenId)
+                .claim("scope", user.buildScope())
+                .claim("type", REFRESH_TOKEN.name())
+                .claim("oauth2RefreshToken", oauth2RefreshToken)
+                .claim("oauth2Type", oauth2Type)
+                .build();
+            var jwsHeader = new JWSHeader.Builder(JWSAlgorithm.HS512).type(JOSEObjectType.JWT).build();
+            var jwsObject = new JWSObject(jwsHeader, jwtClaimsSet.toPayload());
+            jwsObject.sign(new MACSigner(mySecretKeySpec));
+
+            var result = new HashMap<String, String>();
+            result.put("id", tokenId);
+            result.put("token", jwsObject.serialize());
+            return result;
+        } catch (JOSEException e) {
+            throw new ApplicationException(ErrorCodes.INVALID_TOKEN);
+        }
+    }
+
     public HashMap<String, String> generateAccessToken(User user) {
         return this.generateToken(user, ACCESS_TOKEN_EXPIRED*60, ACCESS_TOKEN.name());
     }

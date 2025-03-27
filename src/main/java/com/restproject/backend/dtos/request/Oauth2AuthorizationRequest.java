@@ -10,8 +10,12 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class VerifyAuthOtpRequest {
+public class Oauth2AuthorizationRequest {
     @NotBlank
     @NotNull
-    String otpCode;
+    String code;
+
+    @NotBlank
+    @NotNull
+    String loginType;
 }

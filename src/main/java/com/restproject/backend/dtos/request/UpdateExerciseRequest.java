@@ -19,6 +19,7 @@ public class UpdateExerciseRequest {
     Long exerciseId;
 
     @NotBlank
+    @NotNull
     @Length(max = 100)
     String name;
 

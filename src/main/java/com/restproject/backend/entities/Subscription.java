@@ -14,12 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(
-    name = "subscription",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"user_info_id", "schedule_id"})
-    }
-)
+@Table(name = "subscription")
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Subscription {
@@ -29,11 +24,14 @@ public class Subscription {
     @Column(name = "subscription_id")
     Long subscriptionId;
 
-    @ManyToOne(targetEntity = UserInfo.class)
-    @JoinColumn(name = "user_info_id", referencedColumnName = "user_info_id")
-    @JsonIgnore
-    UserInfo userInfo;
+    @OneToOne(targetEntity = ChangingCoinsHistories.class)
+    @JoinColumn(name = "changing_coins_histories_id", referencedColumnName = "changing_coins_histories_id",
+        nullable = false, unique = true)
+    ChangingCoinsHistories changingCoinsHistories;
 
+    /**
+     * NEED_VIRTUAL_UNIQUE_KEY: [1]_[user_info] can just subscribe [1]_[schedule]
+     */
     @ManyToOne(targetEntity = Schedule.class)
     @JoinColumn(name = "schedule_id", referencedColumnName = "schedule_id")
     @JsonIgnore
@@ -41,9 +39,6 @@ public class Subscription {
 
     @Column(name = "completed_time", columnDefinition = "TIMESTAMP")
     LocalDateTime completedTime;
-
-    @Column(name = "subscribed_time", nullable = false, columnDefinition = "TIMESTAMP")
-    LocalDateTime subscribedTime;
 
     @Column(name = "rep_ratio", nullable = false, columnDefinition = "TINYINT")
     @Min(0)

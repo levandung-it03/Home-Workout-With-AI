@@ -8,14 +8,16 @@ import com.restproject.backend.dtos.response.SubscriptionsInfoResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.entities.*;
 import com.restproject.backend.enums.Aim;
+import com.restproject.backend.enums.ChangingCoinsType;
 import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.exceptions.ApplicationException;
 import com.restproject.backend.mappers.PageMappers;
+import com.restproject.backend.repositories.ChangingCoinsHistoriesRepository;
 import com.restproject.backend.repositories.ScheduleRepository;
 import com.restproject.backend.repositories.SubscriptionRepository;
 import com.restproject.backend.repositories.UserInfoRepository;
 import com.restproject.backend.services.Auth.JwtService;
-import jakarta.persistence.OptimisticLockException;
+import jakarta.persistence.PessimisticLockException;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -39,6 +42,7 @@ public class SubscriptionService {
     SubscriptionRepository subscriptionRepository;
     UserInfoRepository userInfoRepository;
     ScheduleRepository scheduleRepository;
+    ChangingCoinsHistoriesRepository changingCoinsHistoriesRepository;
     JwtService jwtService;
     PageMappers pageMappers;
 
@@ -104,15 +108,15 @@ public class SubscriptionService {
                         .collect(Collectors.toSet()))
                     .build()
             ).collect(Collectors.toSet()))
-            .wasSubscribed(subscriptionRepository.existsByScheduleScheduleIdAndUserInfoUserEmail(request.getId(),
+            .wasSubscribed(subscriptionRepository
+                .existsByScheduleScheduleIdAndChangingCoinsHistoriesUserInfoUserEmail(request.getId(),
                 jwtService.readPayload(accessToken).get("sub")))
             .build();
     }
 
     @Transactional(rollbackOn = {RuntimeException.class})
     public void subscribeSchedule(ScheduleSubscriptionRequest request, String accessToken) {
-        var userInfo = userInfoRepository.findByUserEmail(jwtService.readPayload(accessToken).get("sub"))
-            .orElseThrow(() -> new ApplicationException(ErrorCodes.FORBIDDEN_USER));
+        var userInfo = this.getUserInfoToUpdateCoinsWithLock(null, jwtService.readPayload(accessToken).get("sub"));
         var subscribedSchedule = scheduleRepository.findById(request.getScheduleId())
             .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY));
 
@@ -120,16 +124,24 @@ public class SubscriptionService {
         final long subtractedCoins = userInfo.getCoins() - subscribedSchedule.getCoins();
         if (subtractedCoins < 0)
             throw new ApplicationException(ErrorCodes.NOT_ENOUGH_COINS);
-        this.subtractCoinsWhenSubscribeSchedule(subtractedCoins, userInfo.getUserInfoId());
+        userInfo.setCoins(userInfo.getCoins() - subscribedSchedule.getCoins());
+
+        var usedCoinsHistory = changingCoinsHistoriesRepository.save(ChangingCoinsHistories.builder()
+            .changingCoinsHistoriesId(UUID.randomUUID().toString().substring(0, 8))
+            .userInfo(userInfo)
+            .changingCoins(subscribedSchedule.getCoins())
+            .description("Used coins for subscription")
+            .changingTime(LocalDateTime.now())
+            .changingCoinsType(ChangingCoinsType.USING)
+            .build());
 
         subscriptionRepository.save(Subscription.builder()
             .schedule(subscribedSchedule)
-            .userInfo(userInfo)
+            .changingCoinsHistories(usedCoinsHistory)
             .aim(Aim.getByType(request.getAimType()))
             .efficientDays(null)
             .bmr(null)
             .repRatio(request.getRepRatio())
-            .subscribedTime(LocalDateTime.now())
             .weightAim(null)
             .completedTime(null)
             .build());
@@ -137,8 +149,7 @@ public class SubscriptionService {
 
     @Transactional(rollbackOn = {RuntimeException.class})
     public void subscribeScheduleWithAI(ScheduleSubscriptionWithAIRequest request, String accessToken) {
-        var userInfo = userInfoRepository.findByUserEmail(jwtService.readPayload(accessToken).get("sub"))
-            .orElseThrow(() -> new ApplicationException(ErrorCodes.FORBIDDEN_USER));
+        var userInfo = this.getUserInfoToUpdateCoinsWithLock(null, jwtService.readPayload(accessToken).get("sub"));
         var subscribedSchedule = scheduleRepository.findById(request.getScheduleId())
             .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY));
 
@@ -146,14 +157,22 @@ public class SubscriptionService {
         final long subtractedCoins = userInfo.getCoins() - subscribedSchedule.getCoins();
         if (subtractedCoins < 0)
             throw new ApplicationException(ErrorCodes.NOT_ENOUGH_COINS);
-        this.subtractCoinsWhenSubscribeSchedule(subtractedCoins, userInfo.getUserInfoId());
+        userInfo.setCoins(userInfo.getCoins() - subscribedSchedule.getCoins());
+
+        var usedCoinsHistory = changingCoinsHistoriesRepository.save(ChangingCoinsHistories.builder()
+            .changingCoinsHistoriesId(UUID.randomUUID().toString().substring(0, 8))
+            .userInfo(userInfo)
+            .changingCoins(subscribedSchedule.getCoins())
+            .description("Used coins for subscription with AI")
+            .changingTime(LocalDateTime.now())
+            .changingCoinsType(ChangingCoinsType.USING)
+            .build());
 
         var subscription = Subscription.builder()
             .schedule(subscribedSchedule)
-            .userInfo(userInfo)
+            .changingCoinsHistories(usedCoinsHistory)
             .aim(Aim.getByType(request.getAimType()))
             .repRatio(request.getRepRatio())
-            .subscribedTime(LocalDateTime.now())
             .completedTime(null)
             .build();
 
@@ -163,18 +182,17 @@ public class SubscriptionService {
         subscriptionRepository.save(subscription);
     }
 
-    private void subtractCoinsWhenSubscribeSchedule(long newCoins, long userInfoId) throws ApplicationException {
-        int retries = 3;
-        while (retries > 0) {
+    public UserInfo getUserInfoToUpdateCoinsWithLock(Long id, String email) throws ApplicationException {
+        for (int times = 1; times <= 3; times++) {
             try {
-                userInfoRepository.updateCoins(newCoins, userInfoId);
-                return;
-            } catch (OptimisticLockException e) {
+                return userInfoRepository.findByIdOrEmailWithLock(id, email)
+                    .orElseThrow(() -> new ApplicationException(ErrorCodes.FORBIDDEN_USER));
+            } catch (PessimisticLockException e) {
                 log.warn("Pessimistic Lock found a contention when Updating Coins (for Subscribe Schedule)");
-                if (--retries == 0)
-                    throw new ApplicationException(ErrorCodes.TRANSACTION_VIOLATION_FROM_SUBSCRIPTION);
+                continue;
             }
         }
+        throw new ApplicationException(ErrorCodes.TRANSACTION_VIOLATION_FROM_SUBSCRIPTION);
     }
 
     private void calculateBMR(Subscription updatedSubscription, ScheduleSubscriptionWithAIRequest request) {

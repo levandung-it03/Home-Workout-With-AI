@@ -76,10 +76,10 @@ public class SecurityFilterChainConfig {
                 (2) Send Customized HttpResponse with invalid tokens.*/
                 .authenticationEntryPoint(authenticationEntryPoint())
             )
-            .oauth2Login(clientConfigurer -> clientConfigurer
-                .loginPage(frontendBaseDomain + "/login")
-                .defaultSuccessUrl(frontendBaseDomain)
-            )
+//            .oauth2Login(clientConfigurer -> clientConfigurer
+//                .loginPage(frontendBaseDomain + "/login")
+//                .defaultSuccessUrl(frontendBaseDomain)
+//            )
             .authenticationProvider(authenticationProvider())
         ;
         return httpSecurity.build();

@@ -36,13 +36,16 @@ public class NewUserRequest {
     Integer genderId;
 
     @NotBlank
+    @NotNull
     @Email
     String email;
 
     @NotBlank
+    @NotNull
     @Length(min = 6)
     String password;
 
     @NotBlank
+    @NotNull
     String otpCode;
 }

@@ -355,7 +355,7 @@ INSERT INTO schedule (schedule_id, name, coins, level_enum, description) VALUES
 INSERT INTO sessions_of_schedules (schedule_id, session_id, ordinal) VALUES
 (9, 1, 1), (9, 2, 2), (9, 5, 3), (9, 1, 4), (9, 2, 5);
 -- -----------------------------------------------------------
-INSERT INTO schedule (schedule_id, name, coins, level_enum, description) VALUES
+INSERT INTO  schedule (schedule_id, name, coins, level_enum, description) VALUES
 (NULL, "Lose Weight for Fat Body with 6 Sessions", 0, "BEGINNER", "Full body");
 INSERT INTO sessions_of_schedules (schedule_id, session_id, ordinal) VALUES
 (10, 3, 1), (10, 2, 2), (10, 4, 3), (10, 5, 4), (10, 3, 5), (10, 2, 6);

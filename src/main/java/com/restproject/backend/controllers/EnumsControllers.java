@@ -17,27 +17,32 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/private")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EnumsControllers {
     EnumsService enumsService;
 
     @ResponseBody
-    @GetMapping({"/admin/v1/get-all-levels", "/user/v1/get-all-levels"})
+    @GetMapping({"/api/private/admin/v1/get-all-levels", "/api/private/user/v1/get-all-levels"})
     public ResponseEntity<ApiResponseObject<List<Map<String, String>>>> getAllLevels() {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_ALL_LEVEL_ENUMS, enumsService.getAllLevels());
     }
 
     @ResponseBody
-    @GetMapping({"/admin/v1/get-all-genders", "/user/v1/get-all-genders"})
+    @GetMapping({"/api/public/admin/v1/get-all-genders", "/api/public/user/v1/get-all-genders",})
     public ResponseEntity<ApiResponseObject<List<Map<String, String>>>> getAllGenders() {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_ALL_GENDER_ENUMS, enumsService.getAllGenders());
     }
 
     @ResponseBody
-    @GetMapping({"/admin/v1/get-all-aims", "/user/v1/get-all-aims"})
+    @GetMapping({"/api/private/admin/v1/get-all-aims", "/api/private/user/v1/get-all-aims"})
     public ResponseEntity<ApiResponseObject<List<Map<String, String>>>> getAllAims() {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_ALL_LEVEL_ENUMS, enumsService.getAllAims());
     }
 
+    @ResponseBody
+    @GetMapping({"/api/public/admin/v1/get-all-default-passwords", "/api/public/user/v1/get-all-default-passwords",})
+    public ResponseEntity<ApiResponseObject<Map<String, Map<String, String>>>> getAllDefaultPassword() {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_ALL_DEFAULT_PASSWORDS_ENUMS,
+            enumsService.getDefaultPasswords());
+    }
 }

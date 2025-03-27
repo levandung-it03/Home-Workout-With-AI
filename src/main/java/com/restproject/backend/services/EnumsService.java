@@ -1,6 +1,7 @@
 package com.restproject.backend.services;
 
 import com.restproject.backend.enums.Aim;
+import com.restproject.backend.enums.DefaultOauth2Password;
 import com.restproject.backend.enums.Gender;
 import com.restproject.backend.enums.Level;
 import lombok.AccessLevel;
@@ -9,6 +10,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,5 +40,16 @@ public class EnumsService {
             "type", aim.getType().toString(),
             "name", aim.getName()
         )).toList();
+    }
+
+    public Map<String, Map<String, String>> getDefaultPasswords() {
+        return Map.of(
+            "google", Map.of(
+                    "raw", DefaultOauth2Password.GOOGLE.toString(),
+                    "password", DefaultOauth2Password.GOOGLE.getVirtualPassword()),
+            "facebook", Map.of(
+                "raw", DefaultOauth2Password.FACEBOOK.toString(),
+                "password", DefaultOauth2Password.FACEBOOK.getVirtualPassword())
+        );
     }
 }
