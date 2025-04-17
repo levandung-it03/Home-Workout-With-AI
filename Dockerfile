@@ -3,7 +3,7 @@
 # Start with Maven image that includes JDK 21.
 FROM maven:3.9.9-amazoncorretto-21-alpine AS build
 
-# Copy /src and pom.xml into /app
+# Touch /app folder and create if it's no existing
 WORKDIR /app
 # Right into /app/
 COPY pom.xml .

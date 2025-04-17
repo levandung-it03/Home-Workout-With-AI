@@ -17,6 +17,7 @@ import com.restproject.backend.mappers.UserInfoMappers;
 import com.restproject.backend.repositories.AuthorityRepository;
 import com.restproject.backend.repositories.UserInfoRepository;
 import com.restproject.backend.repositories.UserRepository;
+import com.restproject.backend.services.ThirdParty.CryptoService;
 import com.restproject.backend.services.ThirdParty.EmailService;
 import jakarta.transaction.Transactional;
 import lombok.*;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
@@ -64,6 +66,7 @@ public class AuthenticationService {
     private final AuthorityRepository authorityRepository;
     private final WebClient webClient;
     private final PasswordEncoder userPasswordEncoder;
+    private final CryptoService cryptoService;
 
     @Value("${services.back-end.user-info.default-coins}")
     private int defaultCoins;
@@ -113,7 +116,8 @@ public class AuthenticationService {
     public AuthenticationResponse authenticate(AuthenticationRequest authObject)
         throws AuthenticationException, ApplicationException {
         //--Authenticate User's credentials.
-        var authToken = new UsernamePasswordAuthenticationToken(authObject.getEmail(), authObject.getPassword());
+        var decodedPass = cryptoService.decrypt(authObject.getPassword());
+        var authToken = new UsernamePasswordAuthenticationToken(authObject.getEmail(), decodedPass);
         var authUser = (User) authenticationManager.authenticate(authToken).getPrincipal();
         //--Check if this User is in blacklist or not.
         if (!authUser.isActive() || isDefaultOauth2Password(authObject.getPassword()))
@@ -216,7 +220,7 @@ public class AuthenticationService {
     public RegisterOtp verifyRegisterOtp(VerifyPublicOtpRequest request) {
         var existsOtp = registerOtpService.findByEmail(request.getEmail())
             .orElseThrow(() -> new ApplicationException(ErrorCodes.OTP_IS_KILLED));
-        if (existsOtp.getOtpCode().equals(request.getOtpCode()))
+        if (!existsOtp.getOtpCode().equals(request.getOtpCode()))
             throw new ApplicationException(ErrorCodes.OTP_NOT_FOUND);
 
         var result = RegisterOtp.builder().id(request.getEmail()).otpCode(generateRandomOtp(4)).build();
@@ -315,18 +319,26 @@ public class AuthenticationService {
         userRepository.save(user);
     }
 
-    public String oauth2GenerateUrl(String loginType) {
-        if (loginType.equals(GOOGLE.getVirtualPassword()))
-            return authUri +
-                "?client_id=" + clientId +
-                "&redirect_uri=" + clientDomain + redirectUri +
-                "&response_type=code" +
-                "&scope=" + String.join("%20", scopes) +
-                "&access_type=offline" +
-                "&prompt=consent";
-        else if (loginType.equals(FACEBOOK.getVirtualPassword()))
-            return null;
-        return null;
+    public String oauth2GenerateUrl(String loginType, String redirectUrl) {
+        String oauth2Request = clientDomain;
+        try {
+            String finalRedUrl = (redirectUrl == null || redirectUrl.isEmpty())
+                ? (clientDomain + redirectUri)
+                : URLDecoder.decode(redirectUrl, "UTF-8");
+            if (loginType.equals(GOOGLE.getVirtualPassword()))
+                oauth2Request = authUri +
+                    "?client_id=" + clientId +
+                    "&redirect_uri=" + finalRedUrl +
+                    "&response_type=code" +
+                    "&scope=" + String.join("%20", scopes) +
+                    "&access_type=offline" +
+                    "&prompt=consent";
+            else if (loginType.equals(FACEBOOK.getVirtualPassword()))
+                oauth2Request = clientDomain;
+        } catch (Exception e) {
+            throw new ApplicationException(ErrorCodes.WEIRD_REDIRECT_URL);
+        }
+        return cryptoService.encrypt(oauth2Request);
     }
 
     @Transactional(rollbackOn = RuntimeException.class)

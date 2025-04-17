@@ -26,9 +26,10 @@ public class PublicAuthControllers {
 
     @GetMapping("/v1/oauth2-authentication-url")
     public ResponseEntity<ApiResponseObject<String>> oauth2Authenticate(
-        @RequestParam("loginType") String loginType) {
+        @RequestParam("loginType") String loginType,
+        @RequestParam("redirectUrl") String redirectUrl) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.AUTHENTICATION,
-            authenticationService.oauth2GenerateUrl(loginType));
+            authenticationService.oauth2GenerateUrl(loginType, redirectUrl));
     }
 
     @ResponseBody
@@ -41,7 +42,8 @@ public class PublicAuthControllers {
 
     @ResponseBody
     @PostMapping("/v1/oauth2-register-user")
-    public ResponseEntity<ApiResponseObject<AuthenticationResponse>> oauth2RegisterUser(@Valid @RequestBody NewUserRequest request) {
+    public ResponseEntity<ApiResponseObject<AuthenticationResponse>> oauth2RegisterUser(
+        @Valid @RequestBody NewUserRequest request) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.CREATE_USER_INFO,
             authenticationService.oauth2RegisterUser(request));
     }

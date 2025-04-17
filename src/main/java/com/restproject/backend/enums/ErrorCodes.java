@@ -35,6 +35,8 @@ public enum ErrorCodes {
     FORBIDDEN_USER(11004, "User not found or access denied", BAD_REQUEST),
     LOGIN_SESSION_EXPIRED(11005, "Login session is expired, please login again", BAD_REQUEST),
     DUPLICATED_EMAIL(11006, "Email is already existing", BAD_REQUEST),
+    WEIRD_REDIRECT_URL(11007, "Received invalid Redirect URL from Oauth2 Method", BAD_REQUEST),
+    WEIRD_DECODED_CHARACTERS(11008, "Weird decoded characters", BAD_REQUEST),
     //--Enums(12)
     INVALID_LEVEL(12001, "Level is invalid", BAD_REQUEST),
     INVALID_MUSCLE_ID(12002, "Muscle Id is invalid", BAD_REQUEST),
