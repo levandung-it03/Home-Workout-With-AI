@@ -6,6 +6,7 @@ import com.restproject.backend.dtos.request.UpdateUserStatusRequest;
 import com.restproject.backend.dtos.request.VerifyAuthOtpRequest;
 import com.restproject.backend.entities.Auth.ChangePasswordOtp;
 import com.restproject.backend.entities.Auth.User;
+import com.restproject.backend.enums.DefaultOauth2Password;
 import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.exceptions.ApplicationException;
 import com.restproject.backend.repositories.UserRepository;
@@ -62,7 +63,7 @@ public class UserService {
         var authToken = new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
         var authUser = (User) authenticationManager.authenticate(authToken).getPrincipal();
         //--Check if this User is in blacklist or not.
-        if (!authUser.isActive())
+        if (!authUser.isActive() || DefaultOauth2Password.isDefaultOauth2Password(authUser.getPassword()))
             throw new ApplicationException(ErrorCodes.FORBIDDEN_USER);
 
         String otp = generateRandomOtp(4);

@@ -1,11 +1,8 @@
 package com.restproject.backend.services.Auth;
 
 import com.restproject.backend.dtos.general.TokenDto;
-import com.restproject.backend.dtos.request.NewUserRequest;
-import com.restproject.backend.dtos.request.Oauth2AuthorizationRequest;
-import com.restproject.backend.dtos.request.VerifyPublicOtpRequest;
+import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.dtos.response.AuthenticationResponse;
-import com.restproject.backend.dtos.request.AuthenticationRequest;
 import com.restproject.backend.entities.Auth.ForgotPasswordOtp;
 import com.restproject.backend.entities.Auth.RefreshToken;
 import com.restproject.backend.entities.Auth.RegisterOtp;
@@ -32,7 +29,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
@@ -43,6 +39,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static com.restproject.backend.enums.DefaultOauth2Password.*;
+import static com.restproject.backend.enums.DefaultOauth2Password.isDefaultOauth2Password;
 
 @Service
 @Slf4j
@@ -264,7 +261,8 @@ public class AuthenticationService {
 
     public HashMap<String, Object> getForgotPasswordOtp(String email) {
         var userQueryResult = userRepository.findByEmail(email);
-        if (userQueryResult.isEmpty() || !userQueryResult.get().isActive())
+        if (userQueryResult.isEmpty() || !userQueryResult.get().isActive()
+            || isDefaultOauth2Password(userQueryResult.get().getPassword()))
             throw new ApplicationException(ErrorCodes.FORBIDDEN_USER);
 
         String otp = generateRandomOtp(4);

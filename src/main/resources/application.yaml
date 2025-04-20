@@ -3,6 +3,10 @@ server:
   tomcat:
     relaxed-query-chars: "[, ]"
 
+logging:
+  level:
+    org.springframework.security: DEBUG
+
 spring:
   jackson:
     time-zone: "Asia/Ho_Chi_Minh"
@@ -61,7 +65,7 @@ spring:
 
 services:
   front-end:
-    domain-name: "http://localhost:3000"
+    domain-name: "https://home-workout-with-ai-7a8ba.web.app"
   security:
     secret-key: "odjF+SYmu+CMjO3SDf3cpM1IjfhCQfdMnMcpP9v63o+b/SrdReK6EwNHvwE8LcyQomnBrYJm4J7s3S1UAqC3GW+afWRox8nu6XXUWMjjJP4="
     max-hidden-otp-age-min: 10

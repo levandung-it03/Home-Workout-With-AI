@@ -20,11 +20,11 @@ import java.time.LocalDate;
 public class NewUserRequest {
 
     @NotNull
-    @Pattern(regexp = "^[A-Za-zÀ-ỹ]{1,50}$")
+    @Pattern(regexp = "^[A-Za-zÀ-ỹ'\\-_]{1,50}( [A-Za-zÀ-ỹ'\\-_]{1,50})*$")
     String firstName;
 
     @NotNull
-    @Pattern(regexp = "^[A-Za-zÀ-ỹ]{1,50}( [A-Za-zÀ-ỹ]{1,50})*$")
+    @Pattern(regexp = "^[A-Za-zÀ-ỹ'\\-_]{1,50}( [A-Za-zÀ-ỹ'\\-_]{1,50})*$")
     String lastName;
 
     @NotNull

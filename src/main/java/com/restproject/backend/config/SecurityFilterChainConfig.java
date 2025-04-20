@@ -55,7 +55,8 @@ public class SecurityFilterChainConfig {
     @Bean
     public org.springframework.security.web.SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-            .cors(configurer -> configurer.configurationSource(configurationSource()))
+            .cors(AbstractHttpConfigurer::disable)
+//            .cors(configurer -> configurer.configurationSource(configurationSource()))
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(request -> request
