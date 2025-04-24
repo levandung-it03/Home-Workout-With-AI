@@ -196,12 +196,12 @@ public class SubscriptionService {
     }
 
     private void calculateBMR(Subscription updatedSubscription, ScheduleSubscriptionWithAIRequest request) {
-        Map<String, Double> bodyInfo = SubscriptionService.calculateTDEE(
+        Map<String, Integer> bodyInfo = SubscriptionService.calculateTDEE(
             request.getWeight(),
             request.getBodyFat(),
             updatedSubscription.getSchedule().getSessionsOfSchedule().size()
         );
-        updatedSubscription.setBmr(bodyInfo.get("BMR"));
+        updatedSubscription.setBmr(Double.valueOf(bodyInfo.get("BMR")));
         if (Objects.isNull(request.getAimRatio()))
             return; //--Maintain Weight: stop right here, no more provided info.
         if (Objects.isNull(request.getWeightAimByDiet())) {
@@ -209,23 +209,23 @@ public class SubscriptionService {
             return; //--Raise Weight: stop right here.
         }
 
-        final double consumedCaloPerDay = bodyInfo.get("TDEE") * (100 + request.getAimRatio()) / 100;
+        final double consumedCaloPerDay = (double) (bodyInfo.get("TDEE") * (100 + request.getAimRatio())) / 100;
         final double lostWeight = request.getWeight() - request.getWeightAimByDiet();
         final int efficientDays = (int) (7700 * lostWeight / consumedCaloPerDay);   //--7700calo / 1kg fat
         updatedSubscription.setEfficientDays(efficientDays);
     }
 
-    public static Map<String, Double> calculateTDEE(Float weight, Long bodyFat, int totalSessions) {
+    public static Map<String, Integer> calculateTDEE(Float weight, Long bodyFat, int totalSessions) {
         final double LBM = weight * (1 - (double) bodyFat /100);
-        final double BMR = 370 + (21.6 * LBM);
+        final double BMR = Math.floor(370 + (21.6 * LBM));
         final double R = switch(totalSessions) {
             case 1, 2, 3 -> 1.375;
             case 4, 5 -> 1.55;
             case 6, 7 -> 1.725;
             default -> 0;
         };
-        final double TDEE = BMR * R;
-        return Map.of("BMR", BMR, "TDEE", TDEE);
+        final double TDEE = Math.floor(BMR * R);
+        return Map.of("BMR", (int) BMR, "TDEE", (int) TDEE);
     }
 
     public static double calculateTDEE(double BMR, int totalSessions) {
