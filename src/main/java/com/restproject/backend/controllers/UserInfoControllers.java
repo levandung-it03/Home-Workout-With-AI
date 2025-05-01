@@ -1,7 +1,9 @@
 package com.restproject.backend.controllers;
 
+import com.restproject.backend.dtos.request.FullChangingCoinsRequest;
 import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.dtos.response.ApiResponseObject;
+import com.restproject.backend.dtos.response.FullChangingCoinsResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.dtos.response.UserInfoAndStatusResponse;
 import com.restproject.backend.entities.ChangingCoinsHistories;
@@ -52,5 +54,12 @@ public class UserInfoControllers {
         @RequestHeader("Authorization") String accessToken) {
         return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_COINS_HISTORIES,
             userInfoService.getChangingCoinsHistoriesOfUser(accessToken));
+    }
+
+    @GetMapping("/admin/v1/get-changing-coins-histories-of-user")
+    public ResponseEntity<ApiResponseObject<TablePagesResponse<FullChangingCoinsResponse>>>
+    getAllChangingCoinsHistoriesOfUser(@Valid PaginatedRelationshipRequest request) {
+        return ApiResponseObject.buildSuccessResponse(SucceedCodes.GET_COINS_HISTORIES,
+            userInfoService.getAllChangingCoinsHistoriesOfUser(request));
     }
 }

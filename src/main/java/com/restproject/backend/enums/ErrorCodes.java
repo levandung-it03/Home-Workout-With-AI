@@ -57,6 +57,7 @@ public enum ErrorCodes {
     //--Subscription(17)
     TRANSACTION_VIOLATION_FROM_SUBSCRIPTION(17001, "Your account is login in another place and subscribing another schedule, please try again", BAD_REQUEST),
     NOT_ENOUGH_COINS(17002, "Your account coins is not enough!", BAD_REQUEST),
+    DUPLICATED_SUBSCRIPTION(17003, "You've subscribed this schedule!", BAD_REQUEST),
     //--ChangingCoinsHistories(18
     INVALID_BANKING_DESCRIPTION(18001, "Description is invalid" , BAD_REQUEST),
     DUPLICATE_DEPOSIT_BANKING(18002, "Duplicate deposit banking" , BAD_REQUEST),

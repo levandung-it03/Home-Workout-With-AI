@@ -1,6 +1,8 @@
 package com.restproject.backend.services;
 
+import com.restproject.backend.dtos.request.FullChangingCoinsRequest;
 import com.restproject.backend.dtos.request.*;
+import com.restproject.backend.dtos.response.FullChangingCoinsResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
 import com.restproject.backend.dtos.response.UserInfoAndStatusResponse;
 import com.restproject.backend.entities.ChangingCoinsHistories;
@@ -74,7 +76,7 @@ public class UserInfoService {
             .findByUserEmail(jwtService.readPayload(accessToken).get("sub"))
             .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_TOKEN));
         Pageable pageable = PageRequest.of(0, 20);  //--Just get the first 20 lines of histories.
-        var result = changingCoinsHistoriesRepository.findAllByUserInfoUserInfoId(pageable, userInfo.getUserInfoId());
+        var result = changingCoinsHistoriesRepository.findTop20ByUserInfoUserInfoId(pageable, userInfo.getUserInfoId());
         for (int index = 0; index < result.size(); index++) {   //--Hiding private fields.
             result.get(index).setChangingCoinsHistoriesId(Integer.toString(index));
             result.get(index).setDescription(null);
@@ -83,5 +85,28 @@ public class UserInfoService {
         return result;
     }
 
+    public TablePagesResponse<FullChangingCoinsResponse> getAllChangingCoinsHistoriesOfUser(
+        PaginatedRelationshipRequest request) {
+        Pageable pageableCof = pageMappers.relationshipPageRequestToPageable(request).toPageable(UserInfo.class);
 
+        if (Objects.isNull(request.getFilterFields()) || request.getFilterFields().isEmpty()) {
+            var repoRes = changingCoinsHistoriesRepository.findAllByUserInfoUserInfoId(request.getId(), pageableCof);
+            return TablePagesResponse.<FullChangingCoinsResponse>builder().totalPages(repoRes.getTotalPages())
+                .currentPage(request.getPage())
+                .data(repoRes.stream().map(FullChangingCoinsResponse::buildFromNativeQuery).toList()).build();
+        }
+
+        FullChangingCoinsRequest filterObj;
+        try {
+            filterObj = FullChangingCoinsRequest.buildFromHashMap(request.getFilterFields());
+        } catch (ApplicationException | IllegalArgumentException | NullPointerException | NoSuchFieldException e) {
+            throw new ApplicationException(ErrorCodes.INVALID_FILTERING_FIELD_OR_VALUE);
+        }
+
+        Page<Object[]> repoRes = changingCoinsHistoriesRepository
+            .findAllByUserInfoUserInfoId(request.getId(), filterObj, pageableCof);
+        return TablePagesResponse.<FullChangingCoinsResponse>builder().totalPages(repoRes.getTotalPages())
+            .currentPage(repoRes.getTotalPages())
+            .data(repoRes.stream().map(FullChangingCoinsResponse::buildFromNativeQuery).toList()).build();
+    }
 }

@@ -77,10 +77,6 @@ public class SecurityFilterChainConfig {
                 (2) Send Customized HttpResponse with invalid tokens.*/
                 .authenticationEntryPoint(authenticationEntryPoint())
             )
-//            .oauth2Login(clientConfigurer -> clientConfigurer
-//                .loginPage(frontendBaseDomain + "/login")
-//                .defaultSuccessUrl(frontendBaseDomain)
-//            )
             .authenticationProvider(authenticationProvider())
         ;
         return httpSecurity.build();
@@ -137,13 +133,13 @@ public class SecurityFilterChainConfig {
                 var parsedJwt = NimbusJwtDecoder.withSecretKey(mySecretKeySpec)
                     .macAlgorithm(MacAlgorithm.HS512).build().decode(token);
                 //--Check if there's a Refresh Token in HTTP Headers and verify.
-                if (parsedJwt.getClaim("type").equals(TokenTypes.REFRESH_TOKEN.name())) {
+                if (parsedJwt.getClaim("type").equals(TokenTypes.REFRESH_TOKEN.name()))
                     if (!refreshTokenService.checkExistRefreshTokenByJwtId(parsedJwt.getId()))
                         throw new JwtException("Refresh Token is invalid because of ended up user login session");
-                } else { //--Check if there's a valid Access Token but in blacklist.
+                //--Check if there's a valid Access Token but in blacklist.
+                else
                     if (invalidTokenService.existByJwtId(parsedJwt.getId()))
                         throw new JwtException("Access Token is invalid because of ended up user login session");
-                }
                 //--Return jwt (default requirement) to verify and access services or get into AuthenticationEntryPoint.
                 return parsedJwt;
             } catch (JwtException e) {

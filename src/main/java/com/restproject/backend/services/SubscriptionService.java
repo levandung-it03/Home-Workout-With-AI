@@ -120,6 +120,9 @@ public class SubscriptionService {
         var subscribedSchedule = scheduleRepository.findById(request.getScheduleId())
             .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY));
 
+        if (subscriptionRepository.existsByScheduleScheduleIdAndChangingCoinsHistoriesUserInfoUserEmail(
+            request.getScheduleId(), userInfo.getUser().getEmail()))
+            throw new ApplicationException(ErrorCodes.DUPLICATED_SUBSCRIPTION);
         //--Subtract Coins.
         final long subtractedCoins = userInfo.getCoins() - subscribedSchedule.getCoins();
         if (subtractedCoins < 0)
@@ -152,6 +155,10 @@ public class SubscriptionService {
         var userInfo = this.getUserInfoToUpdateCoinsWithLock(null, jwtService.readPayload(accessToken).get("sub"));
         var subscribedSchedule = scheduleRepository.findById(request.getScheduleId())
             .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY));
+
+        if (subscriptionRepository.existsByScheduleScheduleIdAndChangingCoinsHistoriesUserInfoUserEmail(
+            request.getScheduleId(), userInfo.getUser().getEmail()))
+            throw new ApplicationException(ErrorCodes.DUPLICATED_SUBSCRIPTION);
 
         //--Subtract Coins.
         final long subtractedCoins = userInfo.getCoins() - subscribedSchedule.getCoins();
