@@ -65,6 +65,7 @@ public class SecurityFilterChainConfig {
                 .requestMatchers("/api/private/auth/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/api/test/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                 .anyRequest().denyAll()
             ).exceptionHandling(exception -> exception.accessDeniedHandler(accessDeniedHandler()))  //--Role's denied.
             .oauth2ResourceServer(resourceServerConfigurer -> resourceServerConfigurer

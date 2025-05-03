@@ -58,33 +58,6 @@ public class UserInfoService {
             .currentPage(repoRes.getTotalPages()).data(repoRes.stream().toList()).build();
     }
 
-    public UserInfo updateUserInfo(UpdateUserInfoRequest request, String accessToken) {
-        var updatedUserInfo = userInfoRepository.findByUserEmail(jwtService.readPayload(accessToken).get("sub"))
-                .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_TOKEN));                
-        userInfoMappers.updateTarget(updatedUserInfo, request);
-        userInfoRepository.updateUserInfoByUserInfoId(updatedUserInfo);
-        return updatedUserInfo;
-    }
-
-    public UserInfo getInfo(String accessToken) {
-        return userInfoRepository.findByUserEmail(jwtService.readPayload(accessToken).get("sub"))
-            .orElseThrow(() -> new ApplicationException(ErrorCodes.FORBIDDEN_USER));
-    }
-
-    public List<ChangingCoinsHistories> getChangingCoinsHistoriesOfUser(String accessToken) {
-        var userInfo = userInfoRepository
-            .findByUserEmail(jwtService.readPayload(accessToken).get("sub"))
-            .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_TOKEN));
-        Pageable pageable = PageRequest.of(0, 20);  //--Just get the first 20 lines of histories.
-        var result = changingCoinsHistoriesRepository.findTop20ByUserInfoUserInfoId(pageable, userInfo.getUserInfoId());
-        for (int index = 0; index < result.size(); index++) {   //--Hiding private fields.
-            result.get(index).setChangingCoinsHistoriesId(Integer.toString(index));
-            result.get(index).setDescription(null);
-            result.get(index).setUserInfo(null);
-        }
-        return result;
-    }
-
     public TablePagesResponse<FullChangingCoinsResponse> getAllChangingCoinsHistoriesOfUser(
         PaginatedRelationshipRequest request) {
         Pageable pageableCof = pageMappers.relationshipPageRequestToPageable(request).toPageable(UserInfo.class);
@@ -108,5 +81,32 @@ public class UserInfoService {
         return TablePagesResponse.<FullChangingCoinsResponse>builder().totalPages(repoRes.getTotalPages())
             .currentPage(repoRes.getTotalPages())
             .data(repoRes.stream().map(FullChangingCoinsResponse::buildFromNativeQuery).toList()).build();
+    }
+
+    public UserInfo updateUserInfo(UpdateUserInfoRequest request, String accessToken) {
+        var updatedUserInfo = userInfoRepository.findByUserEmail(jwtService.readPayload(accessToken).get("sub"))
+                .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_TOKEN));
+        userInfoMappers.updateTarget(updatedUserInfo, request);
+        userInfoRepository.updateUserInfoByUserInfoId(updatedUserInfo);
+        return updatedUserInfo;
+    }
+
+    public UserInfo getInfo(String accessToken) {
+        return userInfoRepository.findByUserEmail(jwtService.readPayload(accessToken).get("sub"))
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.FORBIDDEN_USER));
+    }
+
+    public List<ChangingCoinsHistories> getChangingCoinsHistoriesOfUser(String accessToken) {
+        var userInfo = userInfoRepository
+            .findByUserEmail(jwtService.readPayload(accessToken).get("sub"))
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_TOKEN));
+        Pageable pageable = PageRequest.of(0, 20);  //--Just get the first 20 lines of histories.
+        var result = changingCoinsHistoriesRepository.findTop20ByUserInfoUserInfoId(pageable, userInfo.getUserInfoId());
+        for (int index = 0; index < result.size(); index++) {   //--Hiding private fields.
+            result.get(index).setChangingCoinsHistoriesId(Integer.toString(index));
+            result.get(index).setDescription(null);
+            result.get(index).setUserInfo(null);
+        }
+        return result;
     }
 }

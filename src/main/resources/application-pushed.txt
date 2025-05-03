@@ -3,6 +3,14 @@ server:
   tomcat:
     relaxed-query-chars: "[, ]"
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui/index.html
+    enabled: true
+  show-actuator: true
+
 logging:
   level:
     org.springframework.security: DEBUG
@@ -38,8 +46,8 @@ spring:
       client:
         registration:
           google:
-            client-id: "274300472014-otnlrps6n948ov25fumkpr09ipqhjr85.apps.googleusercontent.com"
-            client-secret: "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"
+            client-id: ""
+            client-secret: ""
             scope: email, profile
             authorization-grant-type: authorization_code
             redirect-uri: "/auth/google/callback"
@@ -54,8 +62,8 @@ spring:
   mail:
     host: "smtp.gmail.com"
     port: 587
-    username: "homeworkoutwithai@gmail.com"
-    password: "xsem vpsd tgvv xhzg"
+    username: ""
+    password: ""
     properties:
       mail:
         smtp:
@@ -67,15 +75,15 @@ services:
   front-end:
     domain-name: "https://home-workout-with-ai-7a8ba.web.app"
   security:
-    secret-key: "odjF+SYmu+CMjO3SDf3cpM1IjfhCQfdMnMcpP9v63o+b/SrdReK6EwNHvwE8LcyQomnBrYJm4J7s3S1UAqC3GW+afWRox8nu6XXUWMjjJP4="
+    secret-key: ""
     max-hidden-otp-age-min: 10
     max-otp-age-min: 5
     access-token-expired-min: 60
     refresh-token-expired-days: 30
   cloudinary:
-    cloud-name: "dfaz1oyc1"
-    api-key: "915678887722258"
-    api-secret: "1PPbDrkY7Vp5dz0W6691xXvOYL8"
+    cloud-name: ""
+    api-key: ""
+    api-secret: ""
   back-end:
     crypto:
       key: "2Qm5pKkOLEsHgo3/AoPBefu2CMEZ2vMwp9cpq+gSDoo="
@@ -86,11 +94,11 @@ services:
 
 sepay:
   target:
-    account: "21097877"
-    bank-name: "ACB"
+    account: ""
+    bank-name: ""
     description: "HWWAIDEPOSITCOINS"
   service:
-    api-token: "FYZO8UFSJEUHVNCII2GBAB3KP4DEM48F3HW9LPYQKZIX5CBBFGGJA9WMQZ260QRJ"
+    api-token: ""
     create-qr-url: "https://qr.sepay.vn/img?acc=$[account_target]$&bank=$[bank_target]$&amount=$[amount]$&des=$[description]$&template=compact"
     trans-list-by-date-url: "https://my.sepay.vn/userapi/transactions/list?transaction_date_min=$[date_min]$&transaction_date_max=$[date_max]$"
     trans-list-by-ref-url: "https://my.sepay.vn/userapi/transactions/list?reference_number=$[ref_code]$"

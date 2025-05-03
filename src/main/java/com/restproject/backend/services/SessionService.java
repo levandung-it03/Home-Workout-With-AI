@@ -18,8 +18,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -72,12 +72,18 @@ public class SessionService {
             muscleRepository.findAllById(request.getMuscleIds())
                 .stream().map(muscle -> MuscleSession.builder().session(savedSession).muscle(muscle).build())
                 .toList());
-        exercisesOfSessionsRepository.saveAll(request.getExercisesInfo().stream().map(exerciseInfo -> {
-            var foundExercise = exerciseRepository.findById(exerciseInfo.getExerciseId())
-                .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_PRIMARY));
-            if (foundExercise.getLevelEnum() != savedSession.getLevelEnum())
-                throw new ApplicationException(ErrorCodes.NOT_SYNC_LEVEL);
 
+        List<Exercise> relationalExercises = exerciseRepository.findAllById(
+            request.getExercisesInfo().stream().map(ExerciseInfoDto::getExerciseId).toList());
+        if (relationalExercises.size() != request.getExercisesInfo().size())
+            throw new ApplicationException(ErrorCodes.INVALID_IDS_COLLECTION);
+
+        Map<Long, Exercise> relationalExercisesMap = relationalExercises.stream()
+            .collect(Collectors.toMap(Exercise::getExerciseId, Function.identity()));
+        exercisesOfSessionsRepository.saveAll(request.getExercisesInfo().stream().map(exerciseInfo -> {
+            var foundExercise = relationalExercisesMap.get(exerciseInfo.getExerciseId());
+            if (foundExercise.getLevelEnum()!= savedSession.getLevelEnum())
+                throw new ApplicationException(ErrorCodes.NOT_SYNC_LEVEL);
             return ExercisesOfSessions.builder()
                 .session(savedSession)
                 .exercise(foundExercise)

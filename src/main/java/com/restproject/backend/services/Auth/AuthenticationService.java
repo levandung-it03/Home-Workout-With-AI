@@ -298,9 +298,9 @@ public class AuthenticationService {
         if (!user.isActive()) throw new ApplicationException(ErrorCodes.FORBIDDEN_USER);
 
         var removedOtp = forgotPasswordOtpService.findByEmail(request.getEmail())
-            .orElseThrow(() -> new ApplicationException(ErrorCodes.HIDDEN_OTP_IS_KILLED));
+            .orElseThrow(() -> new ApplicationException(ErrorCodes.OTP_IS_KILLED));
         if (!removedOtp.getOtpCode().equals(request.getOtpCode()))
-            throw new ApplicationException(ErrorCodes.HIDDEN_OTP_NOT_FOUND);
+            throw new ApplicationException(ErrorCodes.OTP_NOT_FOUND);
         forgotPasswordOtpService.deleteByEmail(removedOtp.getId());
 
         String newPassword = AuthenticationService.generateRandomOtp(6);

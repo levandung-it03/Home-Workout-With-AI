@@ -31,8 +31,7 @@ public class ExercisesOfSessionsService {
 
     //--Missing Test
     @Transactional(rollbackOn = {RuntimeException.class})
-    public List<Exercise> updateExercisesOfSession(UpdateExercisesOfSessionRequest request)
-        throws ApplicationException {
+    public List<Exercise> updateExercisesOfSession(UpdateExercisesOfSessionRequest request) throws ApplicationException {
         Set<Integer> uniqueOrdinals = request.getExercisesInfo().stream().map(ExerciseInfoDto::getOrdinal)
             .collect(Collectors.toSet());
         if (request.getExercisesInfo().size() != uniqueOrdinals.size())

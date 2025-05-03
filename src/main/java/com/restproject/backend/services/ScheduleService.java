@@ -5,8 +5,11 @@ import com.restproject.backend.dtos.general.SessionInfoDto;
 import com.restproject.backend.dtos.request.*;
 import com.restproject.backend.dtos.response.PreviewFullScheduleResponse;
 import com.restproject.backend.dtos.response.TablePagesResponse;
+import com.restproject.backend.entities.ChangingCoinsHistories;
 import com.restproject.backend.entities.Schedule;
+import com.restproject.backend.entities.Session;
 import com.restproject.backend.entities.SessionsOfSchedules;
+import com.restproject.backend.enums.ChangingCoinsType;
 import com.restproject.backend.enums.ErrorCodes;
 import com.restproject.backend.exceptions.ApplicationException;
 import com.restproject.backend.mappers.PageMappers;
@@ -25,9 +28,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,9 +47,11 @@ public class ScheduleService {
     JwtService jwtService;
     SubscriptionRepository subscriptionRepository;
     UserInfoRepository userInfoRepository;
+    SubscriptionService subscriptionService;
+    ChangingCoinsHistoriesRepository changingCoinsHistoriesRepository;
 
-    @Value("${default-changing-rep-ratio-coins}")
-    public static int defaultChangingRepRatioCoins;
+    @Value("${services.back-end.user-info.default-changing-rep-ratio-coins}")
+    public static long defaultChangingRepRatioCoins;
 
     public TablePagesResponse<Schedule> getSchedulesPages(PaginatedTableRequest request) {
         Pageable pageableCf = pageMappers.tablePageRequestToPageable(request).toPageable(Schedule.class);
@@ -98,12 +103,17 @@ public class ScheduleService {
         try { savedSchedule = scheduleRepository.save(scheduleMappers.insertionToPlain(request)); }
         catch (DataIntegrityViolationException e) { throw new ApplicationException(ErrorCodes.DUPLICATED_SCHEDULE); }
 
+        List<Session> relationalSessions = sessionRepository.findAllById(
+            request.getSessionsInfo().stream().map(SessionInfoDto::getSessionId).toList());
+        if (request.getSessionsInfo().size() != relationalSessions.size())
+            throw new ApplicationException(ErrorCodes.INVALID_IDS_COLLECTION);
+
+        Map<Long, Session> relationalSessionsMap = relationalSessions.stream()
+            .collect(Collectors.toMap(Session::getSessionId, Function.identity()));
         sessionsOfSchedulesRepository.saveAll(request.getSessionsInfo().stream().map(sessionInfo -> {
-            var foundSession = sessionRepository.findById(sessionInfo.getSessionId())
-                .orElseThrow(() -> new ApplicationException(ErrorCodes.INVALID_IDS_COLLECTION));
+            var foundSession = relationalSessionsMap.get(sessionInfo.getSessionId());
             if (!foundSession.getLevelEnum().equals(savedSchedule.getLevelEnum()))
                 throw new ApplicationException(ErrorCodes.NOT_SYNC_LEVEL);
-
             return SessionsOfSchedules.builder()
                 .schedule(savedSchedule)
                 .session(foundSession)
@@ -121,9 +131,8 @@ public class ScheduleService {
         if (subscriptionRepository.existsByScheduleScheduleId(request.getScheduleId()))
             throw new ApplicationException(ErrorCodes.SCHEDULE_SUBSCRIPTIONS_VIOLATION);
 
-
         if (!sessionsOfSchedulesRepository.findAllByScheduleScheduleId(request.getScheduleId())
-            .stream().allMatch(sos -> sos.getSchedule().getLevelEnum().getLevel().equals(request.getLevel())))
+            .stream().allMatch(sos -> sos.getSession().getLevelEnum().getLevel().equals(request.getLevel())))
             throw new ApplicationException(ErrorCodes.NOT_SYNC_LEVEL);
 
         //--Mapping new values into "formerSch".
@@ -177,17 +186,24 @@ public class ScheduleService {
     @Transactional(rollbackOn = {RuntimeException.class})
     public void updateSubscribedScheduleRepRatio(UpdateSubscribedScheduleRepRatioRequest request, String accessToken) {
         var email = jwtService.readPayload(accessToken).get("sub");
-        var userInfo = userInfoRepository.findByUserEmail(email)
-            .orElseThrow(() -> new ApplicationException(ErrorCodes.FORBIDDEN_USER));
+        var userInfo = subscriptionService.getUserInfoToUpdateCoinsWithLock(null, email);
         var subscription = subscriptionRepository.findSubscribedScheduleByEmail(email, request.getScheduleId())
             .orElseThrow(() -> new ApplicationException(ErrorCodes.FORBIDDEN_USER));
 
-//        final long subtractedCoins = userInfo.getCoins() - defaultChangingRepRatioCoins;
-//        if (subtractedCoins < 0)
-//            throw new ApplicationException(ErrorCodes.NOT_ENOUGH_COINS);
-//        this.subtractCoinsWhenSubscribeSchedule(subtractedCoins, userInfo.getUserInfoId());
+        userInfo.setCoins(userInfo.getCoins() - defaultChangingRepRatioCoins);
+        if (userInfo.getCoins() < 0)
+            throw new ApplicationException(ErrorCodes.NOT_ENOUGH_COINS);
 
         subscription.setRepRatio(request.getNewRepRatio());
+        changingCoinsHistoriesRepository.save(ChangingCoinsHistories.builder()
+            .changingCoinsHistoriesId(UUID.randomUUID().toString().substring(0, 8))
+            .userInfo(userInfo)
+            .changingCoins(defaultChangingRepRatioCoins)
+            .description("Used coins for update Subscribed-Schedule Rep-Ratio")
+            .changingTime(LocalDateTime.now())
+            .changingCoinsType(ChangingCoinsType.USING)
+            .build());
         subscriptionRepository.save(subscription);
+        userInfoRepository.save(userInfo);
     }
 }

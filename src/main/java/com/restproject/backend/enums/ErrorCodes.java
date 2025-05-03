@@ -15,7 +15,7 @@ public enum ErrorCodes {
     UNAWARE_ERR(10000, "Unaware exception's thrown from resource server", BAD_REQUEST),
     VALIDATOR_ERR_RESPONSE(10001, "Invalid variable type or format of field '${field}'", BAD_REQUEST),
     PARSE_JSON_ERR(10002, "Invalid variable type or format of field '${field}'", BAD_REQUEST),
-    CONSTRAINT_VIOLATION(10004, "Constraint was triggered because of invalid data", BAD_REQUEST),
+    CONSTRAINT_VIOLATION(10003, "Constraint was triggered because of invalid data", BAD_REQUEST),
     INVALID_IDS_COLLECTION(10004, "Collection of Ids is invalid", BAD_REQUEST),
     INVALID_PRIMARY(10005, "Can not get object because id or primary fields are invalid", BAD_REQUEST),
     FORBIDDEN_UPDATING(10006, "Can not update or delete a depended object", BAD_REQUEST),
@@ -53,7 +53,7 @@ public enum ErrorCodes {
     //--Schedule(16)
     DUPLICATED_SCHEDULE(16001, "Schedule's Name and Level pair is already existing", BAD_REQUEST),
     WAS_SUBSCRIBED_SCHEDULE(16002, "Schedule was subscribed and can't register again", BAD_REQUEST),
-    SCHEDULE_SUBSCRIPTIONS_VIOLATION(16002, "Schedule was subscribed and can't be changed", BAD_REQUEST),
+    SCHEDULE_SUBSCRIPTIONS_VIOLATION(16003, "Schedule was subscribed and can't be changed", BAD_REQUEST),
     //--Subscription(17)
     TRANSACTION_VIOLATION_FROM_SUBSCRIPTION(17001, "Your account is login in another place and subscribing another schedule, please try again", BAD_REQUEST),
     NOT_ENOUGH_COINS(17002, "Your account coins is not enough!", BAD_REQUEST),

@@ -20,12 +20,14 @@ public enum SucceedCodes {
     SEND_RANDOM_PASSWORD(21006, "Send random password into your email successfully"),
     GET_OTP_TO_CHANGE_PASSWORD(21007, "Authentication successfully and sent OTP"),
     CHANGE_PASSWORD(21008, "Change password successfully"),
+    GET_OAUTH2_URL(21009, "Get Oauth2 URL to authenticate successfully"),
+    OAUTH2_AUTHORIZATION(21010, "Account has been authorized successfully"),
     //--Enums(22)
     GET_ALL_LEVEL_ENUMS(22001, "Get all Levels successfully"),
     GET_ALL_MUSCLE_ENUMS(22002, "Get all Muscles successfully"),
     GET_ALL_GENDER_ENUMS(22003, "Get all Genders successfully"),
     GET_ALL_AIMS_ENUMS(22004, "Get all Aims successfully"),
-    GET_ALL_DEFAULT_PASSWORDS_ENUMS(22005, "Get all Passwords successfully"),
+    GET_ALL_DEFAULT_PASSWORDS_ENUMS(22005, "Get all Oauth2 Passwords successfully"),
     //--Exercise(23)
     CREATE_EXERCISE(23001, "Create new Exercise successfully"),
     UPDATE_EXERCISE(23002, "Update Exercise successfully"),
