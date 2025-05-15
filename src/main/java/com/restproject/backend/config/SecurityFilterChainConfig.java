@@ -78,8 +78,8 @@ public class SecurityFilterChainConfig {
                 (2) Send Customized HttpResponse with invalid tokens.*/
                 .authenticationEntryPoint(authenticationEntryPoint())
             )
-            .authenticationProvider(authenticationProvider())
-        ;
+            //--Redundant in Stateless-Project, but still using to understand SecurityContextHolder.
+            .authenticationProvider(authenticationProvider());
         return httpSecurity.build();
     }
 
@@ -100,7 +100,7 @@ public class SecurityFilterChainConfig {
     public JwtAuthenticationConverter customJwtAuthenticationConverter() {
         var converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(jwt ->
-            Arrays.stream(jwt.getClaimAsString("scope").split(","))
+            Arrays.stream(jwt.getClaimAsString("scope").split(" "))
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList())
         );

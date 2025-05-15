@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 )
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
+//--The implementation is to satisfy AuthenticationManager requirement.
 public class User implements UserDetails {
 
     @Id
@@ -36,7 +37,7 @@ public class User implements UserDetails {
     @Column(name = "created_time", nullable = false)
     LocalDateTime createdTime;
 
-    @ManyToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER, targetEntity = Authority.class)
+    @ManyToMany(fetch = FetchType.EAGER, targetEntity = Authority.class)
     @JoinTable(
         name = "user_authorities",
         joinColumns = @JoinColumn(name = "user_id"),
@@ -74,6 +75,9 @@ public class User implements UserDetails {
     }
 
     public String buildScope() {
-        return this.getAuthorities().stream().map(Authority::getAuthority).collect(Collectors.joining(" "));
+        return this.getAuthorities().stream()
+            .map(Authority::getAuthority)
+            //--Standard OAuth2 "scope" with space-delimiter.
+            .collect(Collectors.joining(" "));
     }
 }
