@@ -9,7 +9,7 @@ import org.springframework.data.redis.core.RedisHash;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RedisHash(value = "ForgotPasswordOtp")
+@RedisHash(value = "ForgotPasswordOtp", timeToLive = 3600)
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ForgotPasswordOtp {
