@@ -33,7 +33,7 @@ public class ApplicationExceptionHandler {
     }
 
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
-    public ResponseEntity<ApiResponseObject<Void>> handleUnawareException(HttpMessageNotReadableException exception) {
+    public ResponseEntity<ApiResponseObject<Void>> handleParseDtoFieldException(HttpMessageNotReadableException exception) {
         var extractedErr = exception.getCause().toString().split(": ");
         var err = new StringBuilder(extractedErr[extractedErr.length - 1]);
         var fieldName = err.substring(err.indexOf("[\"") + 2, err.indexOf("\"]"));  //--Remove quotes.

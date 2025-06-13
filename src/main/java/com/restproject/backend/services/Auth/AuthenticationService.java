@@ -179,8 +179,14 @@ public class AuthenticationService {
         if (Objects.nonNull(refreshJwt.getClaim("oauth2Type"))
             && refreshJwt.getClaim("oauth2Type").toString().equals(GOOGLE.getVirtualPassword()))
             webClient.post()
-                .uri(revokeTokenUrl + refreshJwt.getClaim("oauth2RefreshToken").toString())
-                .retrieve().bodyToMono(Void.class).block();
+                .uri(revokeTokenUrl)
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .body(BodyInserters.fromFormData("token", refreshJwt.getClaim("oauth2RefreshToken").toString()))
+                .retrieve()
+                .toBodilessEntity()
+                .doOnSuccess(response -> log.info("Revoke Oauth2 GOOGLE successfully."))
+                .doOnError(error -> log.error("Revoke Oauth2 GOOGLE failed."))
+                .block();
     }
 
     public HashMap<String, Object> getRegisterOtp(String email) {

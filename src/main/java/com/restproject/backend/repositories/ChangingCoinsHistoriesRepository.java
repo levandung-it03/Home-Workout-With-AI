@@ -21,6 +21,7 @@ public interface ChangingCoinsHistoriesRepository extends JpaRepository<Changing
         SELECT c.changingCoinsHistoriesId, c.changingCoins, c.changingTime, c.changingCoinsType,
             CONCAT(c.userInfo.firstName, ' ', c.userInfo.lastName) AS fullName
         FROM ChangingCoinsHistories c WHERE c.userInfo.userInfoId = :id
+        ORDER BY c.changingTime DESC
     """)
     Page<Object[]> findAllByUserInfoUserInfoId(@Param("id") Long id, Pageable pageableCfg);
 
@@ -34,6 +35,7 @@ public interface ChangingCoinsHistoriesRepository extends JpaRepository<Changing
         AND (:#{#filterObj.changingCoinsType} IS NULL OR c.changingCoinsType = :#{#filterObj.changingCoinsType})
         AND (:#{#filterObj.fromChangingTime} IS NULL OR :#{#filterObj.fromChangingTime} <= c.changingTime)
         AND (:#{#filterObj.toChangingTime} IS NULL OR c.changingTime <= :#{#filterObj.toChangingTime})
+        ORDER BY c.changingTime DESC
     """)
     Page<Object[]> findAllByUserInfoUserInfoId(
         @Param("id") Long id,

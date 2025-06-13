@@ -21,6 +21,6 @@ public class DobValidator implements ConstraintValidator<DobConstraint, LocalDat
     @Override
     public boolean isValid(LocalDate value, ConstraintValidatorContext context) {
         if (Objects.isNull(value))  return true;
-        return ChronoUnit.YEARS.between(value, LocalDate.now()) >= minAge;
+        return value.isBefore(LocalDate.now()) && ChronoUnit.YEARS.between(value, LocalDate.now()) >= minAge;
     }
 }
